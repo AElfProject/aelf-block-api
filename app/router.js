@@ -23,7 +23,7 @@ module.exports = app => {
 	router.get('/api/address/transactions', controller.address.getTransactions);
 	router.get('/api/address/balance', controller.address.getBalance);
 	router.get('/api/address/tokens', controller.address.getTokens);
-	router.post('/api/address/token', controller.address.insertToken);
+	router.post('/api/address/bind-token', controller.address.bindToken);
 
 	router.get('/api/contract/detail', controller.contract.getDetail);
 };
