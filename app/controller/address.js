@@ -11,7 +11,12 @@ const keysRule = {
     order: 'string',
     limit: 'int',
     page: 'int',
-    address: 'string'
+    address: 'string',
+    contract_address: {
+        type: 'string',
+        required: false,
+        allowEmpty: true
+    }
 };
 
 class AddressController extends Controller {
@@ -25,7 +30,7 @@ class AddressController extends Controller {
      * @param {Number} page
      * @param {String} order
      * @param {String} address
-     * @param {contract_address} contract_address option
+     * @param {String} contract_address option
      * @return {Object}
      */
     async getTransactions() {
@@ -37,7 +42,7 @@ class AddressController extends Controller {
                 page: parseInt(page, 10),
                 order: order || 'DESC',
                 address: address,
-                contract_address: contract_address
+                contract_address: contract_address || ''
             };
             ctx.validate(keysRule, options);
             let result = await ctx.service.address.getTransactions(options);

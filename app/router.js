@@ -26,4 +26,5 @@ module.exports = app => {
 	router.post('/api/address/bind-token', controller.address.bindToken);
 
 	router.get('/api/contract/detail', controller.contract.getDetail);
+	router.get('/api/contract/contracts', controller.contract.getContracts);
 };
