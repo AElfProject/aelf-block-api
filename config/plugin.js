@@ -18,7 +18,7 @@ exports.validate = {
 	package: 'egg-validate',
 };
 
-exports.alinode = {
-	enable: true,
-	package: 'egg-alinode'
-};
+// exports.alinode = {
+// 	enable: true,
+// 	package: 'egg-alinode'
+// };
