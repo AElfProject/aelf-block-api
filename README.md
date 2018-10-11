@@ -1,40 +1,15 @@
-# aelf-block-api
-
-## Dependences
-
-mysql
-
+# Quick Start
 need Deploy aelf-block-scan at first.
 
-## QuickStart
+npm install
 
-see [egg docs][egg] for more detail.
+change config/config.default.js
 
-### Development
+dev: npm run dev
 
-```bash
-$ npm i
-$ npm run dev
-$ open http://localhost:7101/
-```
+pro: npm start
 
-### Deploy
-
-```bash
-$ npm start
-$ npm stop
-```
-
-### npm scripts
-
-- Use `npm run lint` to check code style.
-- Use `npm test` to run unit test.
-- Use `npm run autod` to auto detect dependencies upgrade, see [autod](https://www.npmjs.com/package/autod) for more detail.
-
-
-[egg]: https://eggjs.org
-
-### How use Docker
+# Docker
 
 Now, the Repositories of test demo is in [docker/hzz780/aelf-block-api](https://cloud.docker.com/swarm/hzz780/repository/docker/hzz780/aelf-block-api/general)
 
@@ -49,7 +24,7 @@ aelf-block-api:noalinode /bin/bash
 docker exec a7db727219ae npm start
 ```
 
-#### Use Alinode
+# Alinode
 
 Register [aliyun](https://www.aliyun.com/product/nodejs)
 
