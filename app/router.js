@@ -27,4 +27,6 @@ module.exports = app => {
 
 	router.get('/api/contract/detail', controller.contract.getDetail);
 	router.get('/api/contract/contracts', controller.contract.getContracts);
+
+	router.get('/api/huobi/detail', controller.huobi.getDetail);
 };
