@@ -40,16 +40,19 @@ class AddressService extends Service {
                 sqlValue = [address, address, contract_address, limit, offset];
             }
 
-            let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0  
+            // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0
+            let getTxsSql = `select * from transactions_0  
                             where (address_from=? or params_to=?) ${contractMatchSql} 
                             ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = `SELECT FOUND_ROWS()`;
+            let getCountSql = `select count(*) from transactions_0  
+                            where (address_from=? or params_to=?) ${contractMatchSql}`;
 
             let txs = await aelf0.query(getTxsSql, sqlValue);
-            let count = await aelf0.query(getCountSql);
+            let count = await aelf0.query(getCountSql, [address, address, contract_address]);
 
             return {
-                total: count[0]["FOUND_ROWS()"],
+                // total: count[0]["FOUND_ROWS()"],
+                total: count[0]["count(*)"],
                 transactions: txs
             };
         }
