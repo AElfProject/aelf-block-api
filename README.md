@@ -1,19 +1,33 @@
-# Quick Start
-need Deploy aelf-block-scan at first.
+# AElf Block API
+
+## Quick Start
+
+### 0.Dependencies
+
+1.Mysql: you can initialize the database through the [sql](https://github.com/AElfProject/aelf-block-scan/blob/master/aelf_test.sql) 
+in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
+
+2.[aelf-block-scan](https://github.com/AElfProject/aelf-block-scan): Running [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan), you can get the data from the AElf chain by RPC.
+
+3.NodeJS: You can see the JS dependencies in pakage.json, we use egg.js(Node.js & Koa).
+
+### 1.Change  the Config
+
+change config/config.default.js, set your own config.keys & config.mysql
+
+### 2.Start the node server
 
 npm install
-
-change config/config.default.js
 
 dev: npm run dev
 
 pro: npm start
 
-# Docker
+## Docker
 
 Now, the Repositories of test demo is in [docker/hzz780/aelf-block-api](https://cloud.docker.com/swarm/hzz780/repository/docker/hzz780/aelf-block-api/general)
 
-####Demo
+#### Demo
 
 ```
 docker container run -p 7101:7101 -dit \
@@ -24,7 +38,7 @@ aelf-block-api:noalinode /bin/bash
 docker exec a7db727219ae npm start
 ```
 
-# Alinode
+## Alinode
 
 Register [aliyun](https://www.aliyun.com/product/nodejs)
 
