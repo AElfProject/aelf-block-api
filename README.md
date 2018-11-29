@@ -44,3 +44,12 @@ Register [aliyun](https://www.aliyun.com/product/nodejs)
 
 Then, look at config/demo.config.js & config/plugin.js
 
+
+## 接口文档 (TODO)
+
+### TPS
+
+#### 1.Get TPS
+
+http://localhost:7101/api/tps/list?start_time=1543470081680&end_time=1543473081680
+
