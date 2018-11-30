@@ -10,8 +10,8 @@ cat << EOT
 
 EOT
 
-echo 'rm package* ...'
-rm package*
+git checkout package.json
+git checkout package-lock.json
 
 echo '-rf node_modules ...'
 rm -rf node_modules
