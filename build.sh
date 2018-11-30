@@ -13,7 +13,7 @@ EOT
 git checkout package.json
 git checkout package-lock.json
 
-echo '-rf node_modules ...'
+echo 'rf -rf node_modules ...'
 rm -rf node_modules
 
 git pull origin master
