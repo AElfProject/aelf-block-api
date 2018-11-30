@@ -13,12 +13,15 @@ EOT
 git checkout package.json
 git checkout package-lock.json
 
-echo 'rf -rf node_modules ...'
-rm -rf node_modules
-
 git pull origin master
 
-npm install
+if [ $2 == 'reinstall' ]
+then
+    echo 'rm -rf node_modules';
+    rm -rf node_modules;
+    echo 'npm install';
+    npm install;
+fi
 
 npm stop
 
