@@ -45,8 +45,10 @@ class ContractController extends Controller {
 
     /**
      * 获取所有合约
+     * api/contract/contracts?limit=1000&page=0
      *
      * 如果传入chain_id, 讲获取当前链发布的合约
+     * api/contract/contracts?limit=1000&page=0&chain_id=a7cd510bb89edbe314d0c6ebff27844bab1e5f5e94a4ac04ae68a0813d283d2a
      *
      * @API getTransactions
      * @param {Number} limit
