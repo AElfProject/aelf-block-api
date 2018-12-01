@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cat << EOT
 
@@ -10,21 +10,29 @@ cat << EOT
 
 EOT
 
-git checkout package.json
+#当变量a为null或为空字符串时则var=b
+start_mode=${1:-'production'}
+node_modules_action=${2:-'default'}
+echo ${node_modules_action} ${start_mode}
+
 git checkout package-lock.json
 
 git pull origin master
 
-if [ $2 == 'reinstall' ]
+if [ ${node_modules_action} = 'reinstall' ]
 then
-    echo 'rm -rf node_modules';
-    rm -rf node_modules;
-    echo 'npm install';
-    npm install;
+    echo 'npm install'
+    npm install && echo 'install done'
+    sleep 3
 fi
 
-npm stop
-
-npm start
+if [ ${start_mode} = 'dev' ]
+then
+    npm run dev
+    echo 'npm run dev'
+else
+    npm stop && npm start
+    echo 'npm stop && npm start'
+fi
 
 
