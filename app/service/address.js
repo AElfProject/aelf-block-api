@@ -30,7 +30,7 @@ class AddressService extends Service {
     async getTransactions(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
         const { limit, page, order, address, contract_address } = options;
-        if (['DESC', 'ASC', 'desc', 'asc'].indexOf(order) > -1) {
+        if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
             
             let contractMatchSql = '';
@@ -70,7 +70,7 @@ class AddressService extends Service {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
         let { address, limit, page, order  } = options;
 
-        if (['DESC', 'ASC', 'desc', 'asc'].indexOf(order) > -1) {
+        if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
 
             let pageSql = '';
             let sqlValue = [address];

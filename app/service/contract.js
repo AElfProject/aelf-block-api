@@ -30,16 +30,16 @@ class ContractService extends Service {
                 sqlValue = [chain_id, limit, offset];
             }
 
-            let getTxsSql = `select SQL_CALC_FOUND_ROWS * from contract_aelf20  
+            let getTxsSql = `select * from contract_aelf20  
                              ${contractMatchSql} 
                             ORDER BY name ${order} limit ? offset ? `;
-            let getCountSql = `SELECT FOUND_ROWS()`;
+            let getCountSql = `select * from contract_aelf20 ${contractMatchSql}` ;
 
             let txs = await aelf0.query(getTxsSql, sqlValue);
-            let count = await aelf0.query(getCountSql);
+            let count = await aelf0.query(getCountSql, [chain_id]);
 
             return {
-                total: count[0]["FOUND_ROWS()"],
+                total: count[0]['count(*)'],
                 transactions: txs
             };
         }

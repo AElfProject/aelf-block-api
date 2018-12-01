@@ -30,14 +30,15 @@ class BlockService extends Service {
         const { limit, page, order, block_hash } = options;
         if (['DESC', 'ASC', 'desc', 'asc'].indexOf(order) > 0) {
             const offset = limit * page;
-            let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0  where block_hash=? ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = `SELECT FOUND_ROWS()`;
+            let getTxsSql = `select * from transactions_0  where block_hash=? ORDER BY block_height ${order} limit ? offset ? `;
+            // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0  where block_hash=? ORDER BY block_height ${order} limit ? offset ? `;
+            let getCountSql = `select count(*) from transactions_0  where block_hash=?`;
             // return sql;
             let txs = await aelf0.query(getTxsSql, [block_hash, limit, offset]);
             let count = await aelf0.query(getCountSql);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
-                total: count[0]["FOUND_ROWS()"],
+                total: count[0]["count(*)"],
                 transactions: txs
             };
         }
