@@ -2,6 +2,22 @@
 
 ## Quick Start
 
+Please ensure your dependencies are ready.
+
+If you meet some permission problem, please use 'sudo'.
+
+```shell
+bash build.sh < type|optional > < node_moduels|optinal >
+// if you only want to use the second param, you must set the type=""
+bash build.sh dev
+bash build.sh dev reinstall
+bash build.sh "" reinstall
+
+bash build.sh === bash build.sh pro
+```
+
+Default port: 7101
+
 ### 0.Dependencies
 
 1.Mysql: you can initialize the database through the [sql](https://github.com/AElfProject/aelf-block-scan/blob/master/aelf_test.sql) 
@@ -13,7 +29,9 @@ in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
 
 ### 1.Change  the Config
 
-change config/config.default.js, set your own config.keys & config.mysql
+change config/config.default.js
+
+set your own config.keys & config.mysql
 
 ### 2.Start the node server
 
@@ -44,12 +62,8 @@ Register [aliyun](https://www.aliyun.com/product/nodejs)
 
 Then, look at config/demo.config.js & config/plugin.js
 
+## API DOCS
 
-## 接口文档 (TODO)
+[postman](https://www.getpostman.com/collections/b97c94ea6f024360b7a7)
 
-### TPS
-
-#### 1.Get TPS
-
-http://localhost:7101/api/tps/list?start_time=1543470081680&end_time=1543473081680
-
+We use nginx when we dev, so you will see http://localhost:7000/block/api/address but not http://localhost:7101/api/address.
