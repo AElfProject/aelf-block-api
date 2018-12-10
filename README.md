@@ -6,14 +6,14 @@ Please ensure your dependencies are ready.
 
 If you meet some permission problem, please use 'sudo'.
 
-```shell
-bash build.sh < type|optional > < node_moduels|optinal >
-// if you only want to use the second param, you must set the type=""
+```bash
+bash build.sh < type|optional> < node_moduels|optinal>
+# if you only want to use the second param, you must set the type=""
+# Demo
 bash build.sh dev
 bash build.sh dev reinstall
 bash build.sh "" reinstall
-
-bash build.sh === bash build.sh pro
+# bash build.sh === bash build.sh pro
 ```
 
 Default port: 7101
@@ -47,7 +47,7 @@ Now, the Repositories of test demo is in [docker/hzz780/aelf-block-api](https://
 
 #### Demo
 
-```
+```bash
 docker container run -p 7101:7101 -dit \
 --name=aelf-block-apinodeali \
 --mount type=bind,source=/Users/huangzongzhe/workspace/hoopox/aelf-web-docker/api/config.default.js,target=/app/config/config.default.js \
