@@ -24,9 +24,11 @@ module.exports = app => {
 	router.get('/api/address/balance', controller.address.getBalance);
 	router.get('/api/address/tokens', controller.address.getTokens);
 	router.post('/api/address/bind-token', controller.address.bindToken);
+	router.post('/api/address/unbind-token', controller.address.unbindToken);
 
 	router.get('/api/contract/detail', controller.contract.getDetail);
 	router.get('/api/contract/contracts', controller.contract.getContracts);
+	router.get('/api/contract/searchtoken', controller.contract.searchToken);
 
 	router.get('/api/huobi/detail', controller.huobi.getDetail);
 

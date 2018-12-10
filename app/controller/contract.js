@@ -75,6 +75,32 @@ class ContractController extends Controller {
             formatOutput(ctx, 'error', error, 422);
         }
     }
+
+    /**
+     * 模糊查询Tokens
+     *
+     * @API searchToken
+     * @param {string} name options
+     * @param {string} order options
+     * @return {Object}
+     */
+
+    async searchToken() {
+        let ctx = this.ctx;
+        try {
+            let {name, order} = ctx.request.query;
+            let options = {
+                name,
+                order: order || 'ASC'
+            };
+            console.log('options: ', options);
+            let result = await ctx.service.contract.searchToken(options);
+            formatOutput(ctx, 'get', result);
+        }
+        catch (error) {
+            formatOutput(ctx, 'error', error, 422);
+        }
+    }
 }
 
 module.exports = ContractController;

@@ -133,6 +133,25 @@ class AddressService extends Service {
             return 'error signature.';
         }
     }
+
+    async unbindToken(options) {
+        const aelf0 = this.ctx.app.mysql.get('aelf0');
+        const { address, contract_address, signed_address, public_key } = options;
+
+        // https://www.npmjs.com/package/elliptic; part: ECDSA
+        // public_key { x: hex string, y: hex string };
+        let key = ec.keyFromPublic(public_key, 'hex');
+        let verifyResult = key.verify(address, signed_address);
+
+        if (verifyResult) {
+            let sql = `delete from address_contracts WHERE address = '${address}' and contract_address = '${contract_address}' `;
+            let result = await aelf0.query(sql, [address, contract_address]);
+
+            return result;
+        } else {
+            return 'error signature.';
+        }
+    }
 }
 
 module.exports = AddressService;

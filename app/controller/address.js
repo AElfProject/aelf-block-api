@@ -36,7 +36,13 @@ class AddressController extends Controller {
     async getTransactions() {
         let ctx = this.ctx;
         try {
-            let {limit, page, order, address, contract_address} = ctx.request.query;
+            let {
+                limit,
+                page,
+                order,
+                address,
+                contract_address
+            } = ctx.request.query;
             let options = {
                 limit: parseInt(limit, 10),
                 page: parseInt(page, 10),
@@ -63,7 +69,10 @@ class AddressController extends Controller {
     async getBalance() {
         let ctx = this.ctx;
         try {
-            let { address, contract_address } = ctx.request.query;
+            let {
+                address,
+                contract_address
+            } = ctx.request.query;
             let options = {
                 address: address,
                 contract_address: contract_address
@@ -93,7 +102,12 @@ class AddressController extends Controller {
     async getTokens() {
         let ctx = this.ctx;
         try {
-            let { address, limit, page, order } = ctx.request.query;
+            let {
+                address,
+                limit,
+                page,
+                order
+            } = ctx.request.query;
             let options = {
                 address: address,
                 limit: parseInt(limit, 10),
@@ -123,7 +137,12 @@ class AddressController extends Controller {
         // 前端提前存好这两个数据。私钥签名的公钥。和公钥。
         let ctx = this.ctx;
         try {
-            let { address, contract_address, signed_address, public_key } = ctx.request.body;
+            let {
+                address,
+                contract_address,
+                signed_address,
+                public_key
+            } = ctx.request.body;
             let options = {
                 address: address,
                 contract_address: contract_address,
@@ -131,6 +150,41 @@ class AddressController extends Controller {
                 public_key: public_key
             };
             let result = await ctx.service.address.bindToken(options);
+            formatOutput(ctx, 'get', result);
+        } catch (error) {
+            formatOutput(ctx, 'error', error, 422);
+        }
+    }
+
+    /**
+     * 为当前地址绑定一个新的token
+     *
+     * @API getTokens
+     * @param {String} address
+     * @param {String} contract_address
+     * @param {String} signed_address
+     * @param {Object} public_key
+     * @return {Object}
+     */
+    // 这里涉及到加密计算，如果被大量请求，服务器可能扛不住。
+    async unbindToken() {
+        // 只有该用户是这个地址拥有者的前提下，才能插入数据。
+        // 前端提前存好这两个数据。私钥签名的公钥。和公钥。
+        let ctx = this.ctx;
+        try {
+            let {
+                address,
+                contract_address,
+                signed_address,
+                public_key
+            } = ctx.request.body;
+            let options = {
+                address: address,
+                contract_address: contract_address,
+                signed_address: signed_address,
+                public_key: public_key
+            };
+            let result = await ctx.service.address.unbindToken(options);
             formatOutput(ctx, 'get', result);
         } catch (error) {
             formatOutput(ctx, 'error', error, 422);

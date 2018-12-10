@@ -21,9 +21,9 @@ module.exports = appInfo => {
 				// 用户名
 				user: 'root',
 				// 密码
-				password: '',
+				password: 'password',
 				// 数据库名
-				database: 'aelf_test',
+				database: 'aelf_self',
 			}
 			// ,
 			// db2: {
