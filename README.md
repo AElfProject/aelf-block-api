@@ -29,7 +29,9 @@ in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
 
 ### 1.Change  the Config
 
-change config/config.default.js
+```bash
+cp demo.config.js config.default.js
+```
 
 set your own config.keys & config.mysql
 
