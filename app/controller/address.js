@@ -157,9 +157,9 @@ class AddressController extends Controller {
     }
 
     /**
-     * 为当前地址绑定一个新的token
+     * 为当前地址解绑一个token
      *
-     * @API getTokens
+     * @API unbindTokens
      * @param {String} address
      * @param {String} contract_address
      * @param {String} signed_address
