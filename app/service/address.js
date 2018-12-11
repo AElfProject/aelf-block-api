@@ -136,7 +136,7 @@ class AddressService extends Service {
 
     async unbindToken(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
-        const { address, contract_address, signed_address, public_key } = options;
+        const {address, contract_address, signed_address, public_key} = options;
 
         // https://www.npmjs.com/package/elliptic; part: ECDSA
         // public_key { x: hex string, y: hex string };
