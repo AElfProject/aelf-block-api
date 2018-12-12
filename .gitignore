@@ -1,5 +1,5 @@
 logs/
-confg/config*
+config/config*
 run/
 .idea/
 node_modules/
