@@ -45,6 +45,21 @@ class ContractService extends Service {
         }
         return '傻逼，滚。';
     }
+
+    // 查询token
+    async searchToken(options) {
+        const aelf0 = this.ctx.app.mysql.get('aelf0');
+        const {
+            name,
+            order
+        } = options;
+        if (['DESC', 'ASC', 'desc', 'asc'].indexOf(order) > -1) {
+            let getTxsSql = `select * from contract_aelf20 WHERE name LIKE '%${name}%'`;
+            let txs = await aelf0.query(getTxsSql);
+            return txs;
+        }
+        return '傻逼，滚。';
+    }
 }
 
 module.exports = ContractService;
