@@ -5,6 +5,7 @@
  */
 /* eslint-disable fecs-camelcase */
 const Service = require('egg').Service;
+const insertTokenContract = require('../utils/insertTokenContract');
 
 class NodesService extends Service {
 
@@ -35,8 +36,14 @@ class NodesService extends Service {
         const insertQuery = `insert into ${table} ${keysStr} VALUES ${valuesStr}`;
 
         let nodesInfo = await aelf0.query(insertQuery, values);
+
+        const {api_domain, api_ip, contract_address} = options;
+        const apiUrl = api_domain || api_ip;
+        const contractResult = await insertTokenContract(this.ctx, apiUrl, contract_address, aelf0, 'contract_aelf20');
+
         return {
-            list: nodesInfo
+            list: nodesInfo,
+            contract: contractResult
         };
     }
 
