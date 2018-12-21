@@ -1,5 +1,6 @@
-/*
- * huangzongzhe
+/**
+ * @file controller/address.js
+ * @author huangzongzhe
  * 2018.08
  */
 'use strict';
@@ -26,11 +27,11 @@ class AddressController extends Controller {
      * 如果传入contract_address, 讲获取该地址下当前合约的交易。
      *
      * @API getTransactions
-     * @param {Number} limit
-     * @param {Number} page
-     * @param {String} order
-     * @param {String} address
-     * @param {String} contract_address option
+     * @param {number} limit not null
+     * @param {number} page not null
+     * @param {string} order not null
+     * @param {string} address not null
+     * @param {string} contract_address option
      * @return {Object}
      */
     async getTransactions() {
@@ -62,8 +63,8 @@ class AddressController extends Controller {
      * 获取该地址对应token的Balance 和 token的详细信息
      *
      * @API getBalance
-     * @param {String} address
-     * @param {contract_address} contract_address
+     * @param {string} address not null
+     * @param {contract_address} contract_address not null
      * @return {Object}
      */
     async getBalance() {
@@ -93,10 +94,10 @@ class AddressController extends Controller {
      * 获取该地址对应的所有token
      *
      * @API getTokens
-     * @param {String} address
-     * @param {Number} limit option
-     * @param {Number} page option
-     * @param {String} order option
+     * @param {string} address not null
+     * @param {number} limit option
+     * @param {number} page option
+     * @param {string} order option
      * @return {Object}
      */
     async getTokens() {
@@ -125,9 +126,9 @@ class AddressController extends Controller {
      * 为当前地址绑定一个新的token
      *
      * @API getTokens
-     * @param {String} address
-     * @param {String} contract_address
-     * @param {String} signed_address
+     * @param {string} address
+     * @param {string} contract_address
+     * @param {string} signed_address
      * @param {Object} public_key
      * @return {Object}
      */
@@ -160,9 +161,9 @@ class AddressController extends Controller {
      * 为当前地址解绑一个token
      *
      * @API unbindTokens
-     * @param {String} address
-     * @param {String} contract_address
-     * @param {String} signed_address
+     * @param {string} address
+     * @param {string} contract_address
+     * @param {string} signed_address
      * @param {Object} public_key
      * @return {Object}
      */

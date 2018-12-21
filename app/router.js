@@ -36,4 +36,6 @@ module.exports = app => {
     router.get('/api/tps/list', controller.tps.getTps);
 
     router.get('/api/nodes/info', controller.nodes.getNodesInfo);
+    router.post('/api/nodes/info', controller.nodes.postNodesInfo);
+    router.put('/api/nodes/info', controller.nodes.putNodesInfo);
 };

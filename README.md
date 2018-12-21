@@ -35,13 +35,50 @@ cp demo.config.js config.default.js
 
 set your own config.keys & config.mysql
 
+Warning About Mysql: 
+
+- Please do not use admin. Use the normal users without SUPER privilege.
+
+Grant Demo
+```bash
+    CREATE USER 'normal_aelf'@'localhost' IDENTIFIED BY 'password';
+    GRANT select, insert, update, delete on aelf_test.* TO 'normal_aelf'@'localhost';
+```
+
 ### 2.Start the node server
 
+try to use build.sh at first.
+
+```bash
 npm install
 
 dev: npm run dev
 
 pro: npm start
+```
+
+## About csrf-token & POST API
+
+If you want test Post API.
+
+You must set header x-csrf-token=(csrfToken in cookie).
+
+```javascript
+// for a javascript example
+const csrf = document.cookie.match(/csrfToken=[^;]*/)[0].replace('csrfToken=', '');
+fetch(`/block/api/address/transactions`, {
+    credentials: 'include',
+    method: 'POST',
+    headers: {
+        // About csrf token
+        // csrf: https://github.com/pillarjs/understanding-csrf/blob/master/README_zh.md
+        // csrf: https://www.ibm.com/developerworks/cn/web/1102_niugang_csrf/index.html
+        'x-csrf-token': csrf,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+}).then().catch();
+```
 
 ## Docker
 

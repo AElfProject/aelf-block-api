@@ -1,5 +1,6 @@
-/*
- * huangzongzhe
+/**
+ * @file service/address.js
+ * @author huangzongzhe
  * 2018.08
  */
 const Service = require('egg').Service;
@@ -8,15 +9,15 @@ const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
 
 async function getBalance(options, aelf0) {
-    const { address, contract_address } = options;
+    const {address, contract_address} = options;
     let getIncomeSql = `select sum(quantity) from transactions_0 where params_to=? AND address_to=? AND tx_status='Mined'`;
     let getExpenditureSql = `select sum(quantity) from transactions_0 where address_from=? AND address_to=? AND tx_status='Mined'`;
 
     let income = await aelf0.query(getIncomeSql, [address, contract_address]);
     let expenditure = await aelf0.query(getExpenditureSql, [address, contract_address]);
 
-    income = income[0]["sum(quantity)"];
-    expenditure = expenditure[0]["sum(quantity)"]
+    income = income[0]['sum(quantity)'];
+    expenditure = expenditure[0]['sum(quantity)'];
 
     return {
         income: income,
@@ -26,13 +27,13 @@ async function getBalance(options, aelf0) {
 }
 
 class AddressService extends Service {
-    
+
     async getTransactions(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
         const { limit, page, order, address, contract_address } = options;
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
-            
+
             let contractMatchSql = '';
             let sqlValue = [address, address, limit, offset];
             if (contract_address) {
@@ -52,7 +53,7 @@ class AddressService extends Service {
 
             return {
                 // total: count[0]["FOUND_ROWS()"],
-                total: count[0]["count(*)"],
+                total: count[0]['count(*)'],
                 transactions: txs
             };
         }
@@ -103,7 +104,7 @@ class AddressService extends Service {
                             } catch(e) {
                                 reject(e);
                             }
-                            
+
                         }
                     )
                 );
@@ -112,7 +113,7 @@ class AddressService extends Service {
 
             return result;
         }
-        return '傻逼，滚。';       
+        return '傻逼，滚。';
     }
 
     async bindToken(options) {
