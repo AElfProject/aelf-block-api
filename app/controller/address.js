@@ -150,7 +150,7 @@ class AddressController extends Controller {
                 public_key: public_key
             };
             let result = await ctx.service.address.bindToken(options);
-            formatOutput(ctx, 'get', result);
+            formatOutput(ctx, 'post', result);
         } catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
