@@ -3,6 +3,7 @@
  * @author huangzongzhe
  * 2018.08
  */
+/* eslint-disable fecs-camelcase */
 const Service = require('egg').Service;
 
 const elliptic = require('elliptic');
@@ -10,18 +11,25 @@ const ec = new elliptic.ec('secp256k1');
 
 async function getBalance(options, aelf0) {
     const {address, contract_address} = options;
-    let getIncomeSql = `select sum(quantity) from transactions_0 where params_to=? AND address_to=? AND tx_status='Mined'`;
-    let getExpenditureSql = `select sum(quantity) from transactions_0 where address_from=? AND address_to=? AND tx_status='Mined'`;
+    const getIncomeSql
+        = 'select sum(quantity) from transactions_0 where params_to=? AND address_to=? AND tx_status="Mined"';
+    const getExpenditureSql
+        = 'select sum(quantity) from transactions_0 '
+        + 'where address_from=? AND address_to=? AND tx_status="Mined"';
 
-    let income = await aelf0.query(getIncomeSql, [address, contract_address]);
-    let expenditure = await aelf0.query(getExpenditureSql, [address, contract_address]);
+    const unionSql = getIncomeSql + ' UNION ALL ' + getExpenditureSql;
 
-    income = income[0]['sum(quantity)'];
-    expenditure = expenditure[0]['sum(quantity)'];
+    const account = await aelf0.query(unionSql, [address, contract_address, address, contract_address]);
+
+    let income = account[0]['sum(quantity)'];
+    let expenditure = account[1]['sum(quantity)'];
+
+    income = income ? parseInt(income, 10) : 0;
+    expenditure = expenditure ? parseInt(expenditure, 10) : 0;
 
     return {
-        income: income,
-        expenditure: expenditure,
+        income,
+        expenditure,
         balance: income - expenditure
     };
 }
@@ -30,7 +38,7 @@ class AddressService extends Service {
 
     async getTransactions(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
-        const { limit, page, order, address, contract_address } = options;
+        const {limit, page, order, address, contract_address} = options;
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
 
@@ -41,20 +49,15 @@ class AddressService extends Service {
                 sqlValue = [address, address, contract_address, limit, offset];
             }
 
-            // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0
-            let getTxsSql = `select * from transactions_0  
+            const getTxsAndCountSql = `select *, count(*) AS total from transactions_0  
                             where (address_from=? or params_to=?) ${contractMatchSql} 
                             ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = `select count(*) from transactions_0  
-                            where (address_from=? or params_to=?) ${contractMatchSql}`;
 
-            let txs = await aelf0.query(getTxsSql, sqlValue);
-            let count = await aelf0.query(getCountSql, [address, address, contract_address]);
+            let txsAndCount = await aelf0.query(getTxsAndCountSql, sqlValue);
 
             return {
-                // total: count[0]["FOUND_ROWS()"],
-                total: count[0]['count(*)'],
-                transactions: txs
+                total: txsAndCount[0].total,
+                transactions: txsAndCount
             };
         }
         return '傻逼，滚。';
@@ -69,23 +72,33 @@ class AddressService extends Service {
 
     async getTokens(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
-        let { address, limit, page, order  } = options;
+        let {address, limit, page, order, nodes_info} = options;
 
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
 
             let pageSql = '';
             let sqlValue = [address];
             if (limit) {
-                page = page || 0;
                 const offset = limit * page;
                 pageSql = 'limit ? offset ? ';
                 sqlValue = [address, limit, offset];
             }
 
+            if (nodes_info) {
+                const selectSql = 'select * from address_contracts, nodes_0, contract_aelf20 '
+                    + ' where address_contracts.contract_address=nodes_0.contract_address and '
+                    + ' contract_aelf20.contract_address=address_contracts.contract_address and '
+                    + ' address_contracts.address=?'
+                    + ` ORDER BY update_time ${order} ${pageSql};`;
+                let tokens = await aelf0.query(selectSql, sqlValue);
+
+                return tokens;
+            }
+
             let sql = `select * from address_contracts,contract_aelf20 
-                        where address=? 
-                        And address_contracts.contract_address=contract_aelf20.contract_address
-                        ORDER BY update_time ${order} ${pageSql}`;
+                    where address=? 
+                    And address_contracts.contract_address=contract_aelf20.contract_address
+                    ORDER BY update_time ${order} ${pageSql}`;
 
             let tokens = await aelf0.query(sql, sqlValue);
 
@@ -101,7 +114,8 @@ class AddressService extends Service {
                                 }, aelf0);
                                 Object.assign(result, item);
                                 resolve(result);
-                            } catch(e) {
+                            }
+                            catch(e) {
                                 reject(e);
                             }
 

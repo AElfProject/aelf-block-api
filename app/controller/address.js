@@ -3,22 +3,11 @@
  * @author huangzongzhe
  * 2018.08
  */
+/* eslint-disable fecs-camelcase */
 'use strict';
 
 const Controller = require('egg').Controller;
 const formatOutput = require('../utils/formatOutput.js');
-
-const keysRule = {
-    order: 'string',
-    limit: 'int',
-    page: 'int',
-    address: 'string',
-    contract_address: {
-        type: 'string',
-        required: false,
-        allowEmpty: true
-    }
-};
 
 class AddressController extends Controller {
 
@@ -36,6 +25,19 @@ class AddressController extends Controller {
      */
     async getTransactions() {
         let ctx = this.ctx;
+
+        const keysRule = {
+            order: 'string',
+            limit: 'int',
+            page: 'int',
+            address: 'string',
+            contract_address: {
+                type: 'string',
+                required: false,
+                allowEmpty: true
+            }
+        };
+
         try {
             let {
                 limit,
@@ -54,7 +56,8 @@ class AddressController extends Controller {
             ctx.validate(keysRule, options);
             let result = await ctx.service.address.getTransactions(options);
             formatOutput(ctx, 'get', result);
-        } catch (error) {
+        }
+        catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
     }
@@ -69,23 +72,31 @@ class AddressController extends Controller {
      */
     async getBalance() {
         let ctx = this.ctx;
+
+        const keysRule = {
+            address: 'string',
+            contract_address: 'string'
+        };
+
         try {
             let {
                 address,
                 contract_address
             } = ctx.request.query;
             let options = {
-                address: address,
-                contract_address: contract_address
+                address,
+                contract_address
             };
+            ctx.validate(keysRule, options);
             let result = await ctx.service.address.getBalance(options);
             let tokenDetail = await ctx.service.contract.getDetail(options);
             let output = {
                 ...result,
                 tokenDetail: tokenDetail[0]
-            }
+            };
             formatOutput(ctx, 'get', output);
-        } catch (error) {
+        }
+        catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
     }
@@ -102,22 +113,55 @@ class AddressController extends Controller {
      */
     async getTokens() {
         let ctx = this.ctx;
+
+        const keysRule = {
+            address: 'string',
+            limit: {
+                type: 'int',
+                required: false,
+                allowEmpty: true,
+                max: 500,
+                min: 0
+            },
+            page: {
+                type: 'int',
+                required: false,
+                allowEmpty: true,
+                min: 0
+            },
+            order: {
+                type: 'string',
+                required: false,
+                allowEmpty: true
+            },
+            // When nodes_info = true, return without token balance.
+            nodes_info: {
+                type: 'boolean',
+                required: false,
+                allowEmpty: true
+            }
+        };
+
         try {
             let {
                 address,
                 limit,
                 page,
-                order
+                order,
+                nodes_info
             } = ctx.request.query;
             let options = {
-                address: address,
-                limit: parseInt(limit, 10),
-                page: parseInt(page, 10),
-                order: order || 'DESC'
+                address,
+                limit: limit ? parseInt(limit, 10) : 0,
+                page: page ? parseInt(page, 10) : 0,
+                order: order || 'DESC',
+                nodes_info: !!nodes_info || false
             };
+            ctx.validate(keysRule, options);
             let result = await ctx.service.address.getTokens(options);
             formatOutput(ctx, 'get', result);
-        } catch (error) {
+        }
+        catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
     }
@@ -145,14 +189,15 @@ class AddressController extends Controller {
                 public_key
             } = ctx.request.body;
             let options = {
-                address: address,
-                contract_address: contract_address,
-                signed_address: signed_address,
-                public_key: public_key
+                address,
+                contract_address,
+                signed_address,
+                public_key
             };
             let result = await ctx.service.address.bindToken(options);
             formatOutput(ctx, 'post', result);
-        } catch (error) {
+        }
+        catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
     }
@@ -180,14 +225,15 @@ class AddressController extends Controller {
                 public_key
             } = ctx.request.body;
             let options = {
-                address: address,
-                contract_address: contract_address,
-                signed_address: signed_address,
-                public_key: public_key
+                address,
+                contract_address,
+                signed_address,
+                public_key
             };
             let result = await ctx.service.address.unbindToken(options);
             formatOutput(ctx, 'get', result);
-        } catch (error) {
+        }
+        catch (error) {
             formatOutput(ctx, 'error', error, 422);
         }
     }

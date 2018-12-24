@@ -106,3 +106,89 @@ Then, look at config/demo.config.js & config/plugin.js
 [postman](https://www.getpostman.com/collections/b97c94ea6f024360b7a7)
 
 We use nginx when we dev, so you will see http://localhost:7000/block/api/address but not http://localhost:7101/api/address.
+
+
+## Dev Suggestion
+
+We advise you implement your own API like the example.
+
+```javascript
+// 1.
+// The framework recommends that the Controller layer is responsible for processing request parameters(verification and transformation)
+// from user's requests, then calls related business methods in Service, encapsulates and sends back business result:
+// 1.retrieves parameters passed by HTTP.
+// 2.verifies and assembles parameters.
+// 3.calls the Service to handle business, if necessary,
+//          transforms Service process results to satisfy user's requirement.
+// 4.sends results back to user by HTTP.
+// 框架推荐 Controller 层主要对用户的请求参数进行处理（校验、转换），然后调用对应的 service 方法处理业务，得到业务结果后封装并返回：
+// 获取用户通过 HTTP 传递过来的请求参数。
+// 校验、组装参数。
+// 调用 Service 进行业务处理，必要时处理转换 Service 的返回结果，让它适应用户的需求。
+// 通过 HTTP 将结果响应给用户。
+
+// 2.
+// give the params keysRule.
+
+// Example, code snippets.
+// controller/address.js
+    async getTokens() {
+        let ctx = this.ctx;
+        
+        // Not only param validate but also a detail param doc.
+        // About 'paramater': https://github.com/node-modules/parameter
+        const keysRule = {
+            address: 'string',
+            limit: {
+                type: 'int',
+                required: false,
+                allowEmpty: true,
+                max: 500,
+                min: 0
+            },
+            page: {
+                type: 'int',
+                required: false,
+                allowEmpty: true
+            },
+            order: {
+                type: 'string',
+                required: false,
+                allowEmpty: true
+            },
+            nodes_info: {
+                type: 'boolean',
+                required: false,
+                allowEmpty: true
+            }
+        };
+
+        try {
+            let {
+                address,
+                limit,
+                page,
+                order,
+                nodes_info
+            } = ctx.request.query;
+            let options = {
+                address,
+                limit: limit ? parseInt(limit, 10) : 0,
+                page: page ? parseInt(page, 10) : 0,
+                order: order || 'DESC',
+                nodes_info: nodes_info || false
+            };
+            ctx.validate(keysRule, options);
+            let result = await ctx.service.address.getTokens(options);
+            formatOutput(ctx, 'get', result);
+        }
+        catch (error) {
+            formatOutput(ctx, 'error', error, 422);
+        }
+    }
+    
+// service/address.js
+async getTokens(options) {
+    // get the tokens information.
+}
+```
