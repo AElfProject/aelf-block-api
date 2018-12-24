@@ -49,15 +49,18 @@ class AddressService extends Service {
                 sqlValue = [address, address, contract_address, limit, offset];
             }
 
-            const getTxsAndCountSql = `select *, count(*) AS total from transactions_0  
+            const getTxsSql = `select * from transactions_0  
                             where (address_from=? or params_to=?) ${contractMatchSql} 
                             ORDER BY block_height ${order} limit ? offset ? `;
+            const getCountSql = `select count(*) AS total from transactions_0  
+                            where (address_from=? or params_to=?) ${contractMatchSql}`;
 
-            let txsAndCount = await aelf0.query(getTxsAndCountSql, sqlValue);
+            let txs = await aelf0.query(getTxsSql, sqlValue);
+            let count = await aelf0.query(getCountSql, [address, address, contract_address]);
 
             return {
-                total: txsAndCount[0].total,
-                transactions: txsAndCount
+                total: count[0].total,
+                transactions: txs
             };
         }
         return '傻逼，滚。';
