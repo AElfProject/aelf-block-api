@@ -15,9 +15,6 @@ bash build.sh dev reinstall
 bash build.sh "" reinstall
 # bash build.sh === bash build.sh pro
 
-# cp explore.conf /etc/nginx/conf.d
-# reload nginx
-bash build.sh "" "" reload
 ```
 
 Default port: 7101
