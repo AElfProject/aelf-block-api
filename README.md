@@ -7,16 +7,22 @@ Please ensure your dependencies are ready.
 If you meet some permission problem, try to use 'sudo'.
 
 ```bash
-bash build.sh < type|optional> < node_moduels|optinal>
+bash build.sh < type|optional> < node_moduels|optinal> < nginx|optional >
 # if you only want to use the second param, you must set the type=""
 # Demo
 bash build.sh dev
 bash build.sh dev reinstall
 bash build.sh "" reinstall
 # bash build.sh === bash build.sh pro
+
+# cp explore.conf /etc/nginx/conf.d
+# reload nginx
+bash build.sh "" "" reload
 ```
 
 Default port: 7101
+
+Open http://127.0.0.1:7101, you will see 'hi, this is aelf-block-api.'.
 
 ### 0.Dependencies
 
