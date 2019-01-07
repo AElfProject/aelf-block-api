@@ -66,6 +66,21 @@ const getInfoOptions = function (body) {
         owner,
         status: parseInt(status, 10)
     };
+    // trim
+    for (const each in options) {
+        if (typeof options[each] === 'string') {
+            options[each] = options[each].trim();
+        }
+    }
+    // check URL
+    const httpURLList = ['api_ip', 'api_domain', 'rpc_ip', 'rpc_domain'];
+    httpURLList.map(item => {
+        const value = options[item];
+        if (!!value && !value.includes('http')) {
+            throw Error(`${item}(${value}) is illegal. http://xxx is OK.`);
+        }
+    });
+
     return options;
 };
 
