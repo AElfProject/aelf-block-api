@@ -38,4 +38,8 @@ module.exports = app => {
     router.get('/api/nodes/info', controller.nodes.getNodesInfo);
     router.post('/api/nodes/info', controller.nodes.postNodesInfo);
     router.put('/api/nodes/info', controller.nodes.putNodesInfo);
+
+    router.get('/api/resource/records', controller.resource.getRecords);
+    router.get('/api/resource/realtime-records', controller.resource.getRealtimeRecords);
+    router.get('/api/resource/turnover', controller.resource.getTurnover);
 };
