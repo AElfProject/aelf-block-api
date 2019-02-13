@@ -67,16 +67,25 @@ class ResourceService extends Service {
             interval,
             limit,
             page,
-            order
+            order,
+            type
         } = options;
 
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
-            const selectSql
-                = 'select count(*) as count, time from resource_0 group by time DIV ? order by time limit ? offset ?';
-            const result = await aelf0.query(selectSql, [interval, limit, offset]);
+            const selectBuySql
+                = 'select count(*) as count, time from resource_0 where type=? and method="BuyResource" '
+                + 'group by time DIV ? order by time limit ? offset ?';
+            const selectSellSql
+                = 'select count(*) as count, time from resource_0 where type=? and method="SellResource" '
+                + 'group by time DIV ? order by time limit ? offset ?';
+            const buyRecords = await aelf0.query(selectBuySql, [type, interval, limit, offset]);
+            const sellRecords = await aelf0.query(selectSellSql, [type, interval, limit, offset]);
 
-            return result;
+            return {
+                buyRecords,
+                sellRecords
+            };
         }
         return '';
     }

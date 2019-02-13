@@ -130,9 +130,8 @@ class ResourceController extends Controller {
             };
             ctx.validate(keysRule, options);
             let result = await ctx.service.resource.getTurnover(options);
-            // formateTurnoverList(result);
-            let output = formateTurnoverList(result, options.interval, options.limit, order);
-            formatOutput(ctx, 'get', output);
+            // formateTurnoverList(xxxx);
+            formatOutput(ctx, 'get', result);
         }
         catch (error) {
             formatOutput(ctx, 'error', error, 422);
@@ -143,29 +142,32 @@ class ResourceController extends Controller {
 
 module.exports = ResourceController;
 
-function formateTurnoverList(input, interval, limit, order) {
-    const time = (new Date()).getTime();
-    let timeList = [];
-    for (let i = 0; i < limit; i++) {
-        timeList.push(time - interval * i);
-    }
-    let output = timeList.map(timeListItem => {
-        const list = input.find(inputItem => {
-            return inputItem.time > timeListItem && inputItem.time < (timeListItem + interval);
-        });
-        if (list) {
-            return {
-                count: list.count,
-                time: timeListItem
-            };
-        }
-        return {
-            count: 0,
-            time: timeListItem
-        };
-    });
-    if (order.toLocaleLowerCase() === 'asc') {
-        return output.reverse();
-    }
-    return output;
-}
+// 这种计算丢前端就好了，减少服务器的压力。
+// const time = (new Date()).getTime();
+// function formateTurnoverList(input, interval, limit, order, time) {
+//     let timeList = [];
+//     for (let i = 0; i < limit; i++) {
+//         timeList.push(time - interval * i);
+//     }
+//     let output = timeList.map(timeListItem => {
+//         // 合并对应时间段的 买卖数据
+//         // 判断这个时间段买入还是卖出的量更大
+//         const list = input.find(inputItem => {
+//             return inputItem.time > timeListItem && inputItem.time < (timeListItem + interval);
+//         });
+//         if (list) {
+//             return {
+//                 count: list.count,
+//                 time: timeListItem
+//             };
+//         }
+//         return {
+//             count: 0,
+//             time: timeListItem
+//         };
+//     });
+//     if (order.toLocaleLowerCase() === 'asc') {
+//         return output.reverse();
+//     }
+//     return output;
+// }
