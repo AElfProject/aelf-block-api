@@ -103,28 +103,16 @@ class ResourceController extends Controller {
         let ctx = this.ctx;
 
         const keysRule = {
-            order: 'string',
-            limit: {
-                type: 'int',
-                max: 100
-            },
-            page: 'int',
             interval: 'int',
             type: 'string'
         };
 
         try {
             let {
-                limit,
-                page,
-                order,
                 interval,
                 type
             } = ctx.request.query;
             let options = {
-                limit: parseInt(limit, 10),
-                page: parseInt(page, 10),
-                order: order || 'DESC',
                 interval: parseInt(interval, 10),
                 type
             };
@@ -143,27 +131,37 @@ class ResourceController extends Controller {
 module.exports = ResourceController;
 
 // 这种计算丢前端就好了，减少服务器的压力。
+// {"buyRecords":[{"count":2,"time":1549957132906}],"sellRecords":[{"count":1,"time":1549957217107}]}
 // const time = (new Date()).getTime();
 // function formateTurnoverList(input, interval, limit, order, time) {
 //     let timeList = [];
 //     for (let i = 0; i < limit; i++) {
 //         timeList.push(time - interval * i);
 //     }
+
+//     const buyRecords = input.buyRecords;
+//     const sellRecords = input.sellRecords;
+
 //     let output = timeList.map(timeListItem => {
 //         // 合并对应时间段的 买卖数据
 //         // 判断这个时间段买入还是卖出的量更大
-//         const list = input.find(inputItem => {
+//         const buyList = buyRecords.find(inputItem => {
 //             return inputItem.time > timeListItem && inputItem.time < (timeListItem + interval);
 //         });
-//         if (list) {
-//             return {
-//                 count: list.count,
-//                 time: timeListItem
-//             };
-//         }
+//         const sellList = sellRecords.find(inputItem => {
+//             return inputItem.time > timeListItem && inputItem.time < (timeListItem + interval);
+//         });
+//         // if (list) {
+//         //     return {
+//         //         count: list.count,
+//         //         time: timeListItem
+//         //     };
+//         // }
 //         return {
-//             count: 0,
-//             time: timeListItem
+//             time: timeListItem,
+//             buyList,
+//             sellList
+//             // time: timeListItem
 //         };
 //     });
 //     if (order.toLocaleLowerCase() === 'asc') {

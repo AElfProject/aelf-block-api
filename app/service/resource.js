@@ -6,6 +6,12 @@
 
 /* eslint-disable fecs-camelcase */
 const Service = require('egg').Service;
+const moment = require('moment');
+
+function formateMysqlUnixtime(time) {
+    const jsUnixTime = (new Date(time)).getTime();
+    return parseInt(jsUnixTime.toString().slice(0, 10), 10);
+}
 
 class ResourceService extends Service {
 
@@ -65,29 +71,52 @@ class ResourceService extends Service {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
         let {
             interval,
-            limit,
-            page,
-            order,
             type
         } = options;
+        // 多条sql UNION ALL
+        // 5min    1day
+        // 30min   6day
+        // 1hour   12day
+        // 4hour   48day
+        // 1day    48 * 6
+        // 5days     48 * 6 * 5
+        // 1week   48 * 6 * 7
+        // select 1549972000000 as date, count(*) from resource_0 where time between 1549972000000 and 1550472657000;
+        // 按日计算
+        // select from_unixtime(time, '%Y-%m-%d') as date, count(*) from resource_0 group by from_unixtime(time, '%Y-%m-%d');
+        // 按周计算
+        // select WEEK(from_unixtime(time)) as date, from_unixtime(time), count(*) from resource_0 group by WEEK(from_unixtime(time));
+        // const basicInterval = 86400000; // 24 * 60 * 60 * 1000; 1 day
+        // const basicDayInterval = 1;
+        interval = Math.max(300000, interval);
+        const dayInterval = Math.ceil(interval / 300000); // Math.ceil(interval / 5min * 1day)
+        const timeNow = moment().valueOf();
 
-        if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
-            const offset = limit * page;
-            const selectBuySql
-                = 'select count(*) as count, time from resource_0 where type=? and method="BuyResource" '
-                + 'group by time DIV ? order by time limit ? offset ?';
-            const selectSellSql
-                = 'select count(*) as count, time from resource_0 where type=? and method="SellResource" '
-                + 'group by time DIV ? order by time limit ? offset ?';
-            const buyRecords = await aelf0.query(selectBuySql, [type, interval, limit, offset]);
-            const sellRecords = await aelf0.query(selectSellSql, [type, interval, limit, offset]);
+        let startTime = moment().subtract(dayInterval, 'day').startOf('day').valueOf(); // start time
+        let selectSql = `select ${startTime} as date, count(*) as count from resource_0 `
+            + ` where time between ${startTime} and ${startTime + interval - 1} `
+            + 'and type=? and method="BuyResource"';
+        startTime += interval;
+        let buyValueArray = [];
+        let sellValueArray = [];
+        buyValueArray.push(type, 'BuyResource');
+        sellValueArray.push(type, 'SellResource');
 
-            return {
-                buyRecords,
-                sellRecords
-            };
+        while (startTime < timeNow) {
+            selectSql += ' UNION ALL ' + `select ${startTime} as date, count(*) as count from resource_0 `
+                + ` where time between ${startTime} and ${startTime + interval - 1}`;
+            startTime += interval;
+            buyValueArray.push(type, 'BuyResource');
+            sellValueArray.push(type, 'SellResource');
         }
-        return '';
+
+        const buyRecords = await aelf0.query(selectSql, buyValueArray);
+        const sellRecords = await aelf0.query(selectSql, sellValueArray);
+
+        return {
+            buyRecords,
+            sellRecords
+        };
     }
 }
 
