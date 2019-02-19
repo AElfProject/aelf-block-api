@@ -95,7 +95,7 @@ class ResourceService extends Service {
         let startTime = moment().subtract(dayInterval, 'day').startOf('day').valueOf(); // start time
         let selectSql = `select ${startTime} as date, count(*) as count from resource_0 `
             + ` where time between ${startTime} and ${startTime + interval - 1} `
-            + 'and type=? and method="BuyResource"';
+            + 'and type=? and method=?';
         startTime += interval;
         let buyValueArray = [];
         let sellValueArray = [];
@@ -104,8 +104,8 @@ class ResourceService extends Service {
 
         while (startTime < timeNow) {
             selectSql += ' UNION ALL ' + `select ${startTime} as date, count(*) as count from resource_0 `
-                + ` where time between ${startTime} and ${startTime + interval - 1}`
-                + 'and type=? and method="BuyResource"';
+                + ` where time between ${startTime} and ${startTime + interval - 1} `
+                + 'and type=? and method=?';
             startTime += interval;
             buyValueArray.push(type, 'BuyResource');
             sellValueArray.push(type, 'SellResource');
