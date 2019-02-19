@@ -104,7 +104,8 @@ class ResourceService extends Service {
 
         while (startTime < timeNow) {
             selectSql += ' UNION ALL ' + `select ${startTime} as date, count(*) as count from resource_0 `
-                + ` where time between ${startTime} and ${startTime + interval - 1}`;
+                + ` where time between ${startTime} and ${startTime + interval - 1}`
+                + 'and type=? and method="BuyResource"';
             startTime += interval;
             buyValueArray.push(type, 'BuyResource');
             sellValueArray.push(type, 'SellResource');
