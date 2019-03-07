@@ -5,11 +5,13 @@
  */
 
 /* eslint-disable fecs-camelcase */
+const BaseService = require('../core/baseService');
 const Service = require('egg').Service;
 
 const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
 
+// TODO:Balance 从 链上rpc拿，不再从sql中用sum获得
 async function getBalance(options, aelf0) {
     const {address, contract_address} = options;
     const getIncomeSql = 'select sum(quantity) from transactions_0 where params_to=? AND address_to=? AND tx_status="Mined"';
@@ -36,7 +38,8 @@ async function getBalance(options, aelf0) {
     };
 }
 
-class AddressService extends Service {
+// class AddressService extends Service {
+class AddressService extends BaseService {
 
     async getTransactions(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -63,8 +66,11 @@ class AddressService extends Service {
             const getCountSql = `select count(*) AS total from transactions_0  
                             where (address_from=? or params_to=?) ${contractMatchSql}`;
 
-            let txs = await aelf0.query(getTxsSql, sqlValue);
-            let count = await aelf0.query(getCountSql, [address, address, contract_address]);
+            let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
+            let count = await this.selectQuery(aelf0, getCountSql, [address, address, contract_address]);
+            
+            // let txs = await aelf0.query(getTxsSql, sqlValue);
+            // let count = await aelf0.query(getCountSql, [address, address, contract_address]);
 
             return {
                 total: count[0].total,

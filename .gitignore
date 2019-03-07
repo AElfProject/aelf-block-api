@@ -3,3 +3,4 @@ config/config*
 run/
 .idea/
 node_modules/
+.vscode/
