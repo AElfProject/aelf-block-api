@@ -4,8 +4,9 @@
  * 2018.08
  */
 const Service = require('egg').Service;
+const BaseService = require('../core/baseService');
 
-class BlockService extends Service {
+class BlockService extends BaseService {
 
     // async getAllBlocks(options) {
     //     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -35,13 +36,13 @@ class BlockService extends Service {
                 = 'select * from transactions_0  where block_hash=?'
                 + `ORDER BY block_height ${order} limit ? offset ? `;
             // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0  where block_hash=? ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = 'select count(*) from transactions_0  where block_hash=?';
+            let getCountSql = 'select max(block_height) from transactions_0  where block_hash=?';
             // return sql;
-            let txs = await aelf0.query(getTxsSql, [block_hash, limit, offset]);
-            let count = await aelf0.query(getCountSql, [block_hash]);
+            let txs = await this.selectQuery(aelf0, getTxsSql, [block_hash, limit, offset]);
+            let count = await this.selectQuery(aelf0, getCountSql, [block_hash]);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
-                total: count[0]['count(*)'],
+                total: count[0]['max(block_height)'],
                 transactions: txs
             };
         }

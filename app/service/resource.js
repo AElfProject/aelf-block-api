@@ -7,13 +7,14 @@
 /* eslint-disable fecs-camelcase */
 const Service = require('egg').Service;
 const moment = require('moment');
+const BaseService = require('../core/baseService');
 
 function formateMysqlUnixtime(time) {
     const jsUnixTime = (new Date(time)).getTime();
     return parseInt(jsUnixTime.toString().slice(0, 10), 10);
 }
 
-class ResourceService extends Service {
+class ResourceService extends BaseService {
 
     async getRecords(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -31,13 +32,13 @@ class ResourceService extends Service {
             const getTxsSql = `select * from resource_0
                             where address=? 
                             ORDER BY time ${order} limit ? offset ? `;
-            const getCountSql = `select count(*) AS total from resource_0
+            const getCountSql = `select max(block_height) from resource_0
                             where address=?`;
-            let txs = await aelf0.query(getTxsSql, sqlValue);
-            let count = await aelf0.query(getCountSql, [address]);
+            let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
+            let count = await this.selectQuery(aelf0, getCountSql, [address]);
 
             return {
-                total: count[0].total,
+                total: count[0]['max(block_height)'],
                 records: txs
             };
         }
@@ -58,8 +59,8 @@ class ResourceService extends Service {
         const getSoldSql
             = 'select * from resource_0 where type=? and method="SellResource" order by time desc limit ? offset 0';
 
-        let buyRecords = await aelf0.query(getBuySql, sqlValue);
-        let soldRecords = await aelf0.query(getSoldSql, sqlValue);
+        let buyRecords = await this.selectQuery(aelf0, getBuySql, sqlValue);
+        let soldRecords = await this.selectQuery(aelf0, sqlValue, []);
 
         return {
             buyRecords,
