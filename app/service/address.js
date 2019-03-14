@@ -6,7 +6,6 @@
 
 /* eslint-disable fecs-camelcase */
 const BaseService = require('../core/baseService');
-const Service = require('egg').Service;
 
 const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
