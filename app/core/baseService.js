@@ -55,16 +55,10 @@ class BaseService extends Service {
             // const finalSql = unconfirmedSql + ' UNION ' + sql;
             const result = await pool.query(finalSql, [...valueTemp, ...sqlValues]);
             // Judging the current number of data by block_height
-            if (sql.includes('max(')) {
+            if (sql.includes('count(')) {
                 const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
-                const asKey = sqlArray[sqlArray.indexOf('select') + 1];
-                let output = 0;
-                if (result[0][asKey] && result[1][asKey]) {
-                    output = result[0][asKey] > result[1][asKey] ? result[0][asKey] : result[1][asKey];
-                }
-                else {
-                    output = result[0][asKey] || 0;
-                }
+                const asKey = sqlArray[sqlArray.indexOf('as') + 1];
+                let output = result[0][asKey] + result[1][asKey];
                 return [{
                     [asKey]: output
                 }];

@@ -36,13 +36,13 @@ class BlockService extends BaseService {
                 = 'select * from transactions_0  where block_hash=?'
                 + `ORDER BY block_height ${order} limit ? offset ? `;
             // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0  where block_hash=? ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = 'select max(block_height) from transactions_0  where block_hash=?';
+            let getCountSql = 'select count(*) from transactions_0  where block_hash=?';
             // return sql;
             let txs = await this.selectQuery(aelf0, getTxsSql, [block_hash, limit, offset]);
             let count = await this.selectQuery(aelf0, getCountSql, [block_hash]);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
-                total: count[0]['max(block_height)'],
+                total: count[0].total,
                 transactions: txs
             };
         }

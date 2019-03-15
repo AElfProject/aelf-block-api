@@ -62,14 +62,14 @@ class AddressService extends BaseService {
             const getTxsSql = `select * from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql} 
                             ORDER BY block_height ${order} limit ? offset ? `;
-            const getCountSql = `select max(block_height) from transactions_0 
+            const getCountSql = `select count(*) as total from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql}`;
             let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
             let count = await this.selectQuery(aelf0, getCountSql, [block_height, address, address, contract_address]);
             // let txs = await aelf0.query(getTxsSql, sqlValue);
             // let count = await aelf0.query(getCountSql, [address, address, contract_address]);
             return {
-                total: count[0]['max(block_height)'],
+                total: count[0].total,
                 transactions: txs
             };
         }
