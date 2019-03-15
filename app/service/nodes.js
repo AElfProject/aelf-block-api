@@ -4,7 +4,7 @@
  * 2018.08
  */
 /* eslint-disable fecs-camelcase */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
 const insertTokenContract = require('../utils/insertTokenContract');
 const BaseService = require('../core/baseService');
 class NodesService extends BaseService {
