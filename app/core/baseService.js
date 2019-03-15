@@ -58,7 +58,13 @@ class BaseService extends Service {
             if (sql.includes('max(')) {
                 const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
                 const asKey = sqlArray[sqlArray.indexOf('select') + 1];
-                const output = result[0][asKey] > result[1][asKey] ? result[0][asKey] : result[1][asKey];
+                let output = 0;
+                if (result[0][asKey] && result[1][asKey]) {
+                    output = result[0][asKey] > result[1][asKey] ? result[0][asKey] : result[1][asKey];
+                }
+                else {
+                    output = result[0][asKey] || 0;
+                }
                 return [{
                     [asKey]: output
                 }];

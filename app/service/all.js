@@ -22,6 +22,7 @@ class AllService extends BaseService {
             let blocks = await this.selectQuery(aelf0, getBlocksSql, [limit, offset]);
             // [] If default parameters are used in the query, empty arrays are passed
             let count = await this.selectQuery(aelf0, getCountSql, []);
+            console.log(count);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
                 // total: count[0]["FOUND_ROWS()"],
