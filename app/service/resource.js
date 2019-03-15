@@ -60,7 +60,7 @@ class ResourceService extends BaseService {
             = 'select * from resource_0 where type=? and method="SellResource" order by time desc limit ? offset 0';
 
         let buyRecords = await this.selectQuery(aelf0, getBuySql, sqlValue);
-        let soldRecords = await this.selectQuery(aelf0, sqlValue, []);
+        let soldRecords = await this.selectQuery(aelf0, getSoldSql, sqlValue);
 
         return {
             buyRecords,
@@ -112,8 +112,8 @@ class ResourceService extends BaseService {
             sellValueArray.push(type, 'SellResource');
         }
 
-        const buyRecords = await aelf0.query(selectSql, buyValueArray);
-        const sellRecords = await aelf0.query(selectSql, sellValueArray);
+        const buyRecords = await this.selectQuery(aelf0, selectSql, buyValueArray);
+        const sellRecords = await this.selectQuery(aelf0, selectSql, sellValueArray);
 
         return {
             buyRecords,
