@@ -5,7 +5,7 @@
  */
 
 /* eslint-disable fecs-camelcase */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
 const moment = require('moment');
 const BaseService = require('../core/baseService');
 

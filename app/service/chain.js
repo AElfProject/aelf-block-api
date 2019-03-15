@@ -2,7 +2,7 @@
  * huangzongzhe
  * 2018.08
  */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
 const BaseService = require('../core/baseService');
 
 class ChainService extends BaseService {

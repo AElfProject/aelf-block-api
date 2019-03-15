@@ -3,7 +3,7 @@
  * @author huangzongzhe
  * 2018.08
  */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
 const BaseService = require('../core/baseService');
 // 尽量不要直接使用使用sql来查询，如果非要使用的话，请用escape方法。
 // This just uses connection.escape() underneath
