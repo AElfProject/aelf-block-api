@@ -40,7 +40,7 @@ class AllService extends BaseService {
             // let getTxsSql = `select SQL_CALC_FOUND_ROWS * from transactions_0 ORDER BY block_height ${order} limit ? offset ? `;
             let getTxsSql = `select * from transactions_0 ORDER BY block_height ${order} limit ? offset ? `;
             // let getCountSql = `SELECT FOUND_ROWS()`;
-            let getCountSql = 'select count(*) as total from blocks_0';
+            let getCountSql = 'select count(*) as total from transactions_0';
             // return sql;
             let txs = await this.selectQuery(aelf0, getTxsSql, [limit, offset]);
             // [] If default parameters are used in the query, empty arrays are passed

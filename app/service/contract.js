@@ -34,7 +34,7 @@ class ContractService extends BaseService {
             let getTxsSql = `select * from contract_aelf20  
                              ${contractMatchSql} 
                             ORDER BY name ${order} limit ? offset ? `;
-            let getCountSql = `select * from contract_aelf20 ${contractMatchSql}` ;
+            let getCountSql = `select count(*) as total from contract_aelf20 ${contractMatchSql}` ;
 
             let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
             let count = await this.selectQuery(aelf0, getCountSql, [chain_id]);

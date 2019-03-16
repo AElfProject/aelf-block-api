@@ -58,7 +58,8 @@ class BaseService extends Service {
             if (sql.includes('count(')) {
                 const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
                 const asKey = sqlArray[sqlArray.indexOf('as') + 1];
-                let output = result[0][asKey] + result[1][asKey];
+                let output = 0;
+                result.length > 1 ? output = result[0][asKey] + result[1][asKey] : output = result[0][asKey];
                 return [{
                     [asKey]: output
                 }];
