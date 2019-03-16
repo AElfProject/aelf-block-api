@@ -13,7 +13,7 @@ class ChainService extends BaseService {
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
             let getBlocksSql = `select * from blocks_0 where chain_id=? ORDER BY block_height ${order} limit ? offset ?`;
-            let getCountSql = `select count(*)c from blocks_0 where chain_id=?`;
+            let getCountSql = `select count(*) from blocks_0 where chain_id=?`;
             // return sql;
             let blocks = await this.selectQuery(aelf0, getBlocksSql, [chain_id, limit, offset]);
             let count = await this.selectQuery(aelf0, getCountSql, [chain_id]);
