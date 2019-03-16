@@ -67,8 +67,6 @@ class AddressService extends BaseService {
             let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
             let count = await this.selectQuery(aelf0, getCountSql, [address, address, contract_address]);
             // let txs = await aelf0.query(getTxsSql, sqlValue);
-            // let count = await aelf0.query(getCountSql, [address, address, contract_address]);
-            console.log(count[0]);
             return {
                 total: count[0].total,
                 transactions: txs
