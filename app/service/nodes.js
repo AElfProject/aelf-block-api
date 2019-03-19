@@ -4,15 +4,15 @@
  * 2018.08
  */
 /* eslint-disable fecs-camelcase */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
 const insertTokenContract = require('../utils/insertTokenContract');
-
-class NodesService extends Service {
+const BaseService = require('../core/baseService');
+class NodesService extends BaseService {
 
     async getNodesInfo() {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
         const getQuery = 'select * from nodes_0';
-        let nodesInfo = await aelf0.query(getQuery);
+        let nodesInfo = await this.selectQuery(aelf0, getQuery, []);
         return {
             list: nodesInfo
         };
@@ -35,7 +35,7 @@ class NodesService extends Service {
 
         const insertQuery = `insert into ${table} ${keysStr} VALUES ${valuesStr}`;
 
-        let nodesInfo = await aelf0.query(insertQuery, values);
+        let nodesInfo = await this.selectQuery(aelf0, insertQuery, values);
 
         const {api_domain, api_ip, contract_address} = options;
         const apiUrl = api_domain || api_ip;
@@ -73,7 +73,7 @@ class NodesService extends Service {
         const updateSql = `UPDATE ${table} SET ${setSqlSnippetsString}`
             + `WHERE contract_address="${options.contract_address}" and chain_id="${options.chain_id}";`;
 
-        const nodesInfo = await aelf0.query(updateSql);
+        const nodesInfo = await this.selectQuery(aelf0, updateSql, []);
         return {
             nodesInfo
         };

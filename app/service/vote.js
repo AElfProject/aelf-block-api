@@ -5,9 +5,8 @@
  */
 
 /* eslint-disable fecs-camelcase */
-const Service = require('egg').Service;
-
-class VoteService extends Service {
+const BaseService = require('../core/baseService');
+class VoteService extends BaseService {
 
     async getRecord(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');

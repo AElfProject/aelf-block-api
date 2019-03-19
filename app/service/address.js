@@ -58,19 +58,15 @@ class AddressService extends BaseService {
                 contractMatchSql = ' and address_to=? ';
                 sqlValue = [address, address, contract_address, limit, offset];
             }
-
-            const getTxsSql = `select * from transactions_0  
+            let block_height = 'block_height';
+            const getTxsSql = `select * from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql} 
                             ORDER BY block_height ${order} limit ? offset ? `;
-            const getCountSql = `select count(*) AS total from transactions_0  
+            const getCountSql = `select count(*) as total from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql}`;
-
             let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
             let count = await this.selectQuery(aelf0, getCountSql, [address, address, contract_address]);
-            
             // let txs = await aelf0.query(getTxsSql, sqlValue);
-            // let count = await aelf0.query(getCountSql, [address, address, contract_address]);
-
             return {
                 total: count[0].total,
                 transactions: txs
@@ -113,7 +109,7 @@ class AddressService extends BaseService {
                     + ' contract_aelf20.contract_address=address_contracts.contract_address and '
                     + ' address_contracts.address=?'
                     + ` ORDER BY update_time ${order} ${pageSql};`;
-                let tokens = await aelf0.query(selectSql, sqlValue);
+                let tokens = await this.selectQuery(aelf0, selectSql, sqlValue);
 
                 return tokens;
             }
@@ -123,7 +119,7 @@ class AddressService extends BaseService {
                     And address_contracts.contract_address=contract_aelf20.contract_address
                     ORDER BY update_time ${order} ${pageSql}`;
 
-            let tokens = await aelf0.query(sql, sqlValue);
+            let tokens = await this.selectQuery(aelf0, sql, sqlValue);
 
             let promiseList = [];
             tokens.map(item => {
@@ -170,7 +166,7 @@ class AddressService extends BaseService {
 
         if (verifyResult) {
             let sql = `insert into address_contracts (address, contract_address) VALUES (?,?);`;
-            let result = await aelf0.query(sql, [address, contract_address]);
+            let result = await this.selectQuery(aelf0, sql, [address, contract_address]);
 
             return result;
         }
@@ -195,7 +191,7 @@ class AddressService extends BaseService {
 
         if (verifyResult) {
             let sql = `delete from address_contracts WHERE address = '${address}' and contract_address = '${contract_address}' `;
-            let result = await aelf0.query(sql, [address, contract_address]);
+            let result = await this.selectQuery(aelf0, sql, [address, contract_address]);
 
             return result;
         }
