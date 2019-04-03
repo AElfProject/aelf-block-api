@@ -31,7 +31,7 @@ class BaseService extends Service {
         // and params_to = '3L8EHf4CMq2CHr9ifrmhNYf5hDH1DET1LNZKwzhJr8hFa2H'
         // order by block_height desc limit 10 offset 0;
 
-        const secondPartList = ['transactions', 'blocks', 'resources'];
+        const secondPartList = ['transactions', 'blocks', 'resource'];
         const tableSuffix = '_unconfirmed';
         // demo: ['from  transactions_0 '], ['from  blocks_0 '], ['from resource_0 ']
         const matchUnconfirmedReg

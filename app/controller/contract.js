@@ -1,9 +1,10 @@
-/*
- * huangzongzhe
+/**
+ * @file contract.js
+ * @author huangzongzhe
  * 2018.08
  */
 'use strict';
-
+/* eslint-disable fecs-camelcase */
 // 想想有没有什么更加合适的命名。。。
 
 const Controller = require('egg').Controller;
@@ -70,6 +71,62 @@ class ContractController extends Controller {
             console.log('options: ', options);
             ctx.validate(keysRule, options);
             let result = await ctx.service.contract.getContracts(options);
+            formatOutput(ctx, 'get', result);
+        } catch (error) {
+            formatOutput(ctx, 'error', error, 422);
+        }
+    }
+
+    /**
+     * 插入token合约
+     * api/contract/contracts
+     *
+     * @API insertContract
+     * @param {number} contract_address not null
+     * @param {string} chain_id not null
+     * @param {string} block_hash not null
+     * @param {string} tx_id not null
+     * @param {string} symbol not null
+     * @param {string} name not null
+     * @param {number} total_supply not null
+     * @param {number} decimals not null
+     * @return {Object}
+     */
+    // {
+    //     "contract_address": "4rkKQpsRFt1nU6weAHuJ6CfQDqo6dxruU3K3wNUFr6ZwZYc",
+    //     "chain_id": "BELF",
+    //     "block_hash": "test_block_hash",
+    //     "tx_id": "test_tx_id",
+    //     "symbol": "test_symbol",
+    //     "name": "test_name",
+    //     "total_supply": 10000,
+    //     "decimals": 1000
+    // }
+    async insertContract() {
+        let ctx = this.ctx;
+        try {
+            let {
+                contract_address,
+                chain_id,
+                block_hash,
+                tx_id,
+                symbol,
+                name,
+                total_supply,
+                decimals
+            } = ctx.request.body;
+            let options = {
+                contract_address,
+                chain_id,
+                block_hash,
+                tx_id,
+                symbol,
+                name,
+                total_supply,
+                decimals
+            };
+            // console.log('options: ', options);
+            let result = await ctx.service.contract.insertContract(options);
             formatOutput(ctx, 'get', result);
         } catch (error) {
             formatOutput(ctx, 'error', error, 422);

@@ -3,6 +3,7 @@
  * @author huangzongzhe
  * 2018.08
  */
+/* eslint-disable fecs-camelcase */
 // const Service = require('egg').Service;
 const BaseService = require('../core/baseService');
 class ContractService extends BaseService {
@@ -45,6 +46,32 @@ class ContractService extends BaseService {
             };
         }
         return '傻逼，滚。';
+    }
+
+    async insertContract(options) {
+        const aelf0 = this.ctx.app.mysql.get('aelf0');
+        const {
+            contract_address,
+            chain_id,
+            block_hash,
+            tx_id,
+            symbol,
+            name,
+            total_supply,
+            decimals
+        } = options;
+        const string
+            = ['contract_address', 'chain_id', 'block_hash', 'tx_id', 'symbol', 'name', 'total_supply', 'decimals'];
+        const blanks = '?, ?, ?, ?, ?, ?, ?, ?';
+        const insertSql = `insert into contract_aelf20 (${string.join(',')}) Values (${blanks})`;
+
+        let contracts = await aelf0.query(
+            insertSql,
+            [contract_address, chain_id, block_hash, tx_id, symbol, name, total_supply, decimals]
+        );
+
+        return contracts;
+
     }
 
     // 查询token

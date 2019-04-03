@@ -29,6 +29,7 @@ module.exports = app => {
 
     router.get('/api/contract/detail', controller.contract.getDetail);
     router.get('/api/contract/contracts', controller.contract.getContracts);
+    router.post('/api/contract/contract', controller.contract.insertContract);
     router.get('/api/contract/searchtoken', controller.contract.searchToken);
 
     router.get('/api/huobi/detail', controller.huobi.getDetail);
