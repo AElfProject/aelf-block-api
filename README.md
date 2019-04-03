@@ -39,11 +39,12 @@ cp demo.config.js config.default.js
 
 set your own config.keys & config.mysql
 
-Warning About Mysql: 
+Warning About Mysql:
 
 - Please do not use admin. Use the normal users without SUPER privilege.
 
 Grant Demo
+
 ```bash
     CREATE USER 'normal_aelf'@'localhost' IDENTIFIED BY 'password';
     GRANT select, insert, update, delete on aelf_test.* TO 'normal_aelf'@'localhost';
@@ -88,7 +89,7 @@ fetch(`/block/api/address/transactions`, {
 
 Now, the Repositories of test demo is in [docker/hzz780/aelf-block-api](https://cloud.docker.com/swarm/hzz780/repository/docker/hzz780/aelf-block-api/general)
 
-#### Demo
+### Demo
 
 ```bash
 docker container run -p 7101:7101 -dit \
@@ -110,7 +111,6 @@ Then, look at config/demo.config.js & config/plugin.js
 [postman](https://www.getpostman.com/collections/b97c94ea6f024360b7a7)
 
 We use nginx when we dev, so you will see http://localhost:7000/block/api/address but not http://localhost:7101/api/address.
-
 
 ## Dev Suggestion
 
@@ -138,7 +138,7 @@ We advise you implement your own API like the example.
 // controller/address.js
     async getTokens() {
         let ctx = this.ctx;
-        
+
         // Not only param validate but also a detail param doc.
         // About 'paramater': https://github.com/node-modules/parameter
         const keysRule = {
@@ -190,7 +190,7 @@ We advise you implement your own API like the example.
             formatOutput(ctx, 'error', error, 422);
         }
     }
-    
+
 // service/address.js
 async getTokens(options) {
     // get the tokens information.

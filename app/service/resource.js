@@ -55,9 +55,9 @@ class ResourceService extends BaseService {
         let sqlValue = [type, limit];
 
         const getBuySql
-            = 'select * from resource_0 where type=? and method="BuyResource" order by time desc limit ? offset 0';
+            = 'select * from resource_0 where type=? and method="Buy" order by time desc limit ? offset 0';
         const getSoldSql
-            = 'select * from resource_0 where type=? and method="SellResource" order by time desc limit ? offset 0';
+            = 'select * from resource_0 where type=? and method="Sell" order by time desc limit ? offset 0';
 
         let buyRecords = await this.selectQuery(aelf0, getBuySql, sqlValue);
         let soldRecords = await this.selectQuery(aelf0, getSoldSql, sqlValue);
@@ -100,16 +100,16 @@ class ResourceService extends BaseService {
         startTime += interval;
         let buyValueArray = [];
         let sellValueArray = [];
-        buyValueArray.push(type, 'BuyResource');
-        sellValueArray.push(type, 'SellResource');
+        buyValueArray.push(type, 'Buy');
+        sellValueArray.push(type, 'Sell');
 
         while (startTime < timeNow) {
             selectSql += ' UNION ALL ' + `select ${startTime} as date, count(*) as count from resource_0 `
                 + ` where time between ${startTime} and ${startTime + interval - 1} `
                 + 'and type=? and method=?';
             startTime += interval;
-            buyValueArray.push(type, 'BuyResource');
-            sellValueArray.push(type, 'SellResource');
+            buyValueArray.push(type, 'Buy');
+            sellValueArray.push(type, 'Sell');
         }
 
         const buyRecords = await this.selectQuery(aelf0, selectSql, buyValueArray);
