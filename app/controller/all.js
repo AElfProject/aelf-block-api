@@ -24,7 +24,7 @@ class AllController extends Controller {
             let options = {
                 limit: parseInt(limit, 10),
                 page: parseInt(page, 10),
-                order: order || 'DESC',
+                order: order || 'DESC'
             };
             ctx.validate(blocksRule, options);
             let result = await ctx.service.all.getAllBlocks(options);

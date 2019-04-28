@@ -2,9 +2,10 @@
  * huangzongzhe
  * 2018.08
  */
-const Service = require('egg').Service;
+// const Service = require('egg').Service;
+const BaseService = require('../core/baseService');
 
-class ChainService extends Service {
+class ChainService extends BaseService {
 
     async getBlocks(options) {
         const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -14,11 +15,11 @@ class ChainService extends Service {
             let getBlocksSql = `select * from blocks_0 where chain_id=? ORDER BY block_height ${order} limit ? offset ?`;
             let getCountSql = `select count(*) from blocks_0 where chain_id=?`;
             // return sql;
-            let blocks = await aelf0.query(getBlocksSql, [chain_id, limit, offset]);
-            let count = await aelf0.query(getCountSql, [chain_id]);
+            let blocks = await this.selectQuery(aelf0, getBlocksSql, [chain_id, limit, offset]);
+            let count = await this.selectQuery(aelf0, getCountSql, [chain_id]);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
-                total: count[0]['count(*)'],
+                total: count[0].total,
                 blocks: blocks
             };
         }
@@ -31,13 +32,13 @@ class ChainService extends Service {
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
             let getTxsSql = `select * from transactions_0  where chain_id=? ORDER BY block_height ${order} limit ? offset ? `;
-            let getCountSql = `select count(*) from transactions_0  where chain_id=?`;
+            let getCountSql = `select count(*) as total from transactions_0  where chain_id=?`;
             // return sql;
-            let txs = await aelf0.query(getTxsSql, [chain_id, limit, offset]);
-            let count = await aelf0.query(getCountSql, [chain_id]);
+            let txs = await this.selectQuery(aelf0, getTxsSql, [chain_id, limit, offset]);
+            let count = await this.selectQuery(aelf0, getCountSql, [chain_id]);
             // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
             return {
-                total: count[0]['count(*)'],
+                total: count[0].total,
                 transactions: txs
             };
         }

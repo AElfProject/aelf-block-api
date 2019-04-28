@@ -1,5 +1,6 @@
-/*
- * huangzongzhe
+/**
+ * @file service/huobi.js
+ * @author huangzongzhe
  * 2018.10
  * https: //github.com/huobiapi/API_Docs/wiki/REST_request
  */
