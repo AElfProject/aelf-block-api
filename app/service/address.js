@@ -69,7 +69,6 @@ class AddressService extends BaseService {
                 countSqlValue = [...countSqlValue, method];
             }
 
-            console.log(sqlValue);
             let block_height = 'block_height';
             const getTxsSql = `select * from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
