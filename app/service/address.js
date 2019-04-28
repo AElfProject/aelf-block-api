@@ -47,25 +47,37 @@ class AddressService extends BaseService {
             page,
             order,
             address,
-            contract_address
+            contract_address,
+            method
         } = options;
         if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
             const offset = limit * page;
 
             let contractMatchSql = '';
-            let sqlValue = [address, address, limit, offset];
+            let methodMatchSql = '';
+            let sqlValue = [];
+            let countSqlValue = [address, address, contract_address];
             if (contract_address) {
                 contractMatchSql = ' and address_to=? ';
                 sqlValue = [address, address, contract_address, limit, offset];
+
             }
+            
+            if (method) {
+                methodMatchSql = 'and method=? ';
+                sqlValue = [address, address, contract_address, method, limit, offset];
+                countSqlValue = [...countSqlValue, method];
+            }
+
+            console.log(sqlValue);
             let block_height = 'block_height';
             const getTxsSql = `select * from transactions_0 
-                            where (address_from=? or params_to=?) ${contractMatchSql} 
+                            where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
                             ORDER BY block_height ${order} limit ? offset ? `;
             const getCountSql = `select count(*) as total from transactions_0 
-                            where (address_from=? or params_to=?) ${contractMatchSql}`;
+                            where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
             let txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
-            let count = await this.selectQuery(aelf0, getCountSql, [address, address, contract_address]);
+            let count = await this.selectQuery(aelf0, getCountSql, countSqlValue);
             // let txs = await aelf0.query(getTxsSql, sqlValue);
             return {
                 total: count[0].total,
