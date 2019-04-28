@@ -44,14 +44,16 @@ class AddressController extends Controller {
                 page,
                 order,
                 address,
-                contract_address
+                contract_address,
+                method
             } = ctx.request.query;
             let options = {
                 limit: parseInt(limit, 10),
                 page: parseInt(page, 10),
                 order: order || 'DESC',
                 address: address,
-                contract_address: contract_address || ''
+                contract_address: contract_address || '',
+                method: method || null
             };
             ctx.validate(keysRule, options);
             let result = await ctx.service.address.getTransactions(options);
