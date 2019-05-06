@@ -174,6 +174,7 @@ class AddressController extends Controller {
      * @API getTokens
      * @param {string} address
      * @param {string} contract_address
+     * @param {string} symbol
      * @param {string} signed_address
      * @param {Object} public_key
      * @return {Object}
@@ -187,12 +188,14 @@ class AddressController extends Controller {
             let {
                 address,
                 contract_address,
+                symbol,
                 signed_address,
                 public_key
             } = ctx.request.body;
             let options = {
                 address,
                 contract_address,
+                symbol,
                 signed_address,
                 public_key
             };
@@ -210,6 +213,7 @@ class AddressController extends Controller {
      * @API unbindTokens
      * @param {string} address
      * @param {string} contract_address
+     * @param {string} symbol
      * @param {string} signed_address
      * @param {Object} public_key
      * @return {Object}
@@ -223,12 +227,14 @@ class AddressController extends Controller {
             let {
                 address,
                 contract_address,
+                symbol,
                 signed_address,
                 public_key
             } = ctx.request.body;
             let options = {
                 address,
                 contract_address,
+                symbol,
                 signed_address,
                 public_key
             };
