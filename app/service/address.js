@@ -166,6 +166,7 @@ class AddressService extends BaseService {
         const {
             address,
             contract_address,
+            symbol,
             signed_address,
             public_key
         } = options;
@@ -176,14 +177,12 @@ class AddressService extends BaseService {
         let verifyResult = key.verify(address, signed_address);
 
         if (verifyResult) {
-            let sql = `insert into address_contracts (address, contract_address) VALUES (?,?);`;
-            let result = await this.selectQuery(aelf0, sql, [address, contract_address]);
+            let sql = 'insert into address_contracts (address, contract_address, symbol) VALUES (?,?,?);';
+            let result = await this.selectQuery(aelf0, sql, [address, contract_address, symbol]);
 
             return result;
         }
-        else {
-            return 'error signature.';
-        }
+        return 'error signature.';
     }
 
     async unbindToken(options) {
@@ -191,6 +190,7 @@ class AddressService extends BaseService {
         const {
             address,
             contract_address,
+            symbol,
             signed_address,
             public_key
         } = options;
@@ -201,14 +201,11 @@ class AddressService extends BaseService {
         let verifyResult = key.verify(address, signed_address);
 
         if (verifyResult) {
-            let sql = `delete from address_contracts WHERE address = '${address}' and contract_address = '${contract_address}' `;
-            let result = await this.selectQuery(aelf0, sql, [address, contract_address]);
-
+            let sql = 'delete from address_contracts WHERE address=? and contract_address=? and symbol=?';
+            let result = await this.selectQuery(aelf0, sql, [address, contract_address, symbol]);
             return result;
         }
-        else {
-            return 'error signature.';
-        }
+        return 'error signature.';
     }
 }
 
