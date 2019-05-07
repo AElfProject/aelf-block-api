@@ -52,10 +52,12 @@ class BaseService extends Service {
             // http://www.w3school.com.cn/sql/sql_union.asp
             // UNION operators select different values. If duplicate values are allowed, use UNION ALL
             const finalSql = unconfirmedSql + ' UNION ' + sql;
-            // const finalSql = unconfirmedSql + ' UNION ' + sql;
             const result = await pool.query(finalSql, [...valueTemp, ...sqlValues]);
+            // Why add  && !sql.includes('date, count(') judgment
+            // Because the count has already been done in the previous query, and the subsequent data statistics will lead to incorrect return values.
             // Judging the current number of data by block_height
-            if (sql.includes('count(')) {
+            // service/resource.js 97 row & 107 row
+            if (sql.includes('count(') && !sql.includes('date, count(')) {
                 const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
                 const asKey = sqlArray[sqlArray.indexOf('as') + 1];
                 const output = result[0][asKey] + (result[1] && result[1][asKey] || 0);
