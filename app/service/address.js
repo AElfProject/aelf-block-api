@@ -118,6 +118,7 @@ class AddressService extends BaseService {
                 const selectSql = 'select * from address_contracts, nodes_0, contract_aelf20 '
                     + ' where address_contracts.contract_address=nodes_0.contract_address and '
                     + ' contract_aelf20.contract_address=address_contracts.contract_address and '
+                    + ' contract_aelf20.symbol=address_contracts.symbol and '
                     + ' address_contracts.address=?'
                     + ` ORDER BY update_time ${order} ${pageSql};`;
                 let tokens = await this.selectQuery(aelf0, selectSql, sqlValue);
@@ -126,7 +127,7 @@ class AddressService extends BaseService {
             }
 
             let sql = `select * from address_contracts,contract_aelf20 
-                    where address=? 
+                    where address=? and contract_aelf20.symbol=address_contracts.symbol 
                     And address_contracts.contract_address=contract_aelf20.contract_address
                     ORDER BY update_time ${order} ${pageSql}`;
 
