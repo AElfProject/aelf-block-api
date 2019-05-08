@@ -56,11 +56,10 @@ class AddressService extends BaseService {
             let contractMatchSql = '';
             let methodMatchSql = '';
             let sqlValue = [address, address];
-            let countSqlValue = [address, address];
+            let countSqlValue = [address, address, contract_address];
             if (contract_address) {
                 contractMatchSql = ' and address_to=? ';
                 sqlValue.push(contract_address);
-
             }
 
             if (method) {
