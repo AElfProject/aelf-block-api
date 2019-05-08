@@ -55,21 +55,21 @@ class AddressService extends BaseService {
 
             let contractMatchSql = '';
             let methodMatchSql = '';
-            let sqlValue = [];
-            let countSqlValue = [address, address, contract_address];
+            let sqlValue = [address, address];
+            let countSqlValue = [address, address];
             if (contract_address) {
                 contractMatchSql = ' and address_to=? ';
-                sqlValue = [address, address, contract_address, limit, offset];
+                sqlValue.push(contract_address);
 
             }
-            
+
             if (method) {
                 methodMatchSql = 'and method=? ';
-                sqlValue = [address, address, contract_address, method, limit, offset];
+                sqlValue.push(method);
                 countSqlValue = [...countSqlValue, method];
             }
+            sqlValue = [...sqlValue, limit, offset];
 
-            let block_height = 'block_height';
             const getTxsSql = `select * from transactions_0 
                             where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
                             ORDER BY block_height ${order} limit ? offset ? `;
