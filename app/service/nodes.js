@@ -18,6 +18,9 @@ class NodesService extends BaseService {
         };
     }
 
+    // insert into nodes_0 (contract_address, chain_id, api_ip, api_domain, rpc_ip, rpc_domain, token_name, owner, status)
+    // VALUES ('2J9wWhuyz7Drkmtu9DTegM9rLmamjekmRkCAWz5YYPjm7akfbH', 'BELF', 'http://127.0.0.1:7101', 'http://127.0.0.1:7101',
+    // 'http://xxx:8000', 'http://xxx:8000', 'ELF', 'hzz780', 1);
     async postNodesInfo(options) {
         let values = [];
         // contract_address, chain_id, api_ip, api_domain, rpc_ip, rpc_domain, token_name, owner, status
