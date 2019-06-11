@@ -9,6 +9,9 @@ module.exports = app => {
         router,
         controller
     } = app;
+
+    const isAdmin = app.middleware.isAdmin();
+
     router.get('/', controller.home.index);
     router.get('/api/transactions', controller.api.getTransactions);
     router.post('/api/transactions', controller.api.postTransactions);
@@ -36,9 +39,9 @@ module.exports = app => {
 
     router.get('/api/tps/list', controller.tps.getTps);
 
-    router.get('/api/nodes/info', controller.nodes.getNodesInfo);
-    router.post('/api/nodes/info', controller.nodes.postNodesInfo);
-    router.put('/api/nodes/info', controller.nodes.putNodesInfo);
+    router.get('/api/nodes/info', isAdmin, controller.nodes.getNodesInfo);
+    router.post('/api/nodes/info', isAdmin, controller.nodes.postNodesInfo);
+    router.put('/api/nodes/info', isAdmin, controller.nodes.putNodesInfo);
 
     router.get('/api/resource/records', controller.resource.getRecords);
     router.get('/api/resource/realtime-records', controller.resource.getRealtimeRecords);
