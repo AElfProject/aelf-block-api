@@ -7,7 +7,7 @@ Please ensure your dependencies are ready.
 If you meet some permission problem, try to use 'sudo'.
 
 ```bash
-bash build.sh < type|optional> < node_moduels|optinal> < nginx|optional >
+bash build.sh <type|optional> <node_moduels|optinal> <nginx|optional>
 # if you only want to use the second param, you must set the type=""
 # Demo
 bash build.sh dev
