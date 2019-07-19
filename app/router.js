@@ -45,7 +45,7 @@ module.exports = app => {
     router.post('/api/admin/login', accessFrequencyRestrict, controller.admin.login);
     router.get('/api/admin/user-info', accessFrequencyRestrict, controller.admin.getUserInfo);
 
-    router.get('/api/nodes/info', isAdmin, controller.nodes.getNodesInfo);
+    router.get('/api/nodes/info', controller.nodes.getNodesInfo);
     router.post('/api/nodes/info', isAdmin, controller.nodes.postNodesInfo);
     router.put('/api/nodes/info', isAdmin, controller.nodes.putNodesInfo);
 
