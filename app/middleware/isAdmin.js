@@ -6,24 +6,17 @@
  */
 
 module.exports = options => {
-    return async function isAdmin(ctx, next) {
-        await next();
+  return async function isAdmin(ctx, next) {
+    await next();
 
-        const aelf0 = ctx.app.mysql.get('aelf0');
+    const user_id = ctx.cookies.get('user_id');
 
-        const checkAdmin = 'select id from users where address=?';
-        const accountAddress = ctx.cookies.get('account', {
-            signed: false
-        });
-
-        const isAdmin = await aelf0.query(checkAdmin, [accountAddress]);
-
-        if (isAdmin.length <= 0) {
-            ctx.body = JSON.stringify({
-                error: 200001,
-                errorMessage: 'no permission'
-            });
-            return;
-        }
-    };
+    if (!user_id) {
+      ctx.body = JSON.stringify({
+        error: 200001,
+        errorMessage: 'no permission'
+      });
+      return;
+    }
+  };
 };

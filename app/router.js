@@ -11,6 +11,9 @@ module.exports = app => {
     } = app;
 
     const isAdmin = app.middleware.isAdmin();
+    const accessFrequencyRestrict = app.middleware.accessFrequencyRestrict({
+      millisecond: 1000
+    });
 
     router.get('/', controller.home.index);
     router.get('/api/transactions', controller.api.getTransactions);
@@ -38,6 +41,9 @@ module.exports = app => {
     router.get('/api/huobi/detail', controller.huobi.getDetail);
 
     router.get('/api/tps/list', controller.tps.getTps);
+
+    router.post('/api/admin/login', accessFrequencyRestrict, controller.admin.login);
+    router.get('/api/admin/user-info', accessFrequencyRestrict, controller.admin.getUserInfo);
 
     router.get('/api/nodes/info', isAdmin, controller.nodes.getNodesInfo);
     router.post('/api/nodes/info', isAdmin, controller.nodes.postNodesInfo);
