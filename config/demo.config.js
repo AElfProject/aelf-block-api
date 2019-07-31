@@ -55,5 +55,26 @@ module.exports = appInfo => {
         agent: false,
     };
 
+    config.redis = {
+        client: {
+            port: 6379,          // Redis port
+            host: '127.0.0.1',   // Redis host
+            db: 0,
+            password: null
+        }
+    };
+
+    config.redisKeys = {
+        blocksCount: 'blocks_count',
+        blocksUnconfirmedCount: 'blocks_unconfirmed_count',
+        txsCount: 'txs_count',
+        txsUnconfirmedCount: 'txs_unconfirmed_count',
+        resourceCount: 'resource_count',
+        resourceUnconfirmedCount: 'resource_unconfirmed_count',
+        tokenCount: 'token_count',
+        LIBHeight: 'lib_height',
+        bestHeight: 'best_height'
+    };
+
     return config;
 };
