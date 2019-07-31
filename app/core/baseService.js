@@ -69,5 +69,10 @@ class BaseService extends Service {
         }
         return await pool.query(sql, sqlValues);
     }
+
+    async redisCommand(command, ...args) {
+        const result = await this.app.redis[command](...args);
+        return result;
+    }
 }
 module.exports = BaseService;
