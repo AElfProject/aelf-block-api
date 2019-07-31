@@ -31,42 +31,42 @@ class BaseService extends Service {
         // and params_to = '3L8EHf4CMq2CHr9ifrmhNYf5hDH1DET1LNZKwzhJr8hFa2H'
         // order by block_height desc limit 10 offset 0;
 
-        const secondPartList = ['transactions', 'blocks', 'resource'];
-        const tableSuffix = '_unconfirmed';
-        // demo: ['from  transactions_0 '], ['from  blocks_0 '], ['from resource_0 ']
-        const matchUnconfirmedReg
-            = new RegExp(`from\\s*(${secondPartList.join('|')})_\\d*\\s*`, 'g');
-        const table = sql.match(matchUnconfirmedReg); // ["from transactions_0 "];
-
-        // 需要处理unconfirmed的逻辑
-        if (table && table.length) {
-            const tableUnconfirmed = table[0].replace(/_\d*/, tableSuffix);
-            let unconfirmedSql = sql.replace(table[0], tableUnconfirmed);
-            const orderString = unconfirmedSql.toLocaleLowerCase().match(/order.*/g, '') || [''];
-            unconfirmedSql = unconfirmedSql.toLocaleLowerCase().replace(/order.*/g, '');
-            const paramsArray = orderString[0].match(/\?/g) || [];
-            const lengthRemove = paramsArray.length;
-            let valueTemp = Array.from(sqlValues);
-            valueTemp.length = valueTemp.length - lengthRemove;
-            // VERIFIED: Because the two tables will have the same data, use UNION ALL instead of UNION. If you use UNION, don't let total
-            // http://www.w3school.com.cn/sql/sql_union.asp
-            // UNION operators select different values. If duplicate values are allowed, use UNION ALL
-            const finalSql = unconfirmedSql + ' UNION ' + sql;
-            const result = await pool.query(finalSql, [...valueTemp, ...sqlValues]);
-            // Why add  && !sql.includes('date, count(') judgment
-            // Because the count has already been done in the previous query, and the subsequent data statistics will lead to incorrect return values.
-            // Judging the current number of data by block_height
-            // service/resource.js 97 row & 107 row
-            if (sql.includes('count(') && !sql.includes('date, count(')) {
-                const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
-                const asKey = sqlArray[sqlArray.indexOf('as') + 1];
-                const output = result[0][asKey] + (result[1] && result[1][asKey] || 0);
-                return [{
-                    [asKey]: output
-                }];
-            }
-            return result;
-        }
+        // const secondPartList = ['transactions', 'blocks', 'resource'];
+        // const tableSuffix = '_unconfirmed';
+        // // demo: ['from  transactions_0 '], ['from  blocks_0 '], ['from resource_0 ']
+        // const matchUnconfirmedReg
+        //     = new RegExp(`from\\s*(${secondPartList.join('|')})_\\d*\\s*`, 'g');
+        // const table = sql.match(matchUnconfirmedReg); // ["from transactions_0 "];
+        //
+        // // 需要处理unconfirmed的逻辑
+        // if (table && table.length) {
+        //     const tableUnconfirmed = table[0].replace(/_\d*/, tableSuffix);
+        //     let unconfirmedSql = sql.replace(table[0], tableUnconfirmed);
+        //     const orderString = unconfirmedSql.toLocaleLowerCase().match(/order.*/g, '') || [''];
+        //     unconfirmedSql = unconfirmedSql.toLocaleLowerCase().replace(/order.*/g, '');
+        //     const paramsArray = orderString[0].match(/\?/g) || [];
+        //     const lengthRemove = paramsArray.length;
+        //     let valueTemp = Array.from(sqlValues);
+        //     valueTemp.length = valueTemp.length - lengthRemove;
+        //     // VERIFIED: Because the two tables will have the same data, use UNION ALL instead of UNION. If you use UNION, don't let total
+        //     // http://www.w3school.com.cn/sql/sql_union.asp
+        //     // UNION operators select different values. If duplicate values are allowed, use UNION ALL
+        //     const finalSql = unconfirmedSql + ' UNION ' + sql;
+        //     const result = await pool.query(finalSql, [...valueTemp, ...sqlValues]);
+        //     // Why add  && !sql.includes('date, count(') judgment
+        //     // Because the count has already been done in the previous query, and the subsequent data statistics will lead to incorrect return values.
+        //     // Judging the current number of data by block_height
+        //     // service/resource.js 97 row & 107 row
+        //     if (sql.includes('count(') && !sql.includes('date, count(')) {
+        //         const sqlArray = sql.toLocaleLowerCase().split(/\s+/);
+        //         const asKey = sqlArray[sqlArray.indexOf('as') + 1];
+        //         const output = result[0][asKey] + (result[1] && result[1][asKey] || 0);
+        //         return [{
+        //             [asKey]: output
+        //         }];
+        //     }
+        //     return result;
+        // }
         return await pool.query(sql, sqlValues);
     }
 
