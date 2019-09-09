@@ -34,7 +34,7 @@ in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
 ### 1.Change  the Config
 
 ```bash
-cp demo.config.js config.default.js
+cp config.default.js config.prod.js
 ```
 
 set your own config.keys & config.mysql
@@ -104,7 +104,7 @@ docker exec a7db727219ae npm start
 
 Register [aliyun](https://www.aliyun.com/product/nodejs)
 
-Then, look at config/demo.config.js & config/plugin.js
+Then, look at config/config.default.js & config/plugin.js
 
 ## API DOCS
 
