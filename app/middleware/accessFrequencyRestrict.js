@@ -8,7 +8,7 @@ let preTime = (new Date()).getTime();
 module.exports = options => {
   return async function accessFrequencyRestrict(ctx, next) {
     await next();
-    let nowTime = (new Date()).getTime();
+    const nowTime = (new Date()).getTime();
 
     if (nowTime - options.millisecond < preTime) {
       ctx.body = JSON.stringify({

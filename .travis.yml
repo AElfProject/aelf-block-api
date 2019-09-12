@@ -1,8 +1,0 @@
-sudo: false
-language: node_js
-node_js:
-  - '8'
-install:
-  - npm i npminstall && npminstall
-script:
-  - echo "todo finish it"
