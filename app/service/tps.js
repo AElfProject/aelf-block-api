@@ -18,13 +18,11 @@ class TpsService extends BaseService {
 
       const sqlValue = [ start_time, end_time ];
       const getTpsSql = `select * from tps_0 where start between ? and ? ORDER BY start ${order}`;
-      const getCountSql = 'select count(*) from tps_0 where start between ? and ?';
 
       const tps = await this.selectQuery(aelf0, getTpsSql, sqlValue);
-      const count = await this.selectQuery(aelf0, getCountSql, sqlValue);
 
       return {
-        total: count[0]['count(*)'],
+        total: tps.length,
         tps
       };
     }

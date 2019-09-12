@@ -24,5 +24,5 @@ function formatOutput(ctx, type, result, errcode) {
       break;
     default:
   }
-  ctx.body = JSON.stringify(result);
+  ctx.body = result;
 }

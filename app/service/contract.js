@@ -3,7 +3,6 @@
  * @author huangzongzhe
  * 2018.08
  */
-// const Service = require('egg').Service;
 const BaseService = require('../core/baseService');
 
 class ContractService extends BaseService {
@@ -41,9 +40,8 @@ class ContractService extends BaseService {
 
       const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
       const count = await this.selectQuery(aelf0, getCountSql, [ chain_id ]);
-
       return {
-        total: count[0]['count(*)'],
+        total: count[0].total,
         transactions: txs
       };
     }
@@ -63,7 +61,7 @@ class ContractService extends BaseService {
       decimals
     } = options;
     const string
-            = [ 'contract_address', 'chain_id', 'block_hash', 'tx_id', 'symbol', 'name', 'total_supply', 'decimals' ];
+      = [ 'contract_address', 'chain_id', 'block_hash', 'tx_id', 'symbol', 'name', 'total_supply', 'decimals' ];
     const blanks = '?, ?, ?, ?, ?, ?, ?, ?';
     const insertSql = `insert into contract_aelf20 (${string.join(',')}) Values (${blanks})`;
 

@@ -4,9 +4,10 @@
  * 2018.08
  */
 const elliptic = require('elliptic');
-const BaseService = require('../core/baseService');
 
 const ec = new elliptic.ec('secp256k1');
+const BaseService = require('../core/baseService');
+const { getOrSetCountCache } = require('../utils/cacheCount');
 
 // TODO:Balance 从 链上rpc拿，不再从sql中用sum获得
 async function getBalance(options, aelf0) {
@@ -37,11 +38,22 @@ async function getBalance(options, aelf0) {
   };
 }
 
+function timeout(time, data) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(data);
+    }, time);
+  });
+}
+
 // class AddressService extends Service {
 class AddressService extends BaseService {
 
   async getTransactions(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const { redisKeys } = this.app.config;
+    let txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
+    txsCount = parseInt(txsCount, 10);
     const {
       limit,
       page,
@@ -69,16 +81,30 @@ class AddressService extends BaseService {
       }
       sqlValue = [ ...sqlValue, limit, offset ];
 
-      const getTxsSql = `select * from transactions_0 
-                            where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
-                            ORDER BY block_height ${order} limit ? offset ? `;
-      const getCountSql = `select count(*) as total from transactions_0 
-                            where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
+      let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
+      if (order.toUpperCase() === 'ASC') {
+        whereCondition = `WHERE id BETWEEN ${offset} AND ${txsCount}`;
+      }
+
+      // todo: optimize this is in processing, query in range or add index
+      const getTxsSql = `select * from transactions_0
+        ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
+        ORDER BY id ${order} limit ? offset ? `;
+      const getCountSql = `select count(1) as total from transactions_0 
+        where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
       const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
-      const count = await this.selectQuery(aelf0, getCountSql, countSqlValue);
-      // let txs = await aelf0.query(getTxsSql, sqlValue);
+      const cacheKey = `${countSqlValue.join('_')}`;
+      const result = await Promise.race([
+        getOrSetCountCache(cacheKey, {
+          func: this.selectQuery,
+          args: [ aelf0, getCountSql, countSqlValue ]
+        }),
+        timeout(3000, [{
+          total: 100000
+        }])
+      ]);
       return {
-        total: count[0].total,
+        total: result[0].total,
         transactions: txs
       };
     }

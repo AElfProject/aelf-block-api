@@ -31,7 +31,7 @@ module.exports = async app => {
         list.push(item[1].value);
       }
     }
-    if (list.length > 0) {
+    if (list.length > 0 && Object.keys(app.io.of('/api/socket').clients().connected).length > 0) {
       app.io.of('/api/socket').emit('getBlocksList', list);
     }
   });
