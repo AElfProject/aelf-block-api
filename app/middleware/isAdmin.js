@@ -5,7 +5,7 @@
  * TODO: 现在仅判断cookie，后续加入passport模块
  */
 
-module.exports = options => {
+module.exports = () => {
   return async function isAdmin(ctx, next) {
     await next();
 
@@ -16,7 +16,7 @@ module.exports = options => {
         error: 200001,
         errorMessage: 'no permission'
       });
-      return;
+
     }
   };
 };

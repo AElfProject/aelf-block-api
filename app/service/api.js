@@ -12,32 +12,32 @@ const BaseService = require('../core/baseService');
 // Not using the in-file interface
 class ApiService extends BaseService {
 
-    async transactions(options) {
-        const aelf0 = this.ctx.app.mysql.get('aelf0');
-        const {address, limit, page} = options;
-        const sql = 'select * from transactions_0 where params_to = ? or address_from = ? limit  ? offset  ?';
-        const offset = limit * page;
-        let result = await this.selectQuery(
-            aelf0,
-            sql,
-            [address, address, limit, offset]
-        );
-        return result;
-    }
+  async transactions(options) {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const { address, limit, page } = options;
+    const sql = 'select * from transactions_0 where params_to = ? or address_from = ? limit  ? offset  ?';
+    const offset = limit * page;
+    const result = await this.selectQuery(
+      aelf0,
+      sql,
+      [ address, address, limit, offset ]
+    );
+    return result;
+  }
 
-    async getAllBlocks(options) {
-        const aelf0 = this.ctx.app.mysql.get('aelf0');
-        const {limit, page, order} = options;
-        if (['DESC', 'ASC', 'desc', 'asc'].includes(order)) {
-            const offset = limit * page;
-            let sql = `select * from blocks_0 ORDER BY block_height ${order} limit ? offset ?`;
-            // return sql;
-            let result = await this.selectQuery(aelf0, sql, [limit, offset]);
-            // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
-            return result;
-        }
-        return '傻逼，滚。';
+  async getAllBlocks(options) {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const { limit, page, order } = options;
+    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
+      const offset = limit * page;
+      const sql = `select * from blocks_0 ORDER BY block_height ${order} limit ? offset ?`;
+      // return sql;
+      const result = await this.selectQuery(aelf0, sql, [ limit, offset ]);
+      // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
+      return result;
     }
+    return '傻逼，滚。';
+  }
 }
 
 module.exports = ApiService;

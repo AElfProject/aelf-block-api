@@ -3,8 +3,6 @@
  * @author huangzongzhe
  * 2019.07
  */
-
-/* eslint-disable fecs-camelcase */
 const BaseService = require('../core/baseService');
 
 class AdminService extends BaseService {
@@ -16,8 +14,8 @@ class AdminService extends BaseService {
       pass
     } = options;
 
-    const getUserSql = `select * from user where address=? and password=?`;
-    let userInfo = await aelf0.query(getUserSql, [name, pass]);
+    const getUserSql = 'select * from user where address=? and password=?';
+    const userInfo = await aelf0.query(getUserSql, [ name, pass ]);
     if (userInfo.length <= 0) {
       throw Error('What\'s your problem');
     }
