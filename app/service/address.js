@@ -7,7 +7,10 @@ const elliptic = require('elliptic');
 
 const ec = new elliptic.ec('secp256k1');
 const BaseService = require('../core/baseService');
-const { getOrSetCountCache } = require('../utils/cacheCount');
+const {
+  getOrSetCountCache,
+  timeout
+} = require('../utils/cacheCount');
 
 // TODO:Balance 从 链上rpc拿，不再从sql中用sum获得
 async function getBalance(options, aelf0) {
@@ -36,14 +39,6 @@ async function getBalance(options, aelf0) {
     expenditure,
     balance: income - expenditure
   };
-}
-
-function timeout(time, data) {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(data);
-    }, time);
-  });
 }
 
 // class AddressService extends Service {
@@ -98,7 +93,7 @@ class AddressService extends BaseService {
         getOrSetCountCache(cacheKey, {
           func: this.selectQuery,
           args: [ aelf0, getCountSql, countSqlValue ]
-        }),
+        }, 3000),
         timeout(3000, [{
           total: 100000
         }])
