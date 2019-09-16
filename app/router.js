@@ -52,5 +52,5 @@ module.exports = app => {
   router.post('/api/vote/addTeamDesc', controller.vote.addTeamDesc);
   router.get('/api/vote/getTeamDesc', controller.vote.getTeamDesc);
 
-  app.io.of('/api/socket').route('getBlocksList', app.io.controller.blocksAndTxs.getBlocksList);
+  app.io.of('/').route('getBlocksList', app.io.controller.blocksAndTxs.getBlocksList);
 };

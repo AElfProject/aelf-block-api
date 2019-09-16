@@ -10,7 +10,8 @@ const Scheduler = require('./app/utils/scheduler');
 module.exports = async app => {
   const blockCache = new CacheService();
   const {
-    endpoint
+    endpoint,
+    redisKeys
   } = app.config;
   app.cache = blockCache;
   const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
@@ -22,7 +23,7 @@ module.exports = async app => {
   const scheduler = new Scheduler({
     interval: app.config.broadcastInterval
   });
-  scheduler.setCallback(() => {
+  scheduler.setCallback(async () => {
     const list = [];
     const cacheList = app.cache.getCacheList();
     // eslint-disable-next-line no-unused-vars
@@ -31,8 +32,13 @@ module.exports = async app => {
         list.push(item[1].value);
       }
     }
-    if (list.length > 0 && Object.keys(app.io.of('/api/socket').clients().connected).length > 0) {
-      app.io.of('/api/socket').emit('getBlocksList', list);
+    if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
+      const totalTxs = await app.redis.get(redisKeys.txsCount);
+      app.io.of('/').emit('getBlocksList', {
+        height: app.config.currentHeight,
+        totalTxs,
+        list
+      });
     }
   });
   scheduler.startTimer();

@@ -61,8 +61,12 @@ module.exports = appInfo => {
     }
   };
   config.io = {
+    init: {
+      path: '/socket',
+      transports: [ 'websocket', 'polling' ]
+    },
     namespace: {
-      '/api/socket': {
+      '/': {
         connectionMiddleware: [ 'connection' ],
         packetMiddleware: [ 'format' ]
       }
@@ -75,10 +79,10 @@ module.exports = appInfo => {
   };
 
   // 节点地址
-  config.endpoint = 'http://192.168.197.43:8100';
+  config.endpoint = 'http://192.168.197.18:8000';
 
   // 广播间隔
-  config.broadcastInterval = 1000; // ms
+  config.broadcastInterval = 2000; // ms
 
   return config;
 };

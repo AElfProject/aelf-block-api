@@ -37,7 +37,7 @@ async function getBlocks(aelf, lastHeight) {
 }
 
 const cacheConfig = {
-  expireTimeout: 180000 // ms
+  expireTimeout: 60000 // ms
 };
 
 function getBlocksAndTxsFromChain(app, aelf, cache, startHeight) {
