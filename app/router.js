@@ -51,6 +51,8 @@ module.exports = app => {
 
   router.post('/api/vote/addTeamDesc', controller.vote.addTeamDesc);
   router.get('/api/vote/getTeamDesc', controller.vote.getTeamDesc);
+  router.get('/api/vote/getAllTeamDesc', controller.vote.getAllTeams);
+  router.post('/api/vote/updateTeamStatus', controller.vote.updateTeam);
 
   app.io.of('/').route('getBlocksList', app.io.controller.blocksAndTxs.getBlocksList);
 };
