@@ -19,9 +19,13 @@ class BlockService extends BaseService {
       + ' limit ? offset ? ';
     const getCountSql = 'select tx_count AS total from blocks_0  where block_hash=?';
     const txs = await this.selectQuery(aelf0, getTxsSql, [ block_hash, limit, offset ]);
-    const count = +limit === 1 ? 1 : (await this.selectQuery(aelf0, getCountSql, [ block_hash ]))[0].total;
+    const count = await this.selectQuery(aelf0, getCountSql, [ block_hash ]);
+    let total = 0;
+    if (count.length > 0) {
+      total = count[0].total;
+    }
     return {
-      total: count,
+      total,
       transactions: txs
     };
   }
