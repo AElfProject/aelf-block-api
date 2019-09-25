@@ -19,8 +19,8 @@ class AllService extends BaseService {
       whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit}`;
     }
     // todo: only get required fields, not all data
-    const getBlocksSql = `select * from blocks_0 ${whereCondition} ORDER BY id ${order} limit ${limit}`;
-    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
+    const getBlocksSql = `select * from blocks_0 ${whereCondition} ORDER BY id ${order} limit ?`;
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit ]);
     return {
       total: blocksCount,
       blocks
@@ -39,8 +39,8 @@ class AllService extends BaseService {
       whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit}`;
     }
     // todo: only get required fields, not all data
-    const getTxsSql = `select * from transactions_0 ${whereCondition} ORDER BY id ${order} limit ${limit}`;
-    const txs = await this.selectQuery(aelf0, getTxsSql, []);
+    const getTxsSql = `select * from transactions_0 ${whereCondition} ORDER BY id ${order} limit ?`;
+    const txs = await this.selectQuery(aelf0, getTxsSql, [ limit ]);
     return {
       total: txsCount,
       transactions: txs

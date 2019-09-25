@@ -63,10 +63,11 @@ class AddressService extends BaseService {
       let contractMatchSql = '';
       let methodMatchSql = '';
       let sqlValue = [ address, address ];
-      let countSqlValue = [ address, address, contract_address ];
+      let countSqlValue = [ address, address ];
       if (contract_address) {
         contractMatchSql = ' and address_to=? ';
         sqlValue.push(contract_address);
+        countSqlValue = [ ...countSqlValue, contract_address ];
       }
 
       if (method) {
@@ -74,20 +75,24 @@ class AddressService extends BaseService {
         sqlValue.push(method);
         countSqlValue = [ ...countSqlValue, method ];
       }
-      sqlValue = [ ...sqlValue, limit, offset ];
+      sqlValue = [ ...sqlValue, order, limit, offset ];
 
       let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
       if (order.toUpperCase() === 'ASC') {
         whereCondition = `WHERE id BETWEEN ${offset} AND ${txsCount}`;
       }
 
-      // todo: optimize this is in processing, query in range or add index
-      const getTxsSql = `select * from transactions_0
-        ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
-        ORDER BY id ${order} limit ? offset ? `;
+      // query by id in range
+      const getTxsIdSql = `select id from transactions_0 
+            ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
+            ORDER BY id ? limit ? offset ?`;
+
+      const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(limit).fill('?').join(',')})`;
+
       const getCountSql = `select count(1) as total from transactions_0 
         where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
-      const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
+      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      const txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       const cacheKey = `${countSqlValue.join('_')}`;
       const result = await Promise.race([
         getOrSetCountCache(cacheKey, {
