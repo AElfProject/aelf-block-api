@@ -24,6 +24,14 @@ class VoteService extends BaseService {
     const keys = Object.keys(sqlData);
     const keysStr = `(${keys.join(',')})`;
     const valuesBlank = `(${keys.map(() => '?').join(',')})`;
+    const noDuplicateNameSql = 'select name from vote_teams where name = ? and public_key <> ?';
+    const duplicateNames = await this.selectQuery(aelf0, noDuplicateNameSql, [ sqlData.name, sqlData.public_key ]);
+    if (duplicateNames.length > 0) {
+      return this.error({
+        code: 501,
+        message: 'has duplicate names'
+      });
+    }
     const sql = `insert into vote_teams ${keysStr} VALUES ${valuesBlank}`;
     await this.selectQuery(aelf0, sql, Object.values(sqlData));
     return this.setBody({});
