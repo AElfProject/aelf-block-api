@@ -75,7 +75,7 @@ class AddressService extends BaseService {
         sqlValue.push(method);
         countSqlValue = [ ...countSqlValue, method ];
       }
-      sqlValue = [ ...sqlValue, order, limit, offset ];
+      sqlValue = [ ...sqlValue, limit, offset ];
 
       let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
       if (order.toUpperCase() === 'ASC') {
@@ -85,7 +85,7 @@ class AddressService extends BaseService {
       // query by id in range
       const getTxsIdSql = `select id from transactions_0 
             ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
-            ORDER BY id ? limit ? offset ?`;
+            ORDER BY id ${order} limit ? offset ?`;
 
       const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(limit).fill('?').join(',')})`;
 

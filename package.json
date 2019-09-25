@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "aelf-sdk": "^3.2.15",
+    "async-validator": "^3.1.0",
     "egg": "^2.23.0",
     "egg-mysql": "^3.0.0",
     "egg-redis": "^2.4.0",
@@ -12,6 +13,7 @@
     "egg-socket.io": "^4.1.6",
     "egg-validate": "^2.0.2",
     "elliptic": "^6.5.1",
+    "lodash.camelcase": "^4.3.0",
     "moment": "^2.24.0"
   },
   "devDependencies": {
