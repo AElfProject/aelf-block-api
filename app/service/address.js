@@ -86,13 +86,16 @@ class AddressService extends BaseService {
       const getTxsIdSql = `select id from transactions_0 
             ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
             ORDER BY id ${order} limit ? offset ?`;
+      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
 
-      const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(limit).fill('?').join(',')})`;
+      let txs = [];
+      if (txsIds.length > 0) {
+        const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})`;
+        txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
+      }
 
       const getCountSql = `select count(1) as total from transactions_0 
         where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
-      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
-      const txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       const cacheKey = `${countSqlValue.join('_')}`;
       const result = await Promise.race([
         getOrSetCountCache(cacheKey, {
