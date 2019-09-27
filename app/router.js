@@ -49,6 +49,8 @@ module.exports = app => {
   router.get('/api/resource/realtime-records', controller.resource.getRealtimeRecords);
   router.get('/api/resource/turnover', controller.resource.getTurnover);
 
+  router.get('/api/token/txs', controller.token.getTxs);
+
   router.post('/api/vote/addTeamDesc', controller.vote.addTeamDesc);
   router.get('/api/vote/getTeamDesc', controller.vote.getTeamDesc);
   router.get('/api/vote/getAllTeamDesc', controller.vote.getAllTeams);
