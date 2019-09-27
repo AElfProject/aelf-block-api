@@ -54,21 +54,14 @@ class AddressService extends BaseService {
       page,
       order,
       address,
-      contract_address,
       method
     } = options;
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
       const offset = limit * page;
 
-      let contractMatchSql = '';
       let methodMatchSql = '';
-      let sqlValue = [ address, address ];
-      let countSqlValue = [ address, address ];
-      if (contract_address) {
-        contractMatchSql = ' and address_to=? ';
-        sqlValue.push(contract_address);
-        countSqlValue = [ ...countSqlValue, contract_address ];
-      }
+      let sqlValue = [ address, address, address ];
+      let countSqlValue = [ address, address, address ];
 
       if (method) {
         methodMatchSql = 'and method=? ';
@@ -84,10 +77,9 @@ class AddressService extends BaseService {
 
       // query by id in range
       const getTxsIdSql = `select id from transactions_0 
-            ${whereCondition} AND (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}
+            ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}
             ORDER BY id ${order} limit ? offset ?`;
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
-
       let txs = [];
       if (txsIds.length > 0) {
         const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})`;
@@ -95,7 +87,7 @@ class AddressService extends BaseService {
       }
 
       const getCountSql = `select count(1) as total from transactions_0 
-        where (address_from=? or params_to=?) ${contractMatchSql} ${methodMatchSql}`;
+        where (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
       const cacheKey = `${countSqlValue.join('_')}`;
       const result = await Promise.race([
         getOrSetCountCache(cacheKey, {
