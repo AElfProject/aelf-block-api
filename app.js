@@ -34,8 +34,10 @@ module.exports = async app => {
     }
     if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
       const totalTxs = await app.redis.get(redisKeys.txsCount);
+      const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
       app.io.of('/').emit('getBlocksList', {
         height: app.config.currentHeight,
+        unconfirmedBlockHeight,
         totalTxs,
         list
       });
