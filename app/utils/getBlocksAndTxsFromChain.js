@@ -23,16 +23,16 @@ async function getBlock(aelf, height) {
   };
 }
 
-async function getBlocks(aelf, lastHeight) {
+async function getBlocks(aelf, lastHeight, heightKey) {
   const status = await aelf.chain.getChainStatus();
-  const BestChainHeight = parseInt(status.BestChainHeight, 10);
-  let gap = BestChainHeight - lastHeight;
+  const height = parseInt(status[heightKey], 10);
+  let gap = height - lastHeight;
   gap = gap <= 0 ? 0 : gap;
   const gapArr = new Array(gap || 0).fill(1).map((_, index) => index + lastHeight + 1);
   const results = await Promise.all(gapArr.map(v => getBlock(aelf, v)));
   return {
     results,
-    currentHeight: BestChainHeight
+    currentHeight: height
   };
 }
 
@@ -50,7 +50,7 @@ function getBlocksAndTxsFromChain(app, aelf, cache, startHeight) {
       const {
         results,
         currentHeight
-      } = await getBlocks(aelf, lastHeight);
+      } = await getBlocks(aelf, lastHeight, app.config.heightKey);
       if (results.length === 0) {
         return;
       }

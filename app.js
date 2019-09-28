@@ -16,10 +16,11 @@ module.exports = async app => {
   app.cache = blockCache;
   const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
   const status = await aelf.chain.getChainStatus();
-  const BestChainHeight = parseInt(status.BestChainHeight, 10);
-  app.config.currentHeight = BestChainHeight;
-  app.config.lastHeight = BestChainHeight;
-  getBlocksAndTxsFromChain(app, aelf, blockCache, BestChainHeight);
+  app.config.heightKey = 'BestChainHeight';
+  const height = parseInt(status[app.config.heightKey], 10);
+  app.config.currentHeight = height;
+  app.config.lastHeight = height;
+  getBlocksAndTxsFromChain(app, aelf, blockCache, height);
   const scheduler = new Scheduler({
     interval: app.config.broadcastInterval
   });
