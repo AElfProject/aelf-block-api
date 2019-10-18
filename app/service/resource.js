@@ -74,7 +74,7 @@ class ResourceService extends BaseService {
     } = options;
     const minInterval = 5 * 60 * 1000; // ms
     interval = Math.max(minInterval, interval);
-    const timeNow = moment().valueOf();
+    const timeNow = Math.ceil(moment().valueOf() / interval) * interval;
     const timeNowUTC = formatTime(moment(timeNow));
     const startTime = moment(timeNow).subtract(interval * (range + 1), 'ms');
     const startTimeUTC = formatTime(startTime);
