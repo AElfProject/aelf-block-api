@@ -91,7 +91,7 @@ class ResourceService extends BaseService {
     const sellRecords = [ ...timeList ];
     resourceRecords.forEach(item => {
       const { time, method } = item;
-      let index = Math.ceil((moment(time).valueOf() - startTime) / interval);
+      let index = Math.floor((moment(time).valueOf() - startTime) / interval);
       if (index === buyRecords.length) {
         index -= 1;
       }
