@@ -78,34 +78,34 @@ class ResourceService extends BaseService {
     const timeNowUTC = formatTime(moment(timeNow));
     const startTime = moment(timeNow).subtract(interval * (range + 1), 'ms');
     const startTimeUTC = formatTime(startTime);
-    // eslint-disable-next-line max-len
-    const selectSql = 'select * from tps_resource where end between ? and ? and resource_type=? and method=? and txs > 0';
-    const buyCounts = await this.selectQuery(aelf0, selectSql, [ startTimeUTC, timeNowUTC, type, 'Buy' ]);
-    const sellCounts = await this.selectQuery(aelf0, selectSql, [ startTimeUTC, timeNowUTC, type, 'Sell' ]);
+    const selectSql = 'select * from resource_0 where time between ? and ? and type=? and tx_status = ?';
+    const resourceRecords = await this.selectQuery(aelf0, selectSql, [ startTimeUTC, timeNowUTC, type, 'Mined' ]);
     const timeList = new Array(range).fill(1).map((_, i) => {
       return {
-        date: moment(startTime).add(interval * i, 'ms').valueOf(),
+        date: formatTime(moment(startTime).add(interval * i, 'ms')),
         count: 0
       };
     });
 
     const buyRecords = [ ...timeList ];
     const sellRecords = [ ...timeList ];
-    buyCounts.forEach(item => {
-      const time = item.end;
+    resourceRecords.forEach(item => {
+      const { time, method } = item;
       let index = Math.floor((moment(time).valueOf() - startTime) / interval);
       if (index === buyRecords.length) {
         index -= 1;
       }
-      buyRecords[index].count += item.txs;
-    });
-    sellCounts.forEach(item => {
-      const time = item.end;
-      let index = Math.floor((moment(time).valueOf() - startTime) / interval);
-      if (index === buyRecords.length) {
-        index -= 1;
+      if (method === 'Buy') {
+        buyRecords[index] = {
+          ...buyRecords[index],
+          count: item.elf + item.fee + buyRecords[index].count
+        };
+      } else {
+        sellRecords[index] = {
+          ...sellRecords[index],
+          count: item.elf + item.fee + sellRecords[index].count
+        };
       }
-      sellRecords[index].count += item.txs;
     });
     return {
       buyRecords,
