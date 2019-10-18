@@ -108,6 +108,7 @@ class ResourceController extends Controller {
         type
       } = ctx.request.query;
       const options = {
+        ...ctx.request.query,
         interval: parseInt(interval, 10),
         type
       };
