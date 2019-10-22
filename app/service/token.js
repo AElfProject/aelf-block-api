@@ -5,6 +5,10 @@
  */
 const BaseService = require('../core/baseService');
 
+const CacheService = require('../utils/cache');
+
+const cache = new CacheService();
+
 class TokenService extends BaseService {
   async getTxs(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -37,6 +41,31 @@ class TokenService extends BaseService {
         transactions: txs
       };
     }
+  }
+
+  async getPrice(options) {
+    const {
+      fsym,
+      tsyms
+    } = options;
+
+    const key = 'api' + fsym + tsyms;
+
+    if (cache.hasCache(key)) {
+      return cache.getCache(key);
+    }
+
+    const result = (await this.ctx.curl(
+      `https://min-api.cryptocompare.com/data/price?fsym=${fsym}&tsyms=${tsyms}`, {
+        dataType: 'json'
+      }
+    )).data;
+
+    cache.initCache(key, result, {
+      expireTimeout: 300000
+    });
+
+    return result;
   }
 }
 

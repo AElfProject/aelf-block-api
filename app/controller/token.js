@@ -55,6 +55,38 @@ class TokenController extends Controller {
       formatOutput(ctx, 'error', error, 422);
     }
   }
+
+  async getPrice() {
+    const {
+      ctx
+    } = this;
+
+    const keysRule = {
+      fsym: 'string',
+      tsyms: 'string'
+    };
+
+    try {
+      const {
+        fsym,
+        tsyms
+      } = ctx.request.query;
+
+      const options = {
+        fsym,
+        tsyms
+      };
+
+      ctx.validate(keysRule, options);
+
+      const result = await ctx.service.token.getPrice(options);
+
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
 }
 
 module.exports = TokenController;
