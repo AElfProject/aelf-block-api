@@ -4,11 +4,15 @@
  * @date 2019.09.09
  */
 const camelCase = require('lodash.camelcase');
+const elliptic = require('elliptic');
 const BaseService = require('../core/baseService');
 const {
   camelCaseToUnderScore,
   isObject
 } = require('../utils/utils');
+
+const encryptAlgorithm = 'secp256k1';
+const ec = elliptic.ec(encryptAlgorithm);
 
 class VoteService extends BaseService {
   async addTeamDesc(params) {
@@ -42,8 +46,8 @@ class VoteService extends BaseService {
     const {
       publicKey
     } = params;
-    const sql = `SELECT * FROM vote_teams WHERE public_key=\'${publicKey}\' ORDER BY id DESC limit 1`;
-    const result = await this.selectQuery(aelf0, sql);
+    const sql = 'SELECT * FROM vote_teams WHERE public_key = ? ORDER BY id DESC limit 1';
+    const result = await this.selectQuery(aelf0, sql, [ publicKey ]);
     if (result.length === 0) {
       return this.error({
         code: 400,
@@ -83,9 +87,27 @@ class VoteService extends BaseService {
       publicKey
     } = params;
     isActive = isActive ? 1 : 0;
-    const sql = `UPDATE vote_teams SET is_active=${isActive} WHERE public_key=\'${publicKey}\'`;
-    await this.selectQuery(aelf0, sql);
+    const sql = `UPDATE vote_teams SET is_active=${isActive} WHERE public_key = ?`;
+    await this.selectQuery(aelf0, sql, [ publicKey ]);
     return this.setBody({});
+  }
+
+  verify(data, signature, publicKey) {
+    const keyPair = ec.keyFromPublic(publicKey, 'hex');
+    const r = signature.slice(0, 64);
+    const s = signature.slice(64, 128);
+    const recoveryParam = signature.slice(128);
+    const signatureObj = {
+      r,
+      s,
+      recoveryParam
+    };
+    try {
+      const result = keyPair.verify(Buffer.from(data, 'hex'), signatureObj);
+      return result;
+    } catch (e) {
+      return false;
+    }
   }
 
   setBody(data = {}) {

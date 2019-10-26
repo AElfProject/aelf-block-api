@@ -103,7 +103,7 @@ class ResourceService extends BaseService {
       } else {
         sellRecords[index] = {
           ...sellRecords[index],
-          count: item.elf + item.fee + sellRecords[index].count
+          count: item.elf - item.fee + sellRecords[index].count
         };
       }
     });
