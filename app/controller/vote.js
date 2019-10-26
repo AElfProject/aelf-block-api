@@ -118,7 +118,7 @@ class VoteController extends Controller {
       random,
       signature
     } = params;
-    const result = ctx.service.verify(random, signature, publicKey);
+    const result = ctx.service.vote.verify(random, signature, publicKey);
     if (!result) {
       const err = ctx.service.vote.error({
         message: 'request wallet address is not a valid address',
