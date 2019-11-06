@@ -23,7 +23,7 @@ class ResourceService extends BaseService {
     } = options;
     const offset = limit * page;
 
-    const sqlValue = [ order, address, limit, offset ];
+    const sqlValue = [ address, order, limit, offset ];
 
     const getTxsSql = `select * from resource_0
                           where address=? 
