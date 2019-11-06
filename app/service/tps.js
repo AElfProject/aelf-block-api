@@ -14,18 +14,15 @@ class TpsService extends BaseService {
       order
     } = options;
 
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].indexOf(order) > -1) {
+    const sqlValue = [ start_time, end_time, order ];
+    const getTpsSql = 'select * from tps_0 where start between ? and ? ORDER BY start ?';
 
-      const sqlValue = [ start_time, end_time ];
-      const getTpsSql = `select * from tps_0 where start between ? and ? ORDER BY start ${order}`;
+    const tps = await this.selectQuery(aelf0, getTpsSql, sqlValue);
 
-      const tps = await this.selectQuery(aelf0, getTpsSql, sqlValue);
-
-      return {
-        total: tps.length,
-        tps
-      };
-    }
+    return {
+      total: tps.length,
+      tps
+    };
   }
 }
 

@@ -56,55 +56,52 @@ class AddressService extends BaseService {
       address,
       method
     } = options;
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-      const offset = limit * page;
 
-      let methodMatchSql = '';
-      let sqlValue = [ address, address, address ];
-      let countSqlValue = [ address, address, address ];
+    const offset = limit * page;
 
-      if (method) {
-        methodMatchSql = 'and method=? ';
-        sqlValue.push(method);
-        countSqlValue = [ ...countSqlValue, method ];
-      }
-      sqlValue = [ ...sqlValue, limit, offset ];
+    let methodMatchSql = '';
+    let sqlValue = [ address, address, address ];
+    let countSqlValue = [ address, address, address ];
 
-      let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
-      if (order.toUpperCase() === 'ASC') {
-        whereCondition = `WHERE id BETWEEN ${offset} AND ${txsCount}`;
-      }
+    if (method) {
+      methodMatchSql = 'and method=? ';
+      sqlValue.push(method);
+      countSqlValue = [ ...countSqlValue, method ];
+    }
+    sqlValue = [ ...sqlValue, order, limit, offset ];
 
-      // query by id in range
-      const getTxsIdSql = `select id from transactions_0 
-            ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}
-            ORDER BY id ${order} limit ? offset ?`;
-      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
-      let txs = [];
-      if (txsIds.length > 0) {
-        const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})`;
-        txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
-      }
-
-      const getCountSql = `select count(1) as total from transactions_0 
-        where (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
-      const cacheKey = `${countSqlValue.join('_')}`;
-      const result = await Promise.race([
-        getOrSetCountCache(cacheKey, {
-          func: this.selectQuery,
-          args: [ aelf0, getCountSql, countSqlValue ]
-        }, 3000),
-        timeout(3000, [{
-          total: 100000
-        }])
-      ]);
-      return {
-        total: result[0].total,
-        transactions: txs
-      };
+    let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
+    if (order.toUpperCase() === 'ASC') {
+      whereCondition = `WHERE id BETWEEN ${offset} AND ${txsCount}`;
     }
 
-    return '傻逼，滚。';
+    // query by id in range
+    const getTxsIdSql = `select id from transactions_0 
+          ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}
+          ORDER BY id ? limit ? offset ?`;
+    const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+    let txs = [];
+    if (txsIds.length > 0) {
+      const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})`;
+      txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
+    }
+
+    const getCountSql = `select count(1) as total from transactions_0 
+      where (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
+    const cacheKey = `${countSqlValue.join('_')}`;
+    const result = await Promise.race([
+      getOrSetCountCache(cacheKey, {
+        func: this.selectQuery,
+        args: [ aelf0, getCountSql, countSqlValue ]
+      }, 3000),
+      timeout(3000, [{
+        total: 100000
+      }])
+    ]);
+    return {
+      total: result[0].total,
+      transactions: txs
+    };
   }
 
   async getBalance(options) {
@@ -124,54 +121,49 @@ class AddressService extends BaseService {
       nodes_info
     } = options;
 
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-
-      let pageSql = '';
-      let sqlValue = [ address ];
-      if (limit) {
-        const offset = limit * page;
-        pageSql = 'limit ? offset ? ';
-        sqlValue = [ address, limit, offset ];
-      }
-
-      if (nodes_info) {
-        const selectSql = 'select * from address_contracts, nodes_0, contract_aelf20 '
-                    + ' where address_contracts.contract_address=nodes_0.contract_address and '
-                    + ' contract_aelf20.contract_address=address_contracts.contract_address and '
-                    + ' contract_aelf20.symbol=address_contracts.symbol and '
-                    + ' address_contracts.address=?'
-                    + ` ORDER BY update_time ${order} ${pageSql};`;
-        const tokens = await this.selectQuery(aelf0, selectSql, sqlValue);
-
-        return tokens;
-      }
-
-      const sql = `select * from address_contracts,contract_aelf20 
-                    where address=? and contract_aelf20.symbol=address_contracts.symbol 
-                    And address_contracts.contract_address=contract_aelf20.contract_address
-                    ORDER BY update_time ${order} ${pageSql}`;
-
-      const tokens = await this.selectQuery(aelf0, sql, sqlValue);
-
-      const promiseList = [];
-      tokens.forEach(item => {
-        promiseList.push(
-          async () => {
-            const result = await getBalance({
-              address: item.address,
-              contract_address: item.contract_address
-            }, aelf0);
-            Object.assign(result, item);
-            return result;
-          }
-        );
-      });
-      const result = await Promise.all(promiseList);
-
-      return result;
+    let pageSql = '';
+    let sqlValue = [ address, order ];
+    if (limit) {
+      const offset = limit * page;
+      pageSql = 'limit ? offset ? ';
+      sqlValue = [ ...sqlValue, limit, offset ];
     }
 
-    return '傻逼，滚。';
+    if (nodes_info) {
+      const selectSql = 'select * from address_contracts, nodes_0, contract_aelf20 '
+                  + ' where address_contracts.contract_address=nodes_0.contract_address and '
+                  + ' contract_aelf20.contract_address=address_contracts.contract_address and '
+                  + ' contract_aelf20.symbol=address_contracts.symbol and '
+                  + ' address_contracts.address=?'
+                  + ` ORDER BY update_time ? ${pageSql};`;
+      const tokens = await this.selectQuery(aelf0, selectSql, sqlValue);
+
+      return tokens;
+    }
+
+    const sql = `select * from address_contracts,contract_aelf20 
+                  where address=? and contract_aelf20.symbol=address_contracts.symbol 
+                  And address_contracts.contract_address=contract_aelf20.contract_address
+                  ORDER BY update_time ? ${pageSql}`;
+
+    const tokens = await this.selectQuery(aelf0, sql, sqlValue);
+
+    const promiseList = [];
+    tokens.forEach(item => {
+      promiseList.push(
+        async () => {
+          const result = await getBalance({
+            address: item.address,
+            contract_address: item.contract_address
+          }, aelf0);
+          Object.assign(result, item);
+          return result;
+        }
+      );
+    });
+    const result = await Promise.all(promiseList);
+
+    return result;
   }
 
   async bindToken(options) {

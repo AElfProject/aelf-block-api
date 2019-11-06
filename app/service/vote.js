@@ -74,9 +74,9 @@ class VoteService extends BaseService {
     } = params;
     isActive = isActive === 'true' ? 1 : 0;
     const sql = `SELECT * FROM vote_teams
-        INNER JOIN (SELECT max(id) id FROM vote_teams WHERE is_active=${isActive}
+        INNER JOIN (SELECT max(id) id FROM vote_teams WHERE is_active=?
         GROUP BY public_key) as ids USING (id)`;
-    const result = await this.selectQuery(aelf0, sql);
+    const result = await this.selectQuery(aelf0, sql, [ isActive ]);
     return this.setBody(result);
   }
 
@@ -87,8 +87,8 @@ class VoteService extends BaseService {
       publicKey
     } = params;
     isActive = isActive ? 1 : 0;
-    const sql = `UPDATE vote_teams SET is_active=${isActive} WHERE public_key = ?`;
-    await this.selectQuery(aelf0, sql, [ publicKey ]);
+    const sql = 'UPDATE vote_teams SET is_active=? WHERE public_key = ?';
+    await this.selectQuery(aelf0, sql, [ isActive, publicKey ]);
     return this.setBody({});
   }
 

@@ -75,9 +75,13 @@ class NodesService extends BaseService {
     const table = 'nodes_0';
 
     const updateSql = `UPDATE ${table} SET ${setSqlSnippetsString}`
-            + `WHERE contract_address="${options.contract_address}" and chain_id="${options.chain_id}";`;
+            + 'WHERE contract_address="?" and chain_id="?";';
+    const {
+      contract_address,
+      chain_id
+    } = options;
 
-    const nodesInfo = await this.selectQuery(aelf0, updateSql, []);
+    const nodesInfo = await this.selectQuery(aelf0, updateSql, [ contract_address, chain_id ]);
     return {
       nodesInfo
     };

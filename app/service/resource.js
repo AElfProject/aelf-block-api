@@ -21,25 +21,22 @@ class ResourceService extends BaseService {
       order,
       address
     } = options;
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-      const offset = limit * page;
+    const offset = limit * page;
 
-      const sqlValue = [ address, limit, offset ];
+    const sqlValue = [ order, address, limit, offset ];
 
-      const getTxsSql = `select * from resource_0
-                            where address=? 
-                            ORDER BY time ${order} limit ? offset ? `;
-      const getCountSql = `select count(*) as total from resource_0
-                            where address=?`;
-      const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
-      const count = await this.selectQuery(aelf0, getCountSql, [ address ]);
+    const getTxsSql = `select * from resource_0
+                          where address=? 
+                          ORDER BY time ? limit ? offset ? `;
+    const getCountSql = `select count(*) as total from resource_0
+                          where address=?`;
+    const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
+    const count = await this.selectQuery(aelf0, getCountSql, [ address ]);
 
-      return {
-        total: count[0].total,
-        records: txs
-      };
-    }
-    return '';
+    return {
+      total: count[0].total,
+      records: txs
+    };
   }
 
   async getRealtimeRecords(options) {

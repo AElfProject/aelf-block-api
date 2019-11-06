@@ -20,27 +20,24 @@ class TokenService extends BaseService {
       order
     } = options;
 
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].indexOf(order) > -1) {
+    // TODO: 等数据量大了后再做分区
+    const offset = page * limit;
+    const getTxsSql = `select * from transactions_token 
+      where (address_from=? or address_to=?) AND symbol=? 
+      ORDER BY id ? limit ? offset ?`;
+    const getCountSql = 'select count(1) as total from transactions_token where (address_from=? or address_to=?) AND symbol=? ';
 
-      // TODO: 等数据量打了后再做分区
-      const offset = page * limit;
-      const getTxsSql = `select * from transactions_token 
-        where (address_from=? or address_to=?) AND symbol=? 
-        ORDER BY id ${order} limit ? offset ?`;
-      const getCountSql = 'select count(1) as total from transactions_token where (address_from=? or address_to=?) AND symbol=? ';
+    const txs = await this.selectQuery(aelf0, getTxsSql, [
+      address, address, symbol, order, limit, offset
+    ]);
+    const count = await this.selectQuery(aelf0, getCountSql, [
+      address, address, symbol
+    ]);
 
-      const txs = await this.selectQuery(aelf0, getTxsSql, [
-        address, address, symbol, limit, offset
-      ]);
-      const count = await this.selectQuery(aelf0, getCountSql, [
-        address, address, symbol
-      ]);
-
-      return {
-        total: count[0].total,
-        transactions: txs
-      };
-    }
+    return {
+      total: count[0].total,
+      transactions: txs
+    };
   }
 
   async getPrice(options) {

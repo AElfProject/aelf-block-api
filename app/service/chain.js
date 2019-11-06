@@ -8,16 +8,14 @@ class ChainService extends BaseService {
     const {
       limit, page, order
     } = options;
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-      const offset = limit * page;
-      const getBlocksSql = `select * from blocks_0 ORDER BY block_height ${order} limit ? offset ?`;
-      const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
-      const blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
-      return {
-        total: blocksCount,
-        blocks
-      };
-    }
+    const offset = limit * page;
+    const getBlocksSql = 'select * from blocks_0 ORDER BY block_height ? limit ? offset ?';
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ order, limit, offset ]);
+    const blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
+    return {
+      total: blocksCount,
+      blocks
+    };
   }
 
   async getTransactions(options) {
@@ -26,17 +24,15 @@ class ChainService extends BaseService {
     const {
       limit, page, order
     } = options;
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-      const offset = limit * page;
-      // eslint-disable-next-line max-len
-      const getTxsSql = `select * from transactions_0 ORDER BY block_height ${order} limit ? offset ? `;
-      const txs = await this.selectQuery(aelf0, getTxsSql, [ limit, offset ]);
-      const txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
-      return {
-        total: txsCount,
-        transactions: txs
-      };
-    }
+    const offset = limit * page;
+    // eslint-disable-next-line max-len
+    const getTxsSql = 'select * from transactions_0 ORDER BY block_height ? limit ? offset ? ';
+    const txs = await this.selectQuery(aelf0, getTxsSql, [ order, limit, offset ]);
+    const txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
+    return {
+      total: txsCount,
+      transactions: txs
+    };
   }
 }
 

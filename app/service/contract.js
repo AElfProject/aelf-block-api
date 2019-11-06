@@ -45,7 +45,7 @@ class ContractService extends BaseService {
         transactions: txs
       };
     }
-    return '傻逼，滚。';
+    return '...';
   }
 
   async insertContract(options) {
@@ -79,14 +79,11 @@ class ContractService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const {
       name,
-      order
     } = options;
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
-      const getTxsSql = `select * from contract_aelf20 WHERE name LIKE '%${name}%'`;
-      const txs = await this.selectQuery(aelf0, getTxsSql, []);
-      return txs;
-    }
-    return '傻逼，滚。';
+      // const getTxsSql = `select * from contract_aelf20 WHERE name LIKE '%${name}%'`;
+    const getTxsSql = "select * from contract_aelf20 WHERE name LIKE '%?%'";
+    const txs = await this.selectQuery(aelf0, getTxsSql, [ name ]);
+    return txs;
   }
 }
 
