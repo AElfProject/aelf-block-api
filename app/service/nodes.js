@@ -75,7 +75,7 @@ class NodesService extends BaseService {
     const table = 'nodes_0';
 
     const updateSql = `UPDATE ${table} SET ${setSqlSnippetsString}`
-            + 'WHERE contract_address="?" and chain_id="?";';
+            + 'WHERE contract_address=? and chain_id=?;';
     const {
       contract_address,
       chain_id
