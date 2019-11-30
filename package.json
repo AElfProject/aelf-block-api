@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "aelf-sdk": "^3.2.15",
+    "aelf-sdk-cross-chain": "^1.0.5",
     "async-validator": "^3.1.0",
     "egg": "^2.23.0",
     "egg-mysql": "^3.0.0",

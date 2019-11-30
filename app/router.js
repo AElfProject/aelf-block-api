@@ -34,6 +34,8 @@ module.exports = app => {
   router.post('/api/contract/contract', controller.contract.insertContract);
   router.get('/api/contract/searchtoken', controller.contract.searchToken);
 
+  router.get('/api/cross-chain/is-ready-to-receive', controller.crossChain.isReadyToReceive);
+
   router.get('/api/huobi/detail', controller.huobi.getDetail);
 
   router.get('/api/tps/list', controller.tps.getTps);
