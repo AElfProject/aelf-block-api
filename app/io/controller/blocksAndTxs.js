@@ -12,7 +12,8 @@ class BlocksAndTxsController extends Controller {
     await ctx.socket.emit('getOnFirst', {
       height: currentHeight,
       totalTxs,
-      list: fullCacheList
+      list: fullCacheList,
+      accountNumber: app.cache.count.getCache('accountNumber') || 0
     });
   }
 }
