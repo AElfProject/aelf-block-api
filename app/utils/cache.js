@@ -6,6 +6,8 @@ const Scheduler = require('./scheduler');
 
 const defaultCacheConfig = {
   expireTimeout: 120000, // ms
+  autoUpdate: false,
+  update: () => {}
 };
 
 class CacheService {
@@ -27,7 +29,11 @@ class CacheService {
       interval: mergedConfig.expireTimeout
     });
     scheduler.setCallback(() => {
-      this.removeCache(key);
+      if (!mergedConfig.autoUpdate) {
+        this.removeCache(key);
+      } else {
+        mergedConfig.update();
+      }
     });
     scheduler.startTimer();
     this.cacheList.set(key, {

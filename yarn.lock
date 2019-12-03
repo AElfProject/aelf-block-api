@@ -667,6 +667,13 @@ address@>=0.0.1, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.0.tgz#ef8e047847fcd2c5b6f50c16965f924fd99fe709"
   integrity sha512-4diPfzWbLEIElVG4AnqP+00SULlPzNuyJFNnmMrLgyaxG6tZXJ1sn7mjBu4fHrJE+Yp/jgylOweJn2xsLMFggQ==
 
+aelf-sdk-cross-chain@^1.0.5:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.7.tgz#f5b30808b3dc370fcd9fcbc51a739caa363a0bbc"
+  integrity sha512-v6yvQ+RPkSvVD5LoygiCff5kfoQFhX0MiRxW+rGn830OKrfYuLOW6//byFQM7RBk7ku3STlGe1/mXJekWCta8A==
+  dependencies:
+    chalk "^2.4.2"
+
 aelf-sdk@^3.2.15:
   version "3.2.15"
   resolved "https://registry.yarnpkg.com/aelf-sdk/-/aelf-sdk-3.2.15.tgz#aa0d00310f5ea9d8fdf70dd4281416a27159b6e6"
