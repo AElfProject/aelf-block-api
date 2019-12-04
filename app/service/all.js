@@ -53,7 +53,7 @@ class AllService extends BaseService {
     );
     return {
       total: txsCount,
-      transactions: txs
+      transactions: this.service.getTransferAmount.filter(txs)
     };
   }
 }

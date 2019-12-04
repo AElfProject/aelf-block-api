@@ -7,7 +7,6 @@ const getBlocksAndTxsFromChain = require('./app/utils/getBlocksAndTxsFromChain')
 const CacheService = require('./app/utils/cache');
 const Scheduler = require('./app/utils/scheduler');
 
-const accountNumberCacheKey = 'accountNumber';
 async function getCount(app) {
   const aelf0 = app.mysql.get('aelf0');
   const sql = 'select COUNT(DISTINCT address_from) AS total from transactions_0';
@@ -15,16 +14,47 @@ async function getCount(app) {
   return count[0].total || 0;
 }
 
-async function getAccountNumber(app) {
+async function getTokenDecimals(app) {
+  const aelf0 = app.mysql.get('aelf0');
+  const sql = 'select symbol, decimals from contract_aelf20';
+  const result = await aelf0.query(sql);
+  return result.reduce((acc, v) => ({
+    ...acc,
+    [v.symbol]: v.decimals
+  }), {});
+}
+
+function createCommonCache(app) {
   const cache = new CacheService();
-  const count = await getCount(app);
-  cache.initCache(accountNumberCacheKey, count, {
-    expireTimeout: 25 * 60 * 1000,
-    autoUpdate: true,
-    update: async () => {
-      const total = await getCount(app);
-      cache.setCache(accountNumberCacheKey, total);
+  const accountNumberCacheKey = 'accountNumber';
+  const tokenDecimalsCacheKey = 'tokenDecimals';
+  const commonCacheList = {
+    [accountNumberCacheKey]: {
+      initialValue: 0,
+      cacheConfig: {
+        expireTimeout: 25 * 60 * 1000,
+        autoUpdate: true,
+        update: async () => {
+          const total = await getCount(app);
+          cache.setCache(accountNumberCacheKey, total);
+        }
+      }
+    },
+    [tokenDecimalsCacheKey]: {
+      initialValue: {},
+      cacheConfig: {
+        expireTimeout: 25 * 60 * 1000,
+        autoUpdate: true,
+        update: async () => {
+          const result = await getTokenDecimals(app);
+          cache.setCache(tokenDecimalsCacheKey, result);
+        }
+      }
     }
+  };
+  Object.entries(commonCacheList).map(async ([ key, value ]) => {
+    cache.initCache(key, value.initialValue, value.cacheConfig);
+    await value.cacheConfig.update();
   });
   return cache;
 }
@@ -37,7 +67,7 @@ module.exports = async app => {
   } = app.config;
   app.cache = {};
   app.cache.block = blockCache;
-  app.cache.count = await getAccountNumber(app);
+  app.cache.common = createCommonCache(app);
   const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
   const status = await aelf.chain.getChainStatus();
   app.config.heightKey = 'BestChainHeight';
@@ -58,14 +88,16 @@ module.exports = async app => {
       }
     }
     if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
-      const totalTxs = await app.redis.get(redisKeys.txsCount);
+      const confirmedTx = await app.redis.get(redisKeys.txsCount);
+      const unconfirmedTx = await app.redis.get(redisKeys.txsUnconfirmedCount);
+      const totalTxs = parseInt(confirmedTx, 10) + parseInt(unconfirmedTx, 10);
       const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
       app.io.of('/').emit('getBlocksList', {
         height: app.config.currentHeight,
         unconfirmedBlockHeight,
         totalTxs,
         list,
-        accountNumber: app.cache.count.getCache(accountNumberCacheKey) || 0
+        accountNumber: app.cache.common.getCache('accountNumber') || 0
       });
     }
   });

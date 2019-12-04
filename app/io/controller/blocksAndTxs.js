@@ -13,7 +13,7 @@ class BlocksAndTxsController extends Controller {
       height: currentHeight,
       totalTxs,
       list: fullCacheList,
-      accountNumber: app.cache.count.getCache('accountNumber') || 0
+      accountNumber: app.cache.common.getCache('accountNumber') || 0
     });
   }
 }

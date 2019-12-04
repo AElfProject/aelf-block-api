@@ -76,7 +76,7 @@ class AddressService extends BaseService {
       }
 
       // query by id in range
-      const getTxsIdSql = `select id from transactions_0 
+      const getTxsIdSql = `select id from transactions_0
             ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}
             ORDER BY id ${order} limit ? offset ?`;
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
@@ -86,7 +86,7 @@ class AddressService extends BaseService {
         txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       }
 
-      const getCountSql = `select count(1) as total from transactions_0 
+      const getCountSql = `select count(1) as total from transactions_0
         where (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
       const cacheKey = `${countSqlValue.join('_')}`;
       const result = await Promise.race([
@@ -100,7 +100,7 @@ class AddressService extends BaseService {
       ]);
       return {
         total: result[0].total,
-        transactions: txs
+        transactions: this.service.getTransferAmount.filter(txs)
       };
     }
 
@@ -146,8 +146,8 @@ class AddressService extends BaseService {
         return tokens;
       }
 
-      const sql = `select * from address_contracts,contract_aelf20 
-                    where address=? and contract_aelf20.symbol=address_contracts.symbol 
+      const sql = `select * from address_contracts,contract_aelf20
+                    where address=? and contract_aelf20.symbol=address_contracts.symbol
                     And address_contracts.contract_address=contract_aelf20.contract_address
                     ORDER BY update_time ${order} ${pageSql}`;
 
