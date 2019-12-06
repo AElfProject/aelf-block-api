@@ -44,7 +44,7 @@ class AllService extends BaseService {
     //   whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit}`;
     // }
     // todo: only get required fields, not all data
-    const getTxsSql = `select * from transactions_0 ORDER BY block_height ${order} limit ? offset ?`;
+    const getTxsSql = `select id from transactions_0 ORDER BY block_height ${order} limit ? offset ?`;
     const txsIds = await this.selectQuery(aelf0, getTxsSql, [ limit, offset ]);
     const txs = await this.selectQuery(
       aelf0,
