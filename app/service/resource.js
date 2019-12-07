@@ -11,6 +11,8 @@ function formatTime(time) {
   return moment(time).utc().format();
 }
 
+const dayInterval = 24 * 60 * 60 * 1000;
+
 class ResourceService extends BaseService {
 
   async getRecords(options) {
@@ -27,7 +29,7 @@ class ResourceService extends BaseService {
       const sqlValue = [ address, limit, offset ];
 
       const getTxsSql = `select * from resource_0
-                            where address=? 
+                            where address=?
                             ORDER BY time ${order} limit ? offset ? `;
       const getCountSql = `select count(*) as total from resource_0
                             where address=?`;
@@ -74,7 +76,8 @@ class ResourceService extends BaseService {
     } = options;
     const minInterval = 5 * 60 * 1000; // ms
     interval = Math.max(minInterval, interval);
-    const timeNow = Math.ceil(moment().valueOf() / interval) * interval;
+    const ceilInterval = interval >= dayInterval ? dayInterval : interval;
+    const timeNow = Math.floor(moment().valueOf() / ceilInterval) * ceilInterval;
     const timeNowUTC = formatTime(moment(timeNow));
     const startTime = moment(timeNow).subtract(interval * range, 'ms');
     const startTimeUTC = formatTime(startTime);
