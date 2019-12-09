@@ -190,6 +190,11 @@ class AddressService extends BaseService {
     const verifyResult = key.verify(address, signed_address);
 
     if (verifyResult) {
+      const preSql = 'select id from address_contracts where address = ? AND contract_address = ? AND symbol = ?';
+      const preResult = await this.selectQuery(aelf0, preSql, [ address, contract_address, symbol ]);
+      if (preResult && preResult.length > 0) {
+        return `Duplicated bind token ${symbol}`;
+      }
       const sql = 'insert into address_contracts (address, contract_address, symbol) VALUES (?,?,?);';
       const result = await this.selectQuery(aelf0, sql, [ address, contract_address, symbol ]);
 
