@@ -2,7 +2,6 @@
  * @file get amount
  * @author atom-yang
  */
-const BigNumber = require('bignumber.js');
 const {
   Service
 } = require('egg');
@@ -16,7 +15,6 @@ class GetTransferAmountService extends Service {
       if (quantity <= 0) {
         return item;
       }
-      const amount = new BigNumber(quantity);
       let realParams;
       try {
         realParams = JSON.parse(params);
@@ -26,8 +24,8 @@ class GetTransferAmountService extends Service {
       const {
         symbol = 'ELF'
       } = realParams;
-      const decimals = tokenDecimals[symbol] || 8;
-      item.amount = amount.dividedBy(new BigNumber(`10e${decimals}`)).toFixed(2);
+      item.decimals = tokenDecimals[symbol] || 8;
+      item.symbol = symbol;
       return item;
     });
   }
