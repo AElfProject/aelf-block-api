@@ -12,7 +12,18 @@ function isObject(value) {
   return value != null && (type === 'object' || type === 'function');
 }
 
+function parseOrder(options = {}) {
+  let { order = 'DESC' } = options;
+  order = (order || '').toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+  return {
+    ...options,
+    order
+  };
+}
+
+
 module.exports = {
   camelCaseToUnderScore,
-  isObject
+  isObject,
+  parseOrder
 };

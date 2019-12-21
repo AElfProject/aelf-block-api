@@ -6,6 +6,7 @@
 const elliptic = require('elliptic');
 
 const ec = new elliptic.ec('secp256k1');
+const utils = require('../utils/utils');
 const BaseService = require('../core/baseService');
 const {
   getOrSetCountCache,
@@ -55,7 +56,7 @@ class AddressService extends BaseService {
       order,
       address,
       method
-    } = options;
+    } = utils.parseOrder(options);
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
       const offset = limit * page;
 
@@ -82,7 +83,7 @@ class AddressService extends BaseService {
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
       let txs = [];
       if (txsIds.length > 0) {
-        const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})`;
+        const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')}) ORDER BY id ${order}`;
         txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       }
 
