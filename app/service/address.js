@@ -47,9 +47,6 @@ class AddressService extends BaseService {
 
   async getTransactions(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
-    const { redisKeys } = this.app.config;
-    let txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
-    txsCount = parseInt(txsCount, 10);
     const {
       limit,
       page,
@@ -71,15 +68,9 @@ class AddressService extends BaseService {
       }
       sqlValue = [ ...sqlValue, limit, offset ];
 
-      let whereCondition = `WHERE id BETWEEN ${limit - 1} AND ${txsCount - offset}`;
-      if (order.toUpperCase() === 'ASC') {
-        whereCondition = `WHERE id BETWEEN ${offset} AND ${txsCount}`;
-      }
-
       // query by id in range
-      const getTxsIdSql = `select id from transactions_0
-            ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}
-            ORDER BY id ${order} limit ? offset ?`;
+      // eslint-disable-next-line max-len
+      const getTxsIdSql = `select id from transactions_0 where (address_from=? or params_to=? or address_to=?) ${methodMatchSql} ORDER BY id ${order} limit ? offset ?`;
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
       let txs = [];
       if (txsIds.length > 0) {

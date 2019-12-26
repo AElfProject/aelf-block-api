@@ -31,7 +31,7 @@ class ResourceService extends BaseService {
       const getTxsSql = `select * from resource_0
                             where address=?
                             ORDER BY time ${order} limit ? offset ? `;
-      const getCountSql = `select count(*) as total from resource_0
+      const getCountSql = `select count(1) as total from resource_0
                             where address=?`;
       const txs = await this.selectQuery(aelf0, getTxsSql, sqlValue);
       const count = await this.selectQuery(aelf0, getCountSql, [ address ]);
