@@ -51,7 +51,7 @@ class CrossChainService extends Service {
         issueChainId,
         queryLimit: 1
       });
-      await crossChainInstance.init();
+      await crossChainInstance.init({});
       crossChainInstanceList[send + receive] = crossChainInstance;
     }
 
