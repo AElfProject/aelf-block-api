@@ -68,9 +68,12 @@ class AddressService extends BaseService {
       }
       sqlValue = [ ...sqlValue, limit, offset ];
 
+      // limit SQL optimize
+      const whereCondition = 'WHERE id > 0';
+
       // query by id in range
       // eslint-disable-next-line max-len
-      const getTxsIdSql = `select id from transactions_0 where (address_from=? or params_to=? or address_to=?) ${methodMatchSql} ORDER BY id ${order} limit ? offset ?`;
+      const getTxsIdSql = `select id from transactions_0 ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql} ORDER BY id ${order} limit ? offset ?`;
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
       let txs = [];
       if (txsIds.length > 0) {
@@ -78,8 +81,8 @@ class AddressService extends BaseService {
         txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       }
 
-      const getCountSql = `select count(1) as total from transactions_0
-        where (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
+      // eslint-disable-next-line max-len
+      const getCountSql = `select count(1) as total from transactions_0 ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
       const cacheKey = `${countSqlValue.join('_')}`;
       const result = await Promise.race([
         getOrSetCountCache(cacheKey, {
