@@ -38,12 +38,17 @@ class AllService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const { limit, page, order } = utils.parseOrder(options);
     const offset = limit * page;
-    // let whereCondition = `WHERE id BETWEEN ${txsCount - (page + 1) * limit - 1} AND ${txsCount - offset}`;
-    // if (order.toUpperCase() === 'ASC') {
-    //   whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit}`;
-    // }
-    // todo: only get required fields, not all data
-    const getTxsSql = `select id from transactions_0 ORDER BY block_height ${order} limit ? offset ?`;
+    const buffer = 10000;
+    let whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit + buffer}`;
+    if (order.toUpperCase() === 'DESC') {
+      const maxIdSql = 'select id from transactions_0 ORDER BY id DESC LIMIT 1';
+      let maxId = await this.selectQuery(aelf0, maxIdSql, []);
+      maxId = maxId[0].id;
+      let floor = maxId - (page + 1) * limit - 1 - buffer;
+      floor = floor <= 0 ? 1 : floor;
+      whereCondition = `WHERE id BETWEEN ${floor} AND ${maxId - offset}`;
+    }
+    const getTxsSql = `select id from transactions_0 ${whereCondition} ORDER BY id ${order} limit ?`;
     const txsIds = await this.selectQuery(aelf0, getTxsSql, [ limit, offset ]);
     let txs = [];
     if (txsIds.length > 0) {
