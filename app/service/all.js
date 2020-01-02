@@ -15,16 +15,18 @@ class AllService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const { limit, page, order } = utils.parseOrder(options);
     const offset = limit * page;
-    const getBlocksSql = `select id from blocks_0 ORDER BY block_height ${order} limit ? offset ?`;
-    const blocksIds = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
-    let blocks = [];
-    if (blocksIds.length > 0) {
-      blocks = await this.selectQuery(
-        aelf0,
-        `select * from blocks_0 where id in (${new Array(blocksIds.length).fill('?').join(',')}) ORDER BY id ${order}`,
-        blocksIds.map(v => v.id)
-      );
+    let blocksHeights = new Array(limit).fill(0).map((_, i) => {
+      return blocksCount - offset - i;
+    });
+    if (order.toUpperCase() === 'ASC') {
+      blocksHeights = new Array(limit).fill(0).map((_, i) => {
+        return i + offset + 1;
+      });
     }
+    blocksHeights = blocksHeights.filter(v => v > 0 && v <= blocksCount);
+    // eslint-disable-next-line max-len
+    const getBlocksSql = `select * from blocks_0 where block_height in (${new Array(blocksHeights.length).fill('?').join(',')}) order by block_height ${order} limit ?`;
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ ...blocksHeights, limit ]);
     return {
       total: blocksCount,
       blocks
