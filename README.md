@@ -4,49 +4,34 @@
 
 Please ensure your dependencies are ready.
 
-If you meet some permission problem, try to use 'sudo'.
+Default port: `7101`
 
-```bash
-bash build.sh <type|optional> <node_moduels|optinal> <nginx|optional>
-# if you only want to use the second param, you must set the type=""
-# Demo
-bash build.sh dev
-bash build.sh dev reinstall
-bash build.sh "" reinstall
-# bash build.sh === bash build.sh pro
-
-```
-
-Default port: 7101
-
-Open http://127.0.0.1:7101, you will see 'hi, this is aelf-block-api.'.
+Open `http://127.0.0.1:7101`, you will see 'hi, this is aelf-block-api.'.
 
 ### 0.Dependencies
 
-- 0.[aelf-block-scan](https://github.com/AElfProject/aelf-block-scan): 
+- 0.[aelf-block-scan](https://github.com/AElfProject/aelf-block-scan):
 Start up [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan) at first.
 
 - 1.Mysql: you can initialize the database through the [sql](https://github.com/AElfProject/aelf-block-scan/blob/master/aelf_test.sql)
 in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
 
-- 2.NodeJS: You can see the JS dependencies in pakage.json, we use egg.js(Node.js & Koa).
+- 2.NodeJS: You can see the JS dependencies in package.json, we use egg.js(Node.js & Koa).
 
-### 1.Change  the Config
+### 1.Change the Config
 
-```bash
-cp config.default.js config.prod.js
-```
+set your own configs in `config/config.default.js`
 
-set your own config.keys & config.mysql
+include: `sql`, `redis`, `endpoint`, `keys`
 
 Warning About Mysql:
 
-- Please do not use admin. Use the normal users without SUPER privilege.
+- Please do not use root. Use the normal users without SUPER privilege.
 
 Grant Demo
 
 ```bash
-    CREATE USER 'normal_aelf'@'localhost' IDENTIFIED BY 'password';
+    CREATE USER 'normal_aelf'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
     GRANT select, insert, update, delete on aelf_test.* TO 'normal_aelf'@'localhost';
 ```
 
@@ -57,9 +42,12 @@ try to use build.sh at first.
 ```bash
 npm install
 
-dev: npm run dev
-
-pro: npm start
+# for local development
+npm run dev
+# for production
+npm start
+# for shutdown in production environment
+npm stop
 ```
 
 ## About csrf-token & POST API
@@ -84,27 +72,6 @@ fetch(`/block/api/address/transactions`, {
     }
 }).then().catch();
 ```
-
-## Docker
-
-Now, the Repositories of test demo is in [docker/hzz780/aelf-block-api](https://cloud.docker.com/swarm/hzz780/repository/docker/hzz780/aelf-block-api/general)
-
-### Demo
-
-```bash
-docker container run -p 7101:7101 -dit \
---name=aelf-block-apinodeali \
---mount type=bind,source=/Users/huangzongzhe/workspace/hoopox/aelf-web-docker/api/config.default.js,target=/app/config/config.default.js \
-aelf-block-api:noalinode /bin/bash
-
-docker exec a7db727219ae npm start
-```
-
-## Alinode
-
-Register [aliyun](https://www.aliyun.com/product/nodejs)
-
-Then, look at config/config.default.js & config/plugin.js
 
 ## API DOCS
 
@@ -134,7 +101,7 @@ We advise you implement your own API like the example.
 
 // Example, code snippets.
 // controller/address.js
-    async getTokens() {
+    async function getTokens() {
         let ctx = this.ctx;
 
         // Not only param validate but also a detail param doc.
@@ -190,7 +157,7 @@ We advise you implement your own API like the example.
     }
 
 // service/address.js
-async getTokens(options) {
+async function getTokens(options) {
     // get the tokens information.
 }
 ```
