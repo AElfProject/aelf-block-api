@@ -42,9 +42,10 @@ class AllService extends BaseService {
     const offset = limit * page;
     const buffer = 20000;
     let whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit + buffer}`;
+    let maxId = 0;
     if (order.toUpperCase() === 'DESC') {
       const maxIdSql = 'select id from transactions_0 ORDER BY id DESC LIMIT 1';
-      let maxId = await this.selectQuery(aelf0, maxIdSql, []);
+      maxId = await this.selectQuery(aelf0, maxIdSql, []);
       maxId = maxId[0].id;
       let floor = maxId - (page + 1) * limit - 1 - buffer;
       floor = floor <= 0 ? 1 : floor;
@@ -61,7 +62,7 @@ class AllService extends BaseService {
       );
     }
     return {
-      total: txsCount,
+      total: maxId || txsCount,
       transactions: this.service.getTransferAmount.filter(txs)
     };
   }
