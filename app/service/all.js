@@ -40,7 +40,7 @@ class AllService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const { limit, page, order } = utils.parseOrder(options);
     const offset = limit * page;
-    const buffer = 10000;
+    const buffer = 20000;
     let whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit + buffer}`;
     if (order.toUpperCase() === 'DESC') {
       const maxIdSql = 'select id from transactions_0 ORDER BY id DESC LIMIT 1';
