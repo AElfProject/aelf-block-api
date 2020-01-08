@@ -51,50 +51,62 @@ class AddressService extends BaseService {
       limit,
       page,
       order,
-      address,
-      method
+      address
     } = utils.parseOrder(options);
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
       const offset = limit * page;
+      const queryOption = [ address, address ];
+      const countSqlValue = [ address ];
+      const pageOption = [ limit, offset ];
+      let sqlValue = [ ...queryOption, ...pageOption ];
 
-      let methodMatchSql = '';
-      let sqlValue = [ address, address, address ];
-      let countSqlValue = [ address, address, address ];
-
-      if (method) {
-        methodMatchSql = 'and method=? ';
-        sqlValue.push(method);
-        countSqlValue = [ ...countSqlValue, method ];
+      const results = await Promise.all([
+        'select count(1) as total from transactions_0 where address_from=?',
+        'select count(1) as total from transactions_0 where address_to=?'
+      ].map((v, index) => {
+        const cacheKey = `${address}_${index}`;
+        return Promise.race([
+          getOrSetCountCache(cacheKey, {
+            func: this.selectQuery,
+            args: [ aelf0, v, countSqlValue ]
+          }, 3000),
+          timeout(3000, [{
+            total: 100000
+          }])
+        ]).then(result => {
+          if (result[0].total) {
+            return result[0].total;
+          }
+          return 0;
+        });
+      }));
+      const total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
+      if (total === 0) {
+        return {
+          total: 0,
+          transactions: []
+        };
       }
-      sqlValue = [ ...sqlValue, limit, offset ];
-
-      // limit SQL optimize
-      const whereCondition = 'WHERE id > 0';
-
+      let getTxsIdSql = `select id from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+      const [ countFrom, countTo ] = results;
+      if (parseInt(countFrom, 10) === 0) {
+        sqlValue = [ ...countSqlValue, ...pageOption ];
+        getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_to=? ORDER BY id ${order} limit ? offset ?`;
+      }
+      if (parseInt(countTo, 10) === 0) {
+        sqlValue = [ ...countSqlValue, ...pageOption ];
+        getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_from=? ORDER BY id ${order} limit ? offset ?`;
+      }
       // query by id in range
       // eslint-disable-next-line max-len
-      const getTxsIdSql = `select id from transactions_0 ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql} ORDER BY id ${order} limit ? offset ?`;
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
       let txs = [];
       if (txsIds.length > 0) {
         const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')}) ORDER BY id ${order}`;
         txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       }
-
-      // eslint-disable-next-line max-len
-      const getCountSql = `select count(1) as total from transactions_0 ${whereCondition} AND (address_from=? or params_to=? or address_to=?) ${methodMatchSql}`;
-      const cacheKey = `${countSqlValue.join('_')}`;
-      const result = await Promise.race([
-        getOrSetCountCache(cacheKey, {
-          func: this.selectQuery,
-          args: [ aelf0, getCountSql, countSqlValue ]
-        }, 3000),
-        timeout(3000, [{
-          total: 100000
-        }])
-      ]);
       return {
-        total: result[0].total,
+        total,
         transactions: this.service.getTransferAmount.filter(txs)
       };
     }
