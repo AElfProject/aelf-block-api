@@ -36,7 +36,7 @@ class ApiService extends BaseService {
       // let result = await aelf0.query('select * from blocks_0 ORDER BY block_height ASC limit 10 offset 0');
       return result;
     }
-    return '傻逼，滚。';
+    return 'error';
   }
 }
 

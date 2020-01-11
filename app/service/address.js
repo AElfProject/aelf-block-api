@@ -111,7 +111,7 @@ class AddressService extends BaseService {
       };
     }
 
-    return '傻逼，滚。';
+    return 'error';
   }
 
   async getBalance(options) {
@@ -178,7 +178,7 @@ class AddressService extends BaseService {
       return result;
     }
 
-    return '傻逼，滚。';
+    return 'error';
   }
 
   async bindToken(options) {
