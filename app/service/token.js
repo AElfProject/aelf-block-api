@@ -17,27 +17,43 @@ class TokenService extends BaseService {
       address,
       limit,
       page,
-      order
+      order,
+      type
     } = options;
 
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].indexOf(order) > -1) {
 
       // TODO: 等数据量打了后再做分区
       const offset = page * limit;
-      const getTxsSql = `select * from transactions_token 
-        where (address_from=? or address_to=?) AND symbol=? 
-        ORDER BY id ${order} limit ? offset ?`;
-      const getCountSql = 'select count(1) as total from transactions_token where (address_from=? or address_to=?) AND symbol=? ';
 
-      const txs = await this.selectQuery(aelf0, getTxsSql, [
+      const tableName = type === 'unconfirmed' ? 'transactions_token_unconfirmed' : 'transactions_token';
+
+      const getTxsIdSql = `select id from ${tableName}
+        where (address_from=? or address_to=?) AND symbol=?
+        ORDER BY id ${order} limit ? offset ?`;
+
+      const getAddressFromCountSql = `select count(1) as total from ${tableName} where address_from=? AND symbol=?`;
+      const getAddressToCountSql = `select count(1) as total from ${tableName} where address_to=? AND symbol=?`;
+
+      const addressFromCount = await this.selectQuery(aelf0, getAddressFromCountSql, [
+        address, symbol
+      ]);
+      const addressToCount = await this.selectQuery(aelf0, getAddressToCountSql, [
+        address, symbol
+      ]);
+
+      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, [
         address, address, symbol, limit, offset
       ]);
-      const count = await this.selectQuery(aelf0, getCountSql, [
-        address, address, symbol
-      ]);
+
+      let txs = [];
+      if (txsIds.length > 0) {
+        const getTxsSql = `SELECT * FROM ${tableName} WHERE id in (${new Array(txsIds.length).fill('?').join(',')}) ORDER BY id ${order}`;
+        txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
+      }
 
       return {
-        total: count[0].total,
+        total: addressFromCount[0].total + addressToCount[0].total,
         transactions: txs
       };
     }

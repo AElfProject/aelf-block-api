@@ -18,15 +18,15 @@ const keysRule = {
 
 class TokenController extends Controller {
 
-  // /**
-  //  * 获取对应时间段的TPS信息
-  //  * http://localhost:7101/api/tps/list?start_time=1543470081680&end_time=1543473081680
-  //  *
-  //  * @API getTransactions
-  //  * @param {Number} start_time 毫秒级别
-  //  * @param {Number} end_time 毫秒级别
-  //  * @return {Object}
-  //  */
+  /**
+   * 获取对应时间段的TPS信息
+   * http://localhost:7101/api/tps/list?start_time=1543470081680&end_time=1543473081680
+   *
+   * @API getTransactions
+   * @param {Number} start_time 毫秒级别
+   * @param {Number} end_time 毫秒级别
+   * @return {Object}
+   */
   // create transfer issue crossChainTransfer crossChainReceive
   async getTxs() {
     const {
@@ -38,14 +38,16 @@ class TokenController extends Controller {
         address,
         limit,
         page,
-        order
+        order,
+        type
       } = ctx.request.query;
       const options = {
         symbol: symbol || 'ELF',
         address,
         limit: parseInt(limit, 10) || 20,
         page: parseInt(page, 10) || 0,
-        order: order || 'DESC'
+        order: order || 'DESC',
+        type: type || 'confirmed'
       };
       ctx.validate(keysRule, options);
 
