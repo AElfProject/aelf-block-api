@@ -9,11 +9,6 @@ const CacheService = require('../utils/cache');
 
 const cache = new CacheService();
 
-const {
-  getOrSetCountCache,
-  timeout
-} = require('../utils/cacheCount');
-
 class TokenService extends BaseService {
   async getTxs(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -28,7 +23,7 @@ class TokenService extends BaseService {
 
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].indexOf(order) > -1) {
 
-      // TODO: 等数据量打了后再做分区
+      // TODO: 等数据量大了后再做分区
       const offset = page * limit;
 
       const tableName = type === 'unconfirmed' ? 'transactions_token_unconfirmed' : 'transactions_token';
@@ -36,42 +31,6 @@ class TokenService extends BaseService {
       const getTxsIdSql = `select id from ${tableName}
         where (address_from=? or address_to=?) AND symbol=?
         ORDER BY id ${order} limit ? offset ?`;
-
-      const getAddressFromCountSql = `select count(1) as total from ${tableName} where address_from=? AND symbol=?`;
-      const getAddressToCountSql = `select count(1) as total from ${tableName} where address_to=? AND symbol=?`;
-
-      const countSqlValue = [
-        address, symbol
-      ];
-
-      const results = await Promise.all([
-        getAddressFromCountSql,
-        getAddressToCountSql
-      ].map((v, index) => {
-        const cacheKey = `getTxs_${address}_${index}`;
-        return Promise.race([
-          getOrSetCountCache(cacheKey, {
-            func: this.selectQuery,
-            args: [ aelf0, v, countSqlValue ]
-          }, 3000),
-          timeout(3000, [{
-            total: 100000
-          }])
-        ]).then(result => {
-          if (result[0].total) {
-            return result[0].total;
-          }
-          return 0;
-        });
-      }));
-
-      const total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
-      if (total === 0) {
-        return {
-          total: 0,
-          transactions: []
-        };
-      }
 
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, [
         address, address, symbol, limit, offset
@@ -84,7 +43,9 @@ class TokenService extends BaseService {
       }
 
       return {
-        total,
+        total: 0,
+        count: txsIds.length,
+        limit,
         transactions: txs
       };
     }
