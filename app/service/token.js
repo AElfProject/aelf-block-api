@@ -9,6 +9,11 @@ const CacheService = require('../utils/cache');
 
 const cache = new CacheService();
 
+const {
+  getOrSetCountCache,
+  timeout
+} = require('../utils/cacheCount');
+
 class TokenService extends BaseService {
   async getTxs(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -35,12 +40,38 @@ class TokenService extends BaseService {
       const getAddressFromCountSql = `select count(1) as total from ${tableName} where address_from=? AND symbol=?`;
       const getAddressToCountSql = `select count(1) as total from ${tableName} where address_to=? AND symbol=?`;
 
-      const addressFromCount = await this.selectQuery(aelf0, getAddressFromCountSql, [
+      const countSqlValue = [
         address, symbol
-      ]);
-      const addressToCount = await this.selectQuery(aelf0, getAddressToCountSql, [
-        address, symbol
-      ]);
+      ];
+
+      const results = await Promise.all([
+        getAddressFromCountSql,
+        getAddressToCountSql
+      ].map((v, index) => {
+        const cacheKey = `getTxs_${address}_${index}`;
+        return Promise.race([
+          getOrSetCountCache(cacheKey, {
+            func: this.selectQuery,
+            args: [ aelf0, v, countSqlValue ]
+          }, 3000),
+          timeout(3000, [{
+            total: 100000
+          }])
+        ]).then(result => {
+          if (result[0].total) {
+            return result[0].total;
+          }
+          return 0;
+        });
+      }));
+
+      const total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
+      if (total === 0) {
+        return {
+          total: 0,
+          transactions: []
+        };
+      }
 
       const txsIds = await this.selectQuery(aelf0, getTxsIdSql, [
         address, address, symbol, limit, offset
@@ -53,7 +84,7 @@ class TokenService extends BaseService {
       }
 
       return {
-        total: addressFromCount[0].total + addressToCount[0].total,
+        total,
         transactions: txs
       };
     }
