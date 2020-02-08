@@ -13,6 +13,7 @@ module.exports = app => {
     millisecond: 1000
   });
   router.get('/api/transactions', controller.api.getTransactions);
+  router.get('/api/chain-info', controller.api.getChainInfo);
   router.post('/api/transactions', controller.api.postTransactions);
 
   router.get('/api/all/blocks', controller.all.getAllBlocks);

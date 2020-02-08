@@ -59,6 +59,27 @@ class ApiController extends Controller {
       formatOutput(ctx, 'error', error, 422);
     }
   }
+
+  async getChainInfo() {
+    const {
+      ctx,
+      app
+    } = this;
+    const {
+      redisKeys,
+      currentHeight
+    } = app.config;
+    const totalTxs = await app.redis.get(redisKeys.txsCount);
+    const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
+    const fullCacheList = Array.from(app.cache.block.getCacheList().values()).map(v => v.value);
+    formatOutput(ctx, 'get', {
+      height: currentHeight,
+      unconfirmedBlockHeight,
+      totalTxs,
+      list: fullCacheList,
+      accountNumber: app.cache.common.getCache('accountNumber') || 0
+    });
+  }
 }
 
 module.exports = ApiController;
