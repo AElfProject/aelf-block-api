@@ -9,13 +9,6 @@ const {
 } = require('egg');
 const formatOutput = require('../utils/formatOutput.js');
 
-const keysRule = {
-  symbol: 'string',
-  address: 'string',
-  limit: 'number',
-  page: 'number',
-};
-
 class TokenController extends Controller {
 
   /**
@@ -41,14 +34,31 @@ class TokenController extends Controller {
         order,
         type
       } = ctx.request.query;
+
+      const keysRule = {
+        symbol: {
+          type: 'string',
+          required: false,
+          allowEmpty: true
+        },
+        address: {
+          type: 'string',
+          required: false,
+          allowEmpty: true
+        },
+        limit: 'number',
+        page: 'number',
+      };
+
       const options = {
-        symbol: symbol || 'ELF',
+        symbol,
         address,
         limit: parseInt(limit, 10) || 20,
         page: parseInt(page, 10) || 0,
         order: order || 'DESC',
         type: type || 'confirmed'
       };
+
       ctx.validate(keysRule, options);
 
       const result = await ctx.service.token.getTxs(options);

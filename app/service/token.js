@@ -25,23 +25,40 @@ class TokenService extends BaseService {
 
       // TODO: 等数据量大了后再做分区
       const offset = page * limit;
-
       const tableName = type === 'unconfirmed' ? 'transactions_token_unconfirmed' : 'transactions_token';
 
-      const getTxsIdSql = `select id from ${tableName}
+      let getTxsIdSql = '';
+      let txsIds = [];
+      let txs = [];
+      let getTxsIdSqlParams = [];
+
+      if (address && symbol) {
+        getTxsIdSql = `select id from ${tableName}
         where (address_from=? or address_to=?) AND symbol=?
         ORDER BY id ${order} limit ? offset ?`;
 
-      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, [
-        address, address, symbol, limit, offset
-      ]);
+        getTxsIdSqlParams = [ address, address, symbol, limit, offset ];
+      }
+      if (address) {
+        getTxsIdSql = `select id from ${tableName}
+        where (address_from=? or address_to=?) AND ORDER BY id ${order} limit ? offset ?`;
 
-      let txs = [];
+        getTxsIdSqlParams = [ address, address, limit, offset ];
+      }
+      if (symbol) {
+        getTxsIdSql = `select id from ${tableName}
+        where symbol=? ORDER BY id ${order} limit ? offset ?`;
+
+        getTxsIdSqlParams = [ symbol, limit, offset ];
+      }
+
+      txsIds = await this.selectQuery(aelf0, getTxsIdSql, getTxsIdSqlParams);
+
       if (txsIds.length > 0) {
         const getTxsSql = `SELECT * FROM ${tableName} WHERE id in (${new Array(txsIds.length).fill('?').join(',')}) ORDER BY id ${order}`;
         txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       }
-
+      // TODO: count total?
       return {
         total: 0,
         count: txsIds.length,
