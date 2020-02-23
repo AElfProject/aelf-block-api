@@ -41,7 +41,7 @@ class TokenService extends BaseService {
       }
       if (address) {
         getTxsIdSql = `select id from ${tableName}
-        where (address_from=? or address_to=?) AND ORDER BY id ${order} limit ? offset ?`;
+        where (address_from=? or address_to=?) ORDER BY id ${order} limit ? offset ?`;
 
         getTxsIdSqlParams = [ address, address, limit, offset ];
       }
