@@ -26,21 +26,24 @@ class CrossChainController extends Controller {
         receive,
         main_chain_id: mainChainId,
         issue_chain_id: issueChainId,
-        cross_transfer_tx_id: crossTransferTxId
+        cross_transfer_tx_id: crossTransferTxId,
+        no_cache: noCache
       } = ctx.request.query;
       const options = {
         send,
         receive,
         mainChainId: parseInt(mainChainId, 10),
         issueChainId: parseInt(issueChainId, 10),
-        crossTransferTxId
+        crossTransferTxId,
+        noCache: parseInt(noCache, 10) || 0
       };
       const rule = {
         send: 'string',
         receive: 'string',
         mainChainId: 'int',
         issueChainId: 'int',
-        crossTransferTxId: 'string'
+        crossTransferTxId: 'string',
+        noCache: 'int'
       };
       ctx.validate(rule, options);
       const result = await ctx.service.crossChain.isReadyToReceive(options);

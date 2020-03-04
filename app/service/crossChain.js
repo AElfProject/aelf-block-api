@@ -29,12 +29,13 @@ class CrossChainService extends Service {
       receive,
       mainChainId,
       issueChainId,
-      crossTransferTxId
+      crossTransferTxId,
+      noCache
     } = options;
 
     // console.log('crossChainInstance', !!crossChainInstanceList[send + receive], JSON.stringify(options));
     let crossChainInstance = {};
-    if (crossChainInstanceList[send + receive]) {
+    if (crossChainInstanceList[send + receive] && !noCache) {
       crossChainInstance = crossChainInstanceList[send + receive];
     } else {
       const receiveInstance = new AElf(new AElf.providers.HttpProvider(receive));
