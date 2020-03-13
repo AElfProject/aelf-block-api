@@ -32,13 +32,6 @@ class TokenService extends BaseService {
       let txs = [];
       let getTxsIdSqlParams = [];
 
-      if (address && symbol) {
-        getTxsIdSql = `select id from ${tableName}
-        where (address_from=? or address_to=?) AND symbol=?
-        ORDER BY id ${order} limit ? offset ?`;
-
-        getTxsIdSqlParams = [ address, address, symbol, limit, offset ];
-      }
       if (address) {
         getTxsIdSql = `select id from ${tableName}
         where (address_from=? or address_to=?) ORDER BY id ${order} limit ? offset ?`;
@@ -50,6 +43,14 @@ class TokenService extends BaseService {
         where symbol=? ORDER BY id ${order} limit ? offset ?`;
 
         getTxsIdSqlParams = [ symbol, limit, offset ];
+      }
+
+      if (address && symbol) {
+        getTxsIdSql = `select id from ${tableName}
+        where (address_from=? or address_to=?) AND symbol=?
+        ORDER BY id ${order} limit ? offset ?`;
+
+        getTxsIdSqlParams = [ address, address, symbol, limit, offset ];
       }
 
       txsIds = await this.selectQuery(aelf0, getTxsIdSql, getTxsIdSqlParams);
