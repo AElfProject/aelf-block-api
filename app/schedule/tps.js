@@ -4,7 +4,7 @@ const {
   getLocalTps
 } = require('../utils/utils');
 
-const TIME_RANGE = 5 * 60 * 1000; // ms
+const TIME_RANGE = 3 * 60 * 60 * 1000; // ms
 const TOTAL_LENGTH = TIME_RANGE / (60 * 1000) + 10;
 
 class Tps extends Subscription {
