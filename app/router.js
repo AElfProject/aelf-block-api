@@ -17,7 +17,9 @@ module.exports = app => {
   router.post('/api/transactions', controller.api.postTransactions);
 
   router.get('/api/all/blocks', controller.all.getAllBlocks);
+  router.get('/api/all/unconfirmedBlocks', controller.all.getUnconfirmedBlocks);
   router.get('/api/all/transactions', controller.all.getAllTransactions);
+  router.get('/api/all/unconfirmedTransactions', controller.all.getUnconfirmedTransactions);
 
   router.get('/api/block/transactions', controller.block.getTransactions);
 
@@ -40,6 +42,7 @@ module.exports = app => {
   router.get('/api/huobi/detail', controller.huobi.getDetail);
 
   router.get('/api/tps/list', controller.tps.getTps);
+  router.get('/api/tps/all', controller.tps.getAll);
 
   router.post('/api/admin/login', accessFrequencyRestrict, controller.admin.login);
   router.get('/api/admin/user-info', accessFrequencyRestrict, controller.admin.getUserInfo);

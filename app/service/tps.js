@@ -3,27 +3,74 @@
  * @author huangzongzhe
  * 2018.11
  */
+const axios = require('axios').default;
 const BaseService = require('../core/baseService');
+const {
+  formatTimeRange
+} = require('../utils/utils');
 
 class TpsService extends BaseService {
-  async getTps(options) {
-    const aelf0 = this.ctx.app.mysql.get('aelf0');
+  async getTps() {
     const {
-      start_time,
-      end_time,
-      order
-    } = options;
+      app
+    } = this;
+    const {
+      tpsListRedisKey
+    } = app.config;
+    let list = await app.redis.lrange(tpsListRedisKey, 0, -1);
+    list = list.map(v => JSON.parse(v));
+    return list;
+  }
 
-    if ([ 'DESC', 'ASC', 'desc', 'asc' ].indexOf(order) > -1) {
+  async getTpsFromOther(url) {
+    try {
+      const response = await axios.get(`${url}/api/tps/list`);
+      const {
+        data,
+      } = response;
+      const {
+        list = []
+      } = data;
+      return list;
+    } catch (e) {
+      return [];
+    }
+  }
 
-      const sqlValue = [ start_time, end_time ];
-      const getTpsSql = `select * from tps_0 where start between ? and ? ORDER BY start ${order}`;
-
-      const tps = await this.selectQuery(aelf0, getTpsSql, sqlValue);
-
+  async getAll(options) {
+    try {
+      const {
+        sideChainAPI
+      } = this.app.config;
+      const {
+        start: paramsStart,
+        end: paramsEnd
+      } = formatTimeRange(options.start, options.end, options.interval);
+      let otherList = await Promise.all(sideChainAPI.map(v => this.getTpsFromOther(v)));
+      let ownList = await this.getTps();
+      let { end } = ownList[ownList.length - 1];
+      let { start } = ownList[0].start;
+      end = Math.min(end, paramsEnd);
+      start = Math.max(start, paramsStart);
+      otherList = otherList.map(other => {
+        return other.filter(v => v.end <= end && v.start >= start);
+      });
+      ownList = ownList.filter(v => v.end <= end && v.start >= start);
+      const allList = ownList.map((d, index) => {
+        const { count } = d;
+        return {
+          ...d,
+          count: otherList.reduce((acc, v) => acc + v[index] || 0, count)
+        };
+      });
       return {
-        total: tps.length,
-        tps
+        all: allList,
+        own: ownList
+      };
+    } catch (e) {
+      return {
+        all: [],
+        own: []
       };
     }
   }

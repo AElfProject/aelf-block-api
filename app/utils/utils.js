@@ -2,6 +2,8 @@
  * @file common utils
  * @author atom-yang
  */
+const AElf = require('aelf-sdk');
+const moment = require('moment');
 
 function camelCaseToUnderScore(str = '') {
   return str.replace(/(.)([A-Z])/g, (_, p0, p1) => `${p0}_${p1.toLowerCase()}`);
@@ -20,9 +22,72 @@ function parseOrder(options = {}) {
     order
   };
 }
+let zero = null;
+let wallet = null;
+let aelf = null;
+async function getContract(endpoint, name) {
+  if (!wallet) {
+    wallet = AElf.wallet.createNewWallet();
+    aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
+    const status = await aelf.chain.getChainStatus();
+    zero = status.GenesisContractAddress;
+  }
+  const zeroContract = await aelf.chain.contractAt(zero, wallet);
+  const address = await zeroContract.GetContractAddressByName.call(AElf.utils.sha256(name));
+  return aelf.chain.contractAt(address, wallet);
+}
 
+function formatTimeRange(start, end, minRange) {
+  const range = end - start;
+  const newEnd = Math.floor(end / minRange) * minRange;
+  const newStart = newEnd - range;
+  return {
+    start: newStart,
+    end: newEnd
+  };
+}
+
+async function getLocalTps(db, options = {}) {
+  const {
+    interval
+  } = options;
+  const {
+    start,
+    end
+  } = formatTimeRange(options.start, options.end, interval);
+
+  const sqlValue = [ moment(start).utc().format(), moment(end).utc().format() ];
+  const getTpsSql = 'select time,tx_count from blocks_0 where time between ? and ?';
+
+  const timeList = new Array(Math.ceil((end - start) / interval)).fill(1).map((_, i) => {
+    return {
+      start: start + interval * i,
+      end: start + interval * (i + 1),
+      count: 0
+    };
+  });
+
+  const tps = await db.query(getTpsSql, sqlValue);
+
+  tps.forEach(({ time, tx_count }) => {
+    const timestamp = moment(time).valueOf();
+    let index = Math.floor((timestamp - start) / interval);
+    if (index === timeList.length) {
+      index -= 1;
+    }
+    timeList[index] = {
+      ...timeList[index],
+      count: timeList[index].count + tx_count
+    };
+  });
+
+  return timeList;
+}
 
 module.exports = {
+  getContract,
+  getLocalTps,
+  formatTimeRange,
   camelCaseToUnderScore,
   isObject,
   parseOrder

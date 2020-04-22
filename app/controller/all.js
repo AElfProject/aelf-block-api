@@ -50,6 +50,48 @@ class AllController extends Controller {
       formatOutput(ctx, 'error', error, 422);
     }
   }
+
+  async getUnconfirmedBlocks() {
+    const { ctx } = this;
+    try {
+      const {
+        limit = 25,
+        page = 0,
+        order = 'DESC'
+      } = ctx.request.query;
+      const options = {
+        limit: parseInt(limit, 10),
+        page: parseInt(page, 10),
+        order: order || 'DESC',
+      };
+      ctx.validate(blocksRule, options);
+      const result = await ctx.service.all.getUnconfirmedBlocks(options);
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
+  async getUnconfirmedTransactions() {
+    const { ctx } = this;
+    try {
+      const {
+        limit = 25,
+        page = 0,
+        order = 'DESC'
+      } = ctx.request.query;
+      const options = {
+        limit: parseInt(limit, 10),
+        page: parseInt(page, 10),
+        order: order || 'DESC',
+      };
+      ctx.validate(blocksRule, options);
+      const result = await ctx.service.all.getUnconfirmedTransactions(options);
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
 }
 
 module.exports = AllController;

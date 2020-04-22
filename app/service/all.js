@@ -8,6 +8,44 @@ const utils = require('../utils/utils');
 
 class AllService extends BaseService {
 
+  async getUnconfirmedBlocks(options) {
+    const {
+      limit,
+      page,
+      order
+    } = options;
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const offset = limit * page;
+    // eslint-disable-next-line max-len
+    const getBlocksSql = `select id,block_hash,block_height,time,tx_count from blocks_unconfirmed order by id ${order} limit ? offset ?`;
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
+    const { redisKeys } = this.app.config;
+    const blocksCount = await this.redisCommand('get', redisKeys.blocksUnconfirmedCount) || 0;
+    return {
+      total: blocksCount,
+      blocks
+    };
+  }
+
+  async getUnconfirmedTransactions(options) {
+    const {
+      limit,
+      page,
+      order
+    } = options;
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const offset = limit * page;
+    // eslint-disable-next-line max-len
+    const getTransactionsSql = `select * from transactions_unconfirmed order by id ${order} limit ? offset ?`;
+    const transactions = await this.selectQuery(aelf0, getTransactionsSql, [ limit, offset ]);
+    const { redisKeys } = this.app.config;
+    const txsCount = await this.redisCommand('get', redisKeys.txsUnconfirmedCount) || 0;
+    return {
+      total: txsCount,
+      transactions
+    };
+  }
+
   async getAllBlocks(options) {
     const { redisKeys } = this.app.config;
     let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
