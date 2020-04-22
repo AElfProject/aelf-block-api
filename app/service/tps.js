@@ -49,7 +49,7 @@ class TpsService extends BaseService {
       let otherList = await Promise.all(sideChainAPI.map(v => this.getTpsFromOther(v)));
       let ownList = await this.getTps();
       let { end } = ownList[ownList.length - 1];
-      let { start } = ownList[0].start;
+      let { start } = ownList[0];
       end = Math.min(end, paramsEnd);
       start = Math.max(start, paramsStart);
       otherList = otherList.map(other => {
@@ -60,7 +60,7 @@ class TpsService extends BaseService {
         const { count } = d;
         return {
           ...d,
-          count: otherList.reduce((acc, v) => acc + v[index] || 0, count)
+          count: otherList.reduce((acc, v) => acc + v[index].count || 0, count)
         };
       });
       return {

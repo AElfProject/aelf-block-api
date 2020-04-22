@@ -2,6 +2,7 @@
  * @file app
  * @author atom-yang
  */
+const ioClient = require('socket.io-client');
 const AElf = require('aelf-sdk/dist/aelf.cjs');
 const getBlocksAndTxsFromChain = require('./app/utils/getBlocksAndTxsFromChain');
 const CacheService = require('./app/utils/cache');
@@ -63,7 +64,8 @@ module.exports = async app => {
   const blockCache = new CacheService();
   const {
     endpoint,
-    redisKeys
+    redisKeys,
+    sideChainAPI
   } = app.config;
   app.cache = {};
   app.cache.block = blockCache;
@@ -81,6 +83,7 @@ module.exports = async app => {
   scheduler.setCallback(async () => {
     const list = [];
     const cacheList = app.cache.block.getCacheList();
+    const sideData = Object.values(app.cache.sideChainData || {});
     // eslint-disable-next-line no-unused-vars
     for (const item of cacheList) {
       if (item[0] > app.config.lastHeight) {
@@ -92,14 +95,41 @@ module.exports = async app => {
       const unconfirmedTx = await app.redis.get(redisKeys.txsUnconfirmedCount);
       const totalTxs = parseInt(confirmedTx, 10) + parseInt(unconfirmedTx, 10);
       const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
+      const accountNumber = app.cache.common.getCache('accountNumber') || 0;
       app.io.of('/').emit('getBlocksList', {
         height: app.config.currentHeight,
         unconfirmedBlockHeight,
         totalTxs,
         list,
-        accountNumber: app.cache.common.getCache('accountNumber') || 0
+        accountNumber,
+        allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs, 0),
+        allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber, 0)
       });
     }
   });
   scheduler.startTimer();
+  app.cache.sideChainData = sideChainAPI.reduce((acc, v) => (
+    {
+      ...acc,
+      [v]: {}
+    }
+  ), {});
+  // eslint-disable-next-line no-unused-vars
+  for (const url of sideChainAPI) {
+    const socket = ioClient(url, {
+      path: '/socket',
+      transports: [ 'websocket', 'polling' ]
+    });
+    socket.on('getBlocksList', data => {
+      const {
+        totalTxs,
+        accountNumber = 0
+      } = data;
+      app.cache.sideChainData[url] = {
+        totalTxs,
+        accountNumber
+      };
+    });
+    socket.emit('getBlocksList');
+  }
 };

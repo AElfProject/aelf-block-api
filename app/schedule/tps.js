@@ -25,6 +25,8 @@ class Tps extends Subscription {
     } = app.config;
     const nowEndTime = Math.floor(moment().valueOf() / tpsInterval) * tpsInterval - tpsInterval * 2;
     if (!lastTpsStartTime) {
+      await app.redis.ltrim(tpsListRedisKey, 0, 0);
+      await app.redis.lpop(tpsListRedisKey);
       lastTpsStartTime = nowEndTime - TIME_RANGE;
     }
     if (nowEndTime - lastTpsStartTime <= 0) {
@@ -41,6 +43,7 @@ class Tps extends Subscription {
     if (diff > 0) {
       await app.redis.ltrim(tpsListRedisKey, diff, -1);
     }
+    app.config.lastTpsStartTime = nowEndTime;
   }
 }
 
