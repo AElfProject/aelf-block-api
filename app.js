@@ -102,8 +102,8 @@ module.exports = async app => {
         totalTxs,
         list,
         accountNumber,
-        allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs, 0),
-        allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber, 0)
+        allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs || 0, 0),
+        allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber || 0, 0)
       });
     }
   });
@@ -122,7 +122,7 @@ module.exports = async app => {
     });
     socket.on('getBlocksList', data => {
       const {
-        totalTxs,
+        totalTxs = 0,
         accountNumber = 0
       } = data;
       app.cache.sideChainData[url] = {
