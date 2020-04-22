@@ -90,5 +90,8 @@ module.exports = appInfo => {
   // 广播间隔
   config.broadcastInterval = 2000; // ms
 
+  config.logger = {
+    consoleLevel: 'INFO'
+  };
   return config;
 };
