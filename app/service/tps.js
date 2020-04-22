@@ -5,9 +5,6 @@
  */
 const axios = require('axios').default;
 const BaseService = require('../core/baseService');
-const {
-  formatTimeRange
-} = require('../utils/utils');
 
 class TpsService extends BaseService {
   async getTps() {
@@ -37,15 +34,11 @@ class TpsService extends BaseService {
     }
   }
 
-  async getAll(options) {
+  async getAll() {
     try {
       const {
         sideChainAPI
       } = this.app.config;
-      const {
-        start: paramsStart,
-        end: paramsEnd
-      } = formatTimeRange(options.start, options.end, options.interval);
       let otherList = await Promise.all(sideChainAPI.map(v => this.getTpsFromOther(v)));
       otherList = otherList.filter(other => other.length > 0);
       let ownList = await this.getTps();
@@ -53,8 +46,8 @@ class TpsService extends BaseService {
       let { start } = ownList[0];
       const otherListStart = otherList.map(other => other[0].start);
       const otherListEnd = otherList.map(other => other[other.length - 1].end);
-      end = Math.min(end, paramsEnd, ...otherListEnd);
-      start = Math.max(start, paramsStart, ...otherListStart);
+      end = Math.min(end, ...otherListEnd);
+      start = Math.max(start, ...otherListStart);
       otherList = otherList.map(other => {
         return other.filter(v => v.end <= end && v.start >= start);
       });

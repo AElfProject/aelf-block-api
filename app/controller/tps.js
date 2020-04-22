@@ -45,7 +45,7 @@ class TpsController extends Controller {
     try {
       ctx.validate(keysRule, ctx.request.query);
 
-      const result = await ctx.service.tps.getAll(ctx.request.query);
+      const result = await ctx.service.tps.getAll();
 
       formatOutput(ctx, 'get', result);
     } catch (error) {
