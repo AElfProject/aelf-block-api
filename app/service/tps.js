@@ -47,11 +47,14 @@ class TpsService extends BaseService {
         end: paramsEnd
       } = formatTimeRange(options.start, options.end, options.interval);
       let otherList = await Promise.all(sideChainAPI.map(v => this.getTpsFromOther(v)));
+      otherList = otherList.filter(other => other.length > 0);
       let ownList = await this.getTps();
       let { end } = ownList[ownList.length - 1];
       let { start } = ownList[0];
-      end = Math.min(end, paramsEnd);
-      start = Math.max(start, paramsStart);
+      const otherListStart = otherList.map(other => other[0].start);
+      const otherListEnd = otherList.map(other => other[other.length - 1].end);
+      end = Math.min(end, paramsEnd, ...otherListEnd);
+      start = Math.max(start, paramsStart, ...otherListStart);
       otherList = otherList.map(other => {
         return other.filter(v => v.end <= end && v.start >= start);
       });
