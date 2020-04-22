@@ -60,6 +60,8 @@ function createCommonCache(app) {
   return cache;
 }
 
+const SIDE_CHAIN_DATA_REDIS_KEY = 'side_chain_data';
+
 module.exports = async app => {
   const blockCache = new CacheService();
   const {
@@ -83,7 +85,6 @@ module.exports = async app => {
   scheduler.setCallback(async () => {
     const list = [];
     const cacheList = app.cache.block.getCacheList();
-    const sideData = Object.values(app.cache.sideChainData || {});
     // eslint-disable-next-line no-unused-vars
     for (const item of cacheList) {
       if (item[0] > app.config.lastHeight) {
@@ -91,6 +92,8 @@ module.exports = async app => {
       }
     }
     if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
+      const sideChainData = JSON.parse(await app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY));
+      const sideData = Object.values(sideChainData || {});
       const confirmedTx = await app.redis.get(redisKeys.txsCount);
       const unconfirmedTx = await app.redis.get(redisKeys.txsUnconfirmedCount);
       const totalTxs = parseInt(confirmedTx, 10) + parseInt(unconfirmedTx, 10);
@@ -108,27 +111,32 @@ module.exports = async app => {
     }
   });
   scheduler.startTimer();
-  app.cache.sideChainData = sideChainAPI.reduce((acc, v) => (
+  const sideChainData = sideChainAPI.reduce((acc, v) => (
     {
       ...acc,
       [v]: {}
     }
   ), {});
+  await app.redis.set(SIDE_CHAIN_DATA_REDIS_KEY, JSON.stringify(sideChainData));
   // eslint-disable-next-line no-unused-vars
   for (const url of sideChainAPI) {
     const socket = ioClient(url, {
       path: '/socket',
       transports: [ 'websocket', 'polling' ]
     });
-    socket.on('getBlocksList', data => {
+    socket.on('getBlocksList', async data => {
       const {
         totalTxs = 0,
         accountNumber = 0
       } = data;
-      app.cache.sideChainData[url] = {
-        totalTxs,
-        accountNumber
-      };
+      const sideChainData = JSON.parse(await app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY));
+      await app.redis.set(SIDE_CHAIN_DATA_REDIS_KEY, JSON.stringify({
+        ...sideChainData,
+        [url]: {
+          totalTxs,
+          accountNumber
+        }
+      }));
     });
     socket.emit('getBlocksList');
   }
