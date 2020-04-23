@@ -28,7 +28,7 @@ class Tps extends Subscription {
     if (lastTps.length === 0) {
       lastEndTime = nowEndTime - TIME_RANGE;
     } else {
-      lastEndTime = lastTps[0].end;
+      lastEndTime = JSON.parse(lastTps[0]).end;
     }
     if (nowEndTime - lastEndTime <= 0) {
       return;
