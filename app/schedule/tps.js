@@ -18,32 +18,32 @@ class Tps extends Subscription {
 
   async subscribe() {
     const { app } = this;
-    let {
-      lastTpsStartTime,
+    const {
       tpsInterval,
       tpsListRedisKey
     } = app.config;
     const nowEndTime = Math.floor(moment().valueOf() / tpsInterval) * tpsInterval - tpsInterval * 2;
-    if (!lastTpsStartTime) {
-      await app.redis.ltrim(tpsListRedisKey, 0, 0);
-      await app.redis.lpop(tpsListRedisKey);
-      lastTpsStartTime = nowEndTime - TIME_RANGE;
+    const lastTps = await app.redis.lrange(tpsListRedisKey, -1, -1);
+    let lastEndTime;
+    if (lastTps.length === 0) {
+      lastEndTime = nowEndTime - TIME_RANGE;
+    } else {
+      lastEndTime = lastTps[0].end;
     }
-    if (nowEndTime - lastTpsStartTime <= 0) {
+    if (nowEndTime - lastEndTime <= 0) {
       return;
     }
     const list = await getLocalTps(app.mysql.get('aelf0'), {
-      start: lastTpsStartTime,
+      start: lastEndTime,
       end: nowEndTime,
       interval: tpsInterval
     });
-    await app.redis.rpush.call(app.redis, [ tpsListRedisKey, ...(list.map(v => JSON.stringify(v))) ]);
+    await app.redis.rpush(tpsListRedisKey, ...(list.map(v => JSON.stringify(v))));
     const currentLength = await app.redis.llen(tpsListRedisKey);
     const diff = currentLength - TOTAL_LENGTH;
     if (diff > 0) {
       await app.redis.ltrim(tpsListRedisKey, diff, -1);
     }
-    app.config.lastTpsStartTime = nowEndTime;
   }
 }
 
