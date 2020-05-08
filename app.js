@@ -92,12 +92,21 @@ module.exports = async app => {
       }
     }
     if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
-      const sideChainData = JSON.parse(await app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY));
+      const [
+        sideChainData,
+        confirmedTx,
+        unconfirmedTx,
+        unconfirmedBlockHeight,
+        dividends
+      ] = await Promise.all([
+        app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY).then(res => JSON.parse(res)),
+        app.redis.get(redisKeys.txsCount),
+        app.redis.get(redisKeys.txsUnconfirmedCount),
+        app.redis.get(redisKeys.blocksUnconfirmedCount),
+        app.redis.get('aelf_chain_dividends').then(res => JSON.parse(res || '{}'))
+      ]);
       const sideData = Object.values(sideChainData || {});
-      const confirmedTx = await app.redis.get(redisKeys.txsCount);
-      const unconfirmedTx = await app.redis.get(redisKeys.txsUnconfirmedCount);
       const totalTxs = parseInt(confirmedTx, 10) + parseInt(unconfirmedTx, 10);
-      const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
       const accountNumber = app.cache.common.getCache('accountNumber') || 0;
       app.io.of('/').emit('getBlocksList', {
         height: app.config.currentHeight,
@@ -105,6 +114,7 @@ module.exports = async app => {
         totalTxs,
         list,
         accountNumber,
+        dividends,
         allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs || 0, 0),
         allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber || 0, 0)
       });
