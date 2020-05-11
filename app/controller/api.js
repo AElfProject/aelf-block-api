@@ -37,7 +37,7 @@ class ApiController extends Controller {
       };
       ctx.validate(transactionsRule, options);
       const result = await ctx.service.api.transactions(options);
-      formatOutput(ctx, 'get', this.service.getTransferAmount.filter(result));
+      formatOutput(ctx, 'get', await this.service.getTransferAmount.filter(result));
     } catch (error) {
       formatOutput(ctx, 'error', error, 422);
     }
@@ -54,7 +54,7 @@ class ApiController extends Controller {
       };
       ctx.validate(transactionsRule, options);
       const result = await ctx.service.api.transactions(options);
-      formatOutput(ctx, 'post', this.service.getTransferAmount.filter(result));
+      formatOutput(ctx, 'post', await this.service.getTransferAmount.filter(result));
     } catch (error) {
       formatOutput(ctx, 'error', error, 422);
     }

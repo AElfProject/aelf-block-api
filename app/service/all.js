@@ -101,7 +101,7 @@ class AllService extends BaseService {
     }
     return {
       total: maxId || txsCount,
-      transactions: this.service.getTransferAmount.filter(txs)
+      transactions: await this.service.getTransferAmount.filter(txs)
     };
   }
 }

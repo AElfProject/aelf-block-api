@@ -28,6 +28,19 @@ module.exports = appInfo => {
         password: 'password',
         // 数据库名
         database: 'aelf_main_chain'
+      },
+      viewer: {
+        // host
+        // host: 'mysql.com',
+        host: '127.0.0.1',
+        // 端口号
+        port: '3306',
+        // 用户名
+        user: 'root',
+        // 密码
+        password: 'password',
+        // 数据库名
+        database: 'aelf_viewer'
       }
     },
     // 所有数据库配置的默认值

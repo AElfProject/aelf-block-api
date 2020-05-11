@@ -107,7 +107,7 @@ class AddressService extends BaseService {
       }
       return {
         total,
-        transactions: this.service.getTransferAmount.filter(txs)
+        transactions: await this.service.getTransferAmount.filter(txs)
       };
     }
 

@@ -9,26 +9,15 @@ const CacheService = require('./app/utils/cache');
 const Scheduler = require('./app/utils/scheduler');
 
 async function getCount(app) {
-  const aelf0 = app.mysql.get('aelf0');
-  const sql = 'select COUNT(DISTINCT address_from) AS total from transactions_0';
-  const count = await aelf0.query(sql);
+  const viewer = app.mysql.get('viewer');
+  const sql = 'select COUNT(DISTINCT owner) AS total from balance';
+  const count = await viewer.query(sql);
   return count[0].total || 0;
-}
-
-async function getTokenDecimals(app) {
-  const aelf0 = app.mysql.get('aelf0');
-  const sql = 'select symbol, decimals from contract_aelf20';
-  const result = await aelf0.query(sql);
-  return result.reduce((acc, v) => ({
-    ...acc,
-    [v.symbol]: v.decimals
-  }), {});
 }
 
 function createCommonCache(app) {
   const cache = new CacheService();
   const accountNumberCacheKey = 'accountNumber';
-  const tokenDecimalsCacheKey = 'tokenDecimals';
   const commonCacheList = {
     [accountNumberCacheKey]: {
       initialValue: 0,
@@ -38,17 +27,6 @@ function createCommonCache(app) {
         update: async () => {
           const total = await getCount(app);
           cache.setCache(accountNumberCacheKey, total);
-        }
-      }
-    },
-    [tokenDecimalsCacheKey]: {
-      initialValue: {},
-      cacheConfig: {
-        expireTimeout: 25 * 60 * 1000,
-        autoUpdate: true,
-        update: async () => {
-          const result = await getTokenDecimals(app);
-          cache.setCache(tokenDecimalsCacheKey, result);
         }
       }
     }
