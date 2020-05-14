@@ -17,7 +17,7 @@ class AllService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const offset = limit * page;
     // eslint-disable-next-line max-len
-    const getBlocksSql = `select id,block_hash,block_height,time,tx_count from blocks_unconfirmed order by id ${order} limit ? offset ?`;
+    const getBlocksSql = `select * from blocks_unconfirmed order by id ${order} limit ? offset ?`;
     const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
     const { redisKeys } = this.app.config;
     const blocksCount = await this.redisCommand('get', redisKeys.blocksUnconfirmedCount) || 0;
