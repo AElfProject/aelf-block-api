@@ -74,6 +74,12 @@ module.exports = async app => {
   app.cache.common = createCommonCache(app);
   const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
   const status = await aelf.chain.getChainStatus();
+  const {
+    Header: {
+      Time
+    }
+  } = await aelf.chain.getBlockByHeight(2, false);
+  app.config.chainStartTime = Time;
   app.config.heightKey = 'BestChainHeight';
   const height = parseInt(status[app.config.heightKey], 10);
   app.config.currentHeight = height;
