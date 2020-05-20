@@ -97,6 +97,12 @@ const INTERVAL_FORMATTERS = {
   }
 };
 
+function calculatePrice(resource, elf) {
+  return new Decimal(elf)
+    .dividedBy(resource)
+    .toDecimalPlaces(4, Decimal.ROUND_UP);
+}
+
 class ResourceService extends BaseService {
 
   async getRecords(options) {
@@ -177,6 +183,14 @@ class ResourceService extends BaseService {
       type,
       'Mined'
     ]);
+    // eslint-disable-next-line max-len
+    const queryPriceSql = 'select resource, elf, time from resource_0 where time < ? and type=? and tx_status = ? order by time desc limit 1';
+    const priceBefore = await this.selectQuery(aelf0, queryPriceSql, [
+      formatTime(start),
+      type,
+      'Mined'
+    ]);
+    let initialPrice = priceBefore.length === 0 ? 0.02 : calculatePrice(priceBefore[0].resource, priceBefore[0].elf);
     const limitedRange = Math.ceil((end.valueOf() - start.valueOf()) / interval);
     const timeList = new Array(limitedRange).fill(1).map((_, i) => {
       return {
@@ -204,13 +218,17 @@ class ResourceService extends BaseService {
       } = item;
       let volume = list.reduce((acc, v) => acc + v.resource || 0, 0);
       volume = new Decimal(volume).dividedBy(`1e${decimals}`).toDecimalPlaces(4, Decimal.ROUND_UP);
+      let prices = [];
+      if (list.length === 0) {
+        prices = [ initialPrice ];
+      } else {
+        prices = list.map(v => calculatePrice(v.resource, v.elf));
+        initialPrice = prices[prices.length - 1];
+      }
       return {
         date,
         volume,
-        prices: list
-          .map(v => new Decimal(v.elf)
-            .dividedBy(v.resource)
-            .toDecimalPlaces(4, Decimal.ROUND_UP))
+        prices
       };
     });
   }
