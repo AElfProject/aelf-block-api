@@ -78,9 +78,9 @@ const INTERVAL_FORMATTERS = {
   },
   // 1w
   [INTERVAL_MAP['1w']]: {
-    getTimeRange(chainStartTime, maxLen = 100) {
+    getTimeRange(chainStartTime, maxLen = 100, timeZone) {
       const interval = INTERVAL_MAP['1w'];
-      const end = moment().endOf('week');
+      const end = moment().utcOffset(timeZone).endOf('week');
       const start = end.valueOf() - interval * maxLen;
       const diff = chainStartTime.valueOf() - start;
       if (diff <= 0) {
@@ -91,7 +91,7 @@ const INTERVAL_FORMATTERS = {
       }
       return {
         end: moment(end),
-        start: chainStartTime.startOf('week')
+        start: chainStartTime.utcOffset(timeZone).startOf('week')
       };
     }
   }
