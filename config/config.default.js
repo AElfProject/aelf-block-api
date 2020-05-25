@@ -19,15 +19,16 @@ module.exports = appInfo => {
       aelf0: {
         // host
         // host: 'mysql.com',
-        host: '127.0.0.1',
+        host: '192.168.197.43',
         // 端口号
         port: '3306',
         // 用户名
         user: 'root',
         // 密码
-        password: 'password',
+        password: 'root',
         // 数据库名
-        database: 'aelf_main_chain'
+        database: 'aelf_main_chain',
+        charset: 'utf8mb4'
       },
       viewer: {
         // host
@@ -40,7 +41,8 @@ module.exports = appInfo => {
         // 密码
         password: 'password',
         // 数据库名
-        database: 'aelf_viewer'
+        database: 'aelf_viewer',
+        charset: 'utf8mb4'
       }
     },
     // 所有数据库配置的默认值
@@ -92,7 +94,7 @@ module.exports = appInfo => {
   };
 
   // 节点地址
-  config.endpoint = 'http://192.168.197.18:8000';
+  config.endpoint = 'http://192.168.199.205:8000';
 
   config.sideChainAPI = [
     'http://18.179.200.57:7250'
