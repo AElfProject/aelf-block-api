@@ -28,15 +28,19 @@ class Dividend extends Subscription {
     const name = ChainId === 'AELF' ? 'Treasury' : 'Consensus';
     const dividendContract = await getContract(endpoint, `AElf.ContractNames.${name}`);
     let dividends = await dividendContract.GetUndistributedDividends.call();
-    if (Object.keys(dividends) > 0) {
+    dividends = (dividends || {}).value || {};
+    console.log(dividends);
+    if (Object.keys(dividends).length > 0) {
       let decimals = await aelf0.query(getDecimalSql);
       decimals = (decimals || []).reduce((acc, v) => ({
         ...acc,
         [v.symbol]: v.decimals
       }), {});
+      console.log('decimals', decimals);
       dividends = Object.keys(dividends).reduce((acc, key) => ({
         [key]: +dividends[key] / `1e${decimals[key] || 8}`
       }), {});
+      console.log('dividends', dividends);
       await app.redis.set('aelf_chain_dividends', JSON.stringify(dividends));
     }
   }
