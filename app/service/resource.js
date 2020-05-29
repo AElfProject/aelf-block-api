@@ -194,7 +194,7 @@ class ResourceService extends BaseService {
     const limitedRange = Math.ceil((end.valueOf() - start.valueOf()) / interval);
     const timeList = new Array(limitedRange).fill(1).map((_, i) => {
       return {
-        date: formatTime(moment(start).add(interval * (i + 1), 'ms')),
+        date: formatTime(moment(start).add(interval * i, 'ms')),
         list: []
       };
     });
