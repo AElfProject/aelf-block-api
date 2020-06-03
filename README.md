@@ -10,12 +10,8 @@ Open `http://127.0.0.1:7101`, you will see 'hi, this is aelf-block-api.'.
 
 ### 0.Dependencies
 
-- 0.[aelf-block-scan](https://github.com/AElfProject/aelf-block-scan):
-Start up [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan) at first.
-
-- 1.Mysql: you can initialize the database through the [sql](https://github.com/AElfProject/aelf-block-scan/blob/master/aelf_test.sql)
-in [aelf-block-scan](https://github.com/AElfProject/aelf-block-scan)
-
+- 1.[aelf-scan-mysql](https://github.com/AElfProject/aelf-scan-mysql):
+Start up [aelf-scan-mysql](https://github.com/AElfProject/aelf-scan-mysql) at first.
 - 2.NodeJS: You can see the JS dependencies in package.json, we use egg.js(Node.js & Koa).
 
 ### 1.Change the Config
