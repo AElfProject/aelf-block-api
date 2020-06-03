@@ -19,20 +19,6 @@ module.exports = appInfo => {
       aelf0: {
         // host
         // host: 'mysql.com',
-        host: '192.168.197.43',
-        // 端口号
-        port: '3306',
-        // 用户名
-        user: 'root',
-        // 密码
-        password: 'root',
-        // 数据库名
-        database: 'aelf_main_chain',
-        charset: 'utf8mb4'
-      },
-      viewer: {
-        // host
-        // host: 'mysql.com',
         host: '127.0.0.1',
         // 端口号
         port: '3306',
@@ -41,7 +27,7 @@ module.exports = appInfo => {
         // 密码
         password: 'password',
         // 数据库名
-        database: 'aelf_viewer',
+        database: 'aelf_main_chain',
         charset: 'utf8mb4'
       }
     },

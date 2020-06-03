@@ -9,9 +9,9 @@ const CacheService = require('./app/utils/cache');
 const Scheduler = require('./app/utils/scheduler');
 
 async function getCount(app) {
-  const viewer = app.mysql.get('viewer');
+  const db = app.mysql.get('aelf0');
   const sql = 'select COUNT(DISTINCT owner) AS total from balance';
-  const count = await viewer.query(sql);
+  const count = await db.query(sql);
   return count[0].total || 0;
 }
 
