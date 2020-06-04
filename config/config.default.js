@@ -80,10 +80,10 @@ module.exports = appInfo => {
   };
 
   // 节点地址
-  config.endpoint = 'http://192.168.199.205:8000';
+  config.endpoint = 'http://127.0.0.1:8000';
 
   config.sideChainAPI = [
-    'http://18.179.200.57:7250'
+    'http://127.0.0.1:7250'
   ];
   config.tpsInterval = 60 * 1000; // ms
   config.tpsListRedisKey = 'tps_list_3_h';
