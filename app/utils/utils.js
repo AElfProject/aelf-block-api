@@ -25,6 +25,7 @@ function parseOrder(options = {}) {
 let zero = null;
 let wallet = null;
 let aelf = null;
+const CONTRACT_INSTANCE = {};
 async function getContract(endpoint, name) {
   if (!wallet) {
     wallet = AElf.wallet.createNewWallet();
@@ -32,9 +33,14 @@ async function getContract(endpoint, name) {
     const status = await aelf.chain.getChainStatus();
     zero = status.GenesisContractAddress;
   }
-  const zeroContract = await aelf.chain.contractAt(zero, wallet);
-  const address = await zeroContract.GetContractAddressByName.call(AElf.utils.sha256(name));
-  return aelf.chain.contractAt(address, wallet);
+  if (!CONTRACT_INSTANCE.Genesis) {
+    CONTRACT_INSTANCE.Genesis = await aelf.chain.contractAt(zero, wallet);
+  }
+  if (!CONTRACT_INSTANCE[name]) {
+    const address = await CONTRACT_INSTANCE.Genesis.GetContractAddressByName.call(AElf.utils.sha256(name));
+    CONTRACT_INSTANCE[name] = await aelf.chain.contractAt(address, wallet);
+  }
+  return CONTRACT_INSTANCE[name];
 }
 
 function formatTimeRange(start, end, minRange) {

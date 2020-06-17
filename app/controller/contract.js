@@ -138,7 +138,6 @@ class ContractController extends Controller {
         name,
         order: order || 'ASC'
       };
-      console.log('options: ', options);
       const result = await ctx.service.contract.searchToken(options);
       formatOutput(ctx, 'get', result);
     } catch (error) {
