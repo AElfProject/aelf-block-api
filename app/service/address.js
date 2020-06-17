@@ -80,7 +80,7 @@ class AddressService extends BaseService {
           return 0;
         });
       }));
-      const total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
+      let total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
       if (total === 0) {
         return {
           total: 0,
@@ -96,6 +96,11 @@ class AddressService extends BaseService {
       if (parseInt(countTo, 10) === 0) {
         sqlValue = [ ...countSqlValue, ...pageOption ];
         getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_from=? ORDER BY id ${order} limit ? offset ?`;
+      }
+      if (parseInt(countFrom, 10) !== 0 && parseInt(countTo, 10) !== 0) {
+        const totalSql = 'SELECT COUNT(1) AS total FROM transactions_0 WHERE address_from=? or address_to=?';
+        total = await this.selectQuery(aelf0, totalSql, [ address, address ]);
+        total = total[0].total;
       }
       // query by id in range
       // eslint-disable-next-line max-len
