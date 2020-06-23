@@ -63,7 +63,11 @@ async function getDividend(aelf, chainId, height) {
     value: height
   });
   dividends = dividends && dividends.value ? dividends.value : {};
-  return (dividends.ELF || 0) / 1e8;
+  const decimals = await Promise.all(Object.keys(dividends).map(symbol => getTokenDecimal(aelf, symbol)));
+  return Object.keys(dividends).reduce((acc, v, i) => ({
+    ...acc,
+    [v]: +dividends[v] / `1e${decimals[i]}`
+  }), {});
 }
 
 function getMiner(blockInfo) {
