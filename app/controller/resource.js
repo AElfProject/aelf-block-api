@@ -83,17 +83,6 @@ class ResourceController extends Controller {
     }
   }
 
-  /**
-   * 获取交易额
-   *
-   * @API getTurnover
-   * @param {number} limit not null
-   * @param {number} page not null
-   * @param {string} order not null
-   * @param {number} interval not null
-   * @param {string} type option
-   * @return {Object}
-   */
   async getTurnover() {
     const { ctx } = this;
 
@@ -114,7 +103,6 @@ class ResourceController extends Controller {
       };
       ctx.validate(keysRule, options);
       const result = await ctx.service.resource.getTurnover(options);
-      // formateTurnoverList(xxxx);
       formatOutput(ctx, 'get', result);
     } catch (error) {
       formatOutput(ctx, 'error', error, 422);

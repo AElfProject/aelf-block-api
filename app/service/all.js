@@ -17,12 +17,14 @@ class AllService extends BaseService {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
     const offset = limit * page;
     // eslint-disable-next-line max-len
-    const getBlocksSql = `select id,block_hash,block_height,time,tx_count from blocks_unconfirmed order by id ${order} limit ? offset ?`;
-    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
-    const { redisKeys } = this.app.config;
-    const blocksCount = await this.redisCommand('get', redisKeys.blocksUnconfirmedCount) || 0;
+    const getBlocksSql = `select * from blocks_unconfirmed order by id ${order} limit ? offset ?`;
+    const getCountSql = 'select count(1) AS total from blocks_unconfirmed';
+    const [ blocks, total ] = await Promise.all([
+      this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]),
+      this.selectQuery(aelf0, getCountSql, []),
+    ]);
     return {
-      total: blocksCount,
+      total: +total[0].total,
       blocks
     };
   }
@@ -37,11 +39,16 @@ class AllService extends BaseService {
     const offset = limit * page;
     // eslint-disable-next-line max-len
     const getTransactionsSql = `select * from transactions_unconfirmed order by id ${order} limit ? offset ?`;
-    const transactions = await this.selectQuery(aelf0, getTransactionsSql, [ limit, offset ]);
-    const { redisKeys } = this.app.config;
-    const txsCount = await this.redisCommand('get', redisKeys.txsUnconfirmedCount) || 0;
+    const getCountSql = 'select count(1) AS total from transactions_unconfirmed';
+    const [
+      transactions,
+      total
+    ] = await Promise.all([
+      this.selectQuery(aelf0, getTransactionsSql, [ limit, offset ]),
+      this.selectQuery(aelf0, getCountSql, [])
+    ]);
     return {
-      total: txsCount,
+      total: +total[0].total,
       transactions
     };
   }
@@ -101,7 +108,7 @@ class AllService extends BaseService {
     }
     return {
       total: maxId || txsCount,
-      transactions: this.service.getTransferAmount.filter(txs)
+      transactions: await this.service.getTransferAmount.filter(txs)
     };
   }
 }

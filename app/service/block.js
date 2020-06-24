@@ -29,6 +29,32 @@ class BlockService extends BaseService {
       transactions: txs
     };
   }
+
+  async getBlockInfo(height) {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const getBlocksSql
+      = 'select * from blocks_0  where block_height=?';
+    const getUnconfirmedBlocksSql
+      = 'select * from blocks_unconfirmed  where block_height=?';
+    let block = await this.selectQuery(aelf0, getBlocksSql, [ height ]);
+    if (block.length === 0) {
+      block = await this.selectQuery(aelf0, getUnconfirmedBlocksSql, [ height ]);
+    }
+    return block.length === 0 ? {} : block[0];
+  }
+
+  async getTransactionInfo(txId) {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const getTxSql
+      = 'select * from transactions_0  where tx_id=?';
+    const getUnconfirmedTxSql
+      = 'select * from transactions_unconfirmed  where tx_id=?';
+    let tx = await this.selectQuery(aelf0, getTxSql, [ txId ]);
+    if (tx.length === 0) {
+      tx = await this.selectQuery(aelf0, getUnconfirmedTxSql, [ txId ]);
+    }
+    return tx.length === 0 ? {} : tx[0];
+  }
 }
 
 module.exports = BlockService;

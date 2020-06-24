@@ -9,26 +9,15 @@ const CacheService = require('./app/utils/cache');
 const Scheduler = require('./app/utils/scheduler');
 
 async function getCount(app) {
-  const aelf0 = app.mysql.get('aelf0');
-  const sql = 'select COUNT(DISTINCT address_from) AS total from transactions_0';
-  const count = await aelf0.query(sql);
+  const db = app.mysql.get('aelf0');
+  const sql = 'select COUNT(DISTINCT owner) AS total from balance';
+  const count = await db.query(sql);
   return count[0].total || 0;
-}
-
-async function getTokenDecimals(app) {
-  const aelf0 = app.mysql.get('aelf0');
-  const sql = 'select symbol, decimals from contract_aelf20';
-  const result = await aelf0.query(sql);
-  return result.reduce((acc, v) => ({
-    ...acc,
-    [v.symbol]: v.decimals
-  }), {});
 }
 
 function createCommonCache(app) {
   const cache = new CacheService();
   const accountNumberCacheKey = 'accountNumber';
-  const tokenDecimalsCacheKey = 'tokenDecimals';
   const commonCacheList = {
     [accountNumberCacheKey]: {
       initialValue: 0,
@@ -38,17 +27,6 @@ function createCommonCache(app) {
         update: async () => {
           const total = await getCount(app);
           cache.setCache(accountNumberCacheKey, total);
-        }
-      }
-    },
-    [tokenDecimalsCacheKey]: {
-      initialValue: {},
-      cacheConfig: {
-        expireTimeout: 25 * 60 * 1000,
-        autoUpdate: true,
-        update: async () => {
-          const result = await getTokenDecimals(app);
-          cache.setCache(tokenDecimalsCacheKey, result);
         }
       }
     }
@@ -74,6 +52,12 @@ module.exports = async app => {
   app.cache.common = createCommonCache(app);
   const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
   const status = await aelf.chain.getChainStatus();
+  const {
+    Header: {
+      Time
+    }
+  } = await aelf.chain.getBlockByHeight(2, false);
+  app.config.chainStartTime = Time;
   app.config.heightKey = 'BestChainHeight';
   const height = parseInt(status[app.config.heightKey], 10);
   app.config.currentHeight = height;
@@ -92,12 +76,21 @@ module.exports = async app => {
       }
     }
     if (list.length > 0 && Object.keys(app.io.of('/').clients().connected).length > 0) {
-      const sideChainData = JSON.parse(await app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY));
+      const [
+        sideChainData,
+        confirmedTx,
+        unconfirmedTx,
+        unconfirmedBlockHeight,
+        dividends
+      ] = await Promise.all([
+        app.redis.get(SIDE_CHAIN_DATA_REDIS_KEY).then(res => JSON.parse(res)),
+        app.redis.get(redisKeys.txsCount),
+        app.redis.get(redisKeys.txsUnconfirmedCount),
+        app.redis.get(redisKeys.blocksUnconfirmedCount),
+        app.redis.get('aelf_chain_dividends').then(res => JSON.parse(res || '{}'))
+      ]);
       const sideData = Object.values(sideChainData || {});
-      const confirmedTx = await app.redis.get(redisKeys.txsCount);
-      const unconfirmedTx = await app.redis.get(redisKeys.txsUnconfirmedCount);
       const totalTxs = parseInt(confirmedTx, 10) + parseInt(unconfirmedTx, 10);
-      const unconfirmedBlockHeight = await app.redis.get(redisKeys.blocksUnconfirmedCount);
       const accountNumber = app.cache.common.getCache('accountNumber') || 0;
       app.io.of('/').emit('getBlocksList', {
         height: app.config.currentHeight,
@@ -105,6 +98,7 @@ module.exports = async app => {
         totalTxs,
         list,
         accountNumber,
+        dividends,
         allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs || 0, 0),
         allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber || 0, 0)
       });

@@ -7,9 +7,11 @@ const {
 } = require('egg');
 
 class GetTransferAmountService extends Service {
-  filter(list = []) {
-    const { common } = this.app.cache;
-    const tokenDecimals = common.getCache('tokenDecimals');
+  async filter(list = []) {
+    const tokenDecimals = await this.app.redis
+      .get('aelf_chain_tokens')
+      .then(res => JSON.parse(res || '{}'))
+      .catch(() => {});
     return list.map(item => {
       const { quantity, params } = item;
       if (quantity <= 0) {
@@ -24,7 +26,7 @@ class GetTransferAmountService extends Service {
       const {
         symbol = 'ELF'
       } = realParams;
-      item.decimals = tokenDecimals[symbol] || 8;
+      item.decimals = tokenDecimals[symbol].symbol || 8;
       item.symbol = symbol;
       return item;
     });

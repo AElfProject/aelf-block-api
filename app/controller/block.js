@@ -37,6 +37,32 @@ class BlockController extends Controller {
       formatOutput(ctx, 'error', error, 422);
     }
   }
+
+  async getTransaction() {
+    const { ctx } = this;
+    try {
+      const {
+        tx_id
+      } = ctx.request.query;
+      const result = await ctx.service.block.getTransactionInfo(tx_id);
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
+  async getBlock() {
+    const { ctx } = this;
+    try {
+      const {
+        height
+      } = ctx.request.query;
+      const result = await ctx.service.block.getBlockInfo(height);
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
 }
 
 module.exports = BlockController;

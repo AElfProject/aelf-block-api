@@ -22,6 +22,8 @@ module.exports = app => {
   router.get('/api/all/unconfirmedTransactions', controller.all.getUnconfirmedTransactions);
 
   router.get('/api/block/transactions', controller.block.getTransactions);
+  router.get('/api/block/txInfo', controller.block.getTransaction);
+  router.get('/api/block/blockInfo', controller.block.getBlock);
 
   router.get('/api/chain/blocks', controller.chain.getBlocks);
   router.get('/api/chain/transactions', controller.chain.getTransactions);
