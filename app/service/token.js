@@ -110,7 +110,7 @@ class TokenService extends BaseService {
         }
       ).then(data => {
         const resultTemp = data.data;
-        resultTemp.symol = fsym;
+        resultTemp.symbol = fsym;
         cache.initCache(key, resultTemp, {
           expireTimeout: 300000
         });
