@@ -96,12 +96,10 @@ class TokenService extends BaseService {
   }
 
   // TODO: request all tokens info to cache, create your own price pool
-  async getPrices(options) {
-    const {
-      pairs
-    } = options;
-
-    const getPrice = (key, fsym, tsyms) => {
+  async getPrices(pairs) {
+    return Promise.all(pairs.map(pair => {
+      const { fsym, tsyms } = pair;
+      const key = `api${fsym}${tsyms}`;
       if (cache.hasCache(key)) {
         return cache.getCache(key);
       }
@@ -118,16 +116,7 @@ class TokenService extends BaseService {
         });
         return resultTemp;
       });
-    };
-
-    const promises = [];
-    pairs.forEach(pair => {
-      const { fsym, tsyms } = pair;
-      const key = 'api' + fsym + tsyms;
-      promises.push(getPrice(key, fsym, tsyms));
-    });
-
-    return Promise.all(promises);
+    }));
   }
 }
 

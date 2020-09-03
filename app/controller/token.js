@@ -119,7 +119,7 @@ class TokenController extends Controller {
 
       ctx.validate(keysRule, options);
 
-      const result = await ctx.service.token.getPrices(options);
+      const result = await ctx.service.token.getPrices(pairs);
 
       formatOutput(ctx, 'get', result);
     } catch (error) {
