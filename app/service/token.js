@@ -87,11 +87,47 @@ class TokenService extends BaseService {
       }
     )).data;
 
+    result.symbol = fsym;
     cache.initCache(key, result, {
       expireTimeout: 300000
     });
 
     return result;
+  }
+
+  // TODO: request all tokens info to cache, create your own price pool
+  async getPrices(options) {
+    const {
+      pairs
+    } = options;
+
+    const getPrice = (key, fsym, tsyms) => {
+      if (cache.hasCache(key)) {
+        return cache.getCache(key);
+      }
+
+      return this.ctx.curl(
+        `https://min-api.cryptocompare.com/data/price?fsym=${fsym}&tsyms=${tsyms}`, {
+          dataType: 'json'
+        }
+      ).then(data => {
+        const resultTemp = data.data;
+        resultTemp.symol = fsym;
+        cache.initCache(key, resultTemp, {
+          expireTimeout: 300000
+        });
+        return resultTemp;
+      });
+    };
+
+    const promises = [];
+    pairs.forEach(pair => {
+      const { fsym, tsyms } = pair;
+      const key = 'api' + fsym + tsyms;
+      promises.push(getPrice(key, fsym, tsyms));
+    });
+
+    return Promise.all(promises);
   }
 }
 

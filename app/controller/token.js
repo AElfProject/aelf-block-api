@@ -99,6 +99,34 @@ class TokenController extends Controller {
     }
   }
 
+  async getPrices() {
+    const {
+      ctx
+    } = this;
+
+    const keysRule = {
+      pairs: 'array'
+    };
+
+    try {
+      const {
+        pairs
+      } = ctx.request.body;
+
+      const options = {
+        pairs
+      };
+
+      ctx.validate(keysRule, options);
+
+      const result = await ctx.service.token.getPrices(options);
+
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
 }
 
 module.exports = TokenController;
