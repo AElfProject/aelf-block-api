@@ -59,7 +59,8 @@ module.exports = app => {
 
   router.get('/api/token/txs', controller.token.getTxs);
   router.get('/api/token/price', controller.token.getPrice);
-  router.get('/api/token/prices', controller.token.getPrices);
+  router.get('/api/token/prices-tokens-of-aelf', controller.token.getPricesTokensOfAelf);
+  router.post('/api/token/prices', controller.token.getPrices);
 
   router.post('/api/vote/addTeamDesc', controller.vote.addTeamDesc);
   router.get('/api/vote/getTeamDesc', controller.vote.getTeamDesc);

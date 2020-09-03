@@ -127,6 +127,48 @@ class TokenController extends Controller {
     }
   }
 
+  async getPricesTokensOfAelf() {
+    const {
+      ctx
+    } = this;
+
+    const {
+      type = 'USD'
+    } = ctx.request.query;
+
+    try {
+
+      const tokenList = await ctx.service.token.getTokenList({
+        limit: 2000,
+        page: 0
+      });
+
+      // TODO: valid token pool. if the same name in public market.
+      // For Example: LOT, DISK, NET is now in public market.
+      const validPool = [ 'ELF', 'AEUSD' ];
+      const pairs = [];
+      tokenList.forEach(token => {
+        if (/^AE/.test(token.symbol) && token.symbol !== 'AEUSD') {
+          pairs.push({
+            fsym: token.symbol.replace(/^AE/, ''),
+            tsyms: type
+          });
+        } else if (validPool.includes(token.symbol)) {
+          pairs.push({
+            fsym: token.symbol,
+            tsyms: type
+          });
+        }
+      });
+
+      const result = await ctx.service.token.getPrices(pairs);
+
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
 }
 
 module.exports = TokenController;

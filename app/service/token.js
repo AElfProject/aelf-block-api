@@ -118,6 +118,18 @@ class TokenService extends BaseService {
       });
     }));
   }
+
+  async getTokenList(options) {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const {
+      limit = 1000,
+      page = 0,
+    } = options;
+
+    const offset = page * limit;
+    const sql = 'select * from contract_aelf20 order by id desc limit ? offset ?';
+    return this.selectQuery(aelf0, sql, [ limit, offset ]);
+  }
 }
 
 module.exports = TokenService;
