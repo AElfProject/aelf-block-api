@@ -1,3 +1,4 @@
+const Decimal = require('decimal.js');
 const { Subscription } = require('egg');
 const AElf = require('aelf-sdk');
 const {
@@ -7,7 +8,7 @@ const {
 class Dividend extends Subscription {
   static get schedule() {
     return {
-      cron: '0 */20 * * * *',
+      cron: '0 */10 * * * *',
       type: 'worker',
       immediate: true
     };
@@ -25,9 +26,32 @@ class Dividend extends Subscription {
     const {
       ChainId
     } = await aelf.chain.getChainStatus();
-    const name = ChainId === 'AELF' ? 'Treasury' : 'Consensus';
-    const dividendContract = await getContract(endpoint, `AElf.ContractNames.${name}`);
-    let dividends = await dividendContract.GetUndistributedDividends.call();
+    let dividends = {};
+    if (ChainId === 'AELF') {
+      const [
+        treasury,
+        consensus
+      ] = await Promise.all([
+        getContract(endpoint, 'AElf.ContractNames.Treasury'),
+        getContract(endpoint, 'AElf.ContractNames.Consensus')
+      ]);
+      const [
+        undistributed,
+        miner
+      ] = await Promise.all([
+        treasury.GetUndistributedDividends.call(),
+        consensus.GetCurrentWelfareReward.call()
+      ]);
+      if (undistributed && undistributed.value) {
+        dividends.value = {
+          ...(dividends.value || {}),
+          ELF: new Decimal((dividends.value || {}).ELF || 0).add((miner && miner.value) ? miner.value : 0).toNumber()
+        };
+      }
+    } else {
+      const dividendContract = await getContract(endpoint, 'AElf.ContractNames.Consensus');
+      dividends = await dividendContract.GetUndistributedDividends.call();
+    }
     dividends = (dividends || {}).value || {};
     if (Object.keys(dividends).length > 0) {
       let decimals = await aelf0.query(getDecimalSql);
@@ -36,7 +60,8 @@ class Dividend extends Subscription {
         [v.symbol]: v.decimals
       }), {});
       dividends = Object.keys(dividends).reduce((acc, key) => ({
-        [key]: +dividends[key] / `1e${decimals[key] || 8}`
+        ...acc,
+        [key]: new Decimal(dividends[key]).dividedBy(`1e${decimals[key] || 8}`).toNumber()
       }), {});
       await app.redis.set('aelf_chain_dividends', JSON.stringify(dividends));
     }
