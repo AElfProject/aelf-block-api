@@ -8,7 +8,7 @@ const {
 class Dividend extends Subscription {
   static get schedule() {
     return {
-      cron: '0 */10 * * * *',
+      cron: '0 */5 * * * *',
       type: 'worker',
       immediate: true
     };
@@ -44,8 +44,8 @@ class Dividend extends Subscription {
       ]);
       if (undistributed && undistributed.value) {
         dividends.value = {
-          ...(dividends.value || {}),
-          ELF: new Decimal((dividends.value || {}).ELF || 0).add((miner && miner.value) ? miner.value : 0).toNumber()
+          ...(undistributed.value || {}),
+          ELF: new Decimal((undistributed.value || {}).ELF || 0).add((miner && miner.value) ? miner.value : 0).toNumber()
         };
       }
     } else {
