@@ -40,7 +40,7 @@ class Dividend extends Subscription {
         miner
       ] = await Promise.all([
         treasury.GetUndistributedDividends.call(),
-        consensus.GetCurrentWelfareReward.call()
+        consensus.GetCurrentTermMiningReward.call()
       ]);
       if (undistributed && undistributed.value) {
         dividends.value = {
