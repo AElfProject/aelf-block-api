@@ -2,6 +2,9 @@
  * @file config for local
  * @author huangzongzhe
  */
+const dotenv = require('dotenv');
+
+dotenv.config('../.env');
 
 module.exports = appInfo => {
   exports = {};
@@ -19,15 +22,15 @@ module.exports = appInfo => {
       aelf0: {
         // host
         // host: 'mysql.com',
-        host: '127.0.0.1',
+        host: process.env.DATABASE_HOST,
         // 端口号
         port: '3306',
         // 用户名
-        user: 'root',
+        user: process.env.DATABASE_USER_NAME,
         // 密码
-        password: 'password',
+        password: process.env.DATABASE_PASSWORD,
         // 数据库名
-        database: 'aelf_main_chain',
+        database: process.env.DATABASE_NAME,
         charset: 'utf8mb4'
       }
     },
@@ -80,11 +83,9 @@ module.exports = appInfo => {
   };
 
   // 节点地址
-  config.endpoint = 'http://127.0.0.1:8000';
+  config.endpoint = process.env.CHAIN_ENDPOINT;
 
-  config.sideChainAPI = [
-    'http://127.0.0.1:7250'
-  ];
+  config.sideChainAPI = process.env.SIDE_CHAIN_APIS.split(',');
   config.tpsInterval = 60 * 1000; // ms
   config.tpsListRedisKey = 'tps_list_3_h';
 
