@@ -35,13 +35,17 @@ class Dividend extends Subscription {
         getContract(endpoint, 'AElf.ContractNames.Treasury'),
         getContract(endpoint, 'AElf.ContractNames.Consensus')
       ]);
-      const [
-        undistributed,
-        miner
-      ] = await Promise.all([
-        treasury.GetUndistributedDividends.call(),
-        consensus.GetCurrentTermMiningReward.call()
-      ]);
+      let undistributed = {
+        value: {
+          ELF: 0
+        }
+      };
+      const miner = await consensus.GetCurrentTermMiningReward.call();
+      try {
+        undistributed = await treasury.GetUndistributedDividends.call();
+      } catch (e) {
+        console.log('call contract method failed');
+      }
       if (undistributed && undistributed.value) {
         dividends.value = {
           ...(undistributed.value || {}),

@@ -85,7 +85,7 @@ module.exports = appInfo => {
   // 节点地址
   config.endpoint = process.env.CHAIN_ENDPOINT;
 
-  config.sideChainAPI = process.env.SIDE_CHAIN_APIS.split(',');
+  config.sideChainAPI = process.env.SIDE_CHAIN_APIS.split(',').filter(v => v !== '');
   config.tpsInterval = 60 * 1000; // ms
   config.tpsListRedisKey = 'tps_list_3_h';
 
