@@ -17,6 +17,9 @@ class Tps extends Subscription {
   }
 
   async subscribe() {
+    if (+process.env.ENABLE_TPS_QUERY !== 1) {
+      return;
+    }
     const { app } = this;
     const {
       tpsInterval,
