@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "aelf-sdk": "^3.2.33",
-    "aelf-sdk-cross-chain": "^1.0.11",
+    "aelf-sdk-cross-chain": "^1.0.14",
     "async-validator": "^3.1.0",
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
