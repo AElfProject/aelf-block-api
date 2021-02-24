@@ -11,14 +11,21 @@ Open `http://127.0.0.1:7101`, you will see 'hi, this is aelf-block-api.'.
 ### 0.Dependencies
 
 - 1.[aelf-scan-mysql](https://github.com/AElfProject/aelf-scan-mysql):
-Start up [aelf-scan-mysql](https://github.com/AElfProject/aelf-scan-mysql) at first.
+Start up [aelf-scan-mysql](https://github.com/AElfProject/aelf-scan-mysql) at first. There are mysql and redis services in this project
 - 2.NodeJS: You can see the JS dependencies in package.json, we use egg.js(Node.js & Koa).
+- 3. Redis, you need a redis
 
 ### 1.Change the Config
 
-set your own configs in `config/config.default.js`
+set your own configs in `.env`
 
-include: `sql`, `redis`, `endpoint`, `keys`
+include: `sql`, `endpoint` and `side chain APIs`
+
+1. sql: mysql service in `aelf-scan-mysql`
+2. endpoint: chain endpoint
+3. side chain APIs: other chains' `aelf-block-api` services URLs
+
+And Redis config in `config/config.default.js`
 
 Warning About Mysql:
 
