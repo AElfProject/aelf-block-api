@@ -667,10 +667,10 @@ address@>=0.0.1, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.0.tgz#ef8e047847fcd2c5b6f50c16965f924fd99fe709"
   integrity sha512-4diPfzWbLEIElVG4AnqP+00SULlPzNuyJFNnmMrLgyaxG6tZXJ1sn7mjBu4fHrJE+Yp/jgylOweJn2xsLMFggQ==
 
-aelf-sdk-cross-chain@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.11.tgz#c564443a5eed3cf414e8f2ae213fe602b478691b"
-  integrity sha512-vI8RVjbZmEwo2yo0uuTru3oKInNgMBv64c2vA6Tk1mzaL214vYXgFnB8hcrlEqA+R982y65a19i9FPptvg4rcw==
+aelf-sdk-cross-chain@^1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.14.tgz#f3a7df752a2583e6d13ea38610175f3750a81942"
+  integrity sha512-scYGFqSDX4vgXtPP5HtWfvgeH2nTkhyT2TY0+2EeYj065PSKYSE+QzQPLIGfFiz/fXdhVtoyX3dRGDU8WleWVQ==
   dependencies:
     chalk "^2.4.2"
 
@@ -5971,10 +5971,15 @@ lodash@4.17.14:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
   integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
 
-lodash@4.17.15, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4, lodash@^4.2.0:
+lodash@4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+
+lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.2.0:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 log-symbols@2.2.0:
   version "2.2.0"
