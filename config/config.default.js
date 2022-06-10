@@ -87,7 +87,8 @@ module.exports = appInfo => {
 
   config.sideChainAPI = process.env.SIDE_CHAIN_APIS.split(',').filter(v => v !== '');
   config.tpsInterval = 60 * 1000; // ms
-  config.tpsListRedisKey = 'tps_list_3_h';
+  // config.tpsListRedisKey = 'tps_list_3_h';
+  config.tpsListRedisKey = process.env.TPS_LIST_REDIS_KEY;
 
   // 广播间隔
   config.broadcastInterval = 2000; // ms
