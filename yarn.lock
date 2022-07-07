@@ -667,10 +667,10 @@ address@>=0.0.1, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.0.tgz#ef8e047847fcd2c5b6f50c16965f924fd99fe709"
   integrity sha512-4diPfzWbLEIElVG4AnqP+00SULlPzNuyJFNnmMrLgyaxG6tZXJ1sn7mjBu4fHrJE+Yp/jgylOweJn2xsLMFggQ==
 
-aelf-sdk-cross-chain@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.11.tgz#c564443a5eed3cf414e8f2ae213fe602b478691b"
-  integrity sha512-vI8RVjbZmEwo2yo0uuTru3oKInNgMBv64c2vA6Tk1mzaL214vYXgFnB8hcrlEqA+R982y65a19i9FPptvg4rcw==
+aelf-sdk-cross-chain@^1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.14.tgz#f3a7df752a2583e6d13ea38610175f3750a81942"
+  integrity sha512-scYGFqSDX4vgXtPP5HtWfvgeH2nTkhyT2TY0+2EeYj065PSKYSE+QzQPLIGfFiz/fXdhVtoyX3dRGDU8WleWVQ==
   dependencies:
     chalk "^2.4.2"
 
@@ -6325,10 +6325,10 @@ moment-timezone@^0.5.25:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@^2.22.2, moment@^2.23.0, moment@^2.24.0:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
+"moment@>= 2.9.0", moment@^2.22.2, moment@^2.23.0, moment@^2.24.0, moment@^2.29.4:
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
 ms@2.0.0:
   version "2.0.0"
