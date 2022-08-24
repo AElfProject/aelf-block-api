@@ -41,7 +41,7 @@ module.exports = appInfo => {
   config.redis = {
     client: {
       port: 6379, // Redis port
-      host: '127.0.0.1', // Redis host
+      host: process.env.REDIS_HOST, // Redis host
       db: 0,
       password: null
     }
