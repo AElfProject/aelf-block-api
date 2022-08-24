@@ -53,10 +53,13 @@ class TpsService extends BaseService {
       });
       ownList = ownList.filter(v => v.end <= end && v.start >= start);
       const allList = ownList.map((d, index) => {
-        const { count } = d;
+        const { count, start } = d;
         return {
           ...d,
-          count: otherList.reduce((acc, v) => acc + v[index].count || 0, count)
+          count: otherList.reduce((acc, v) => {
+            const tpsItemMatched = v.find(item => item.start === start) || {count: 0};
+            return acc + tpsItemMatched.count || 0;
+          }, count)
         };
       });
       return {
