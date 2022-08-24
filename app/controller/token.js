@@ -99,6 +99,34 @@ class TokenController extends Controller {
     }
   }
 
+  async getHistoryPriceOfAelf() {
+    const {
+      ctx
+    } = this;
+
+    const keysRule = {
+      date: 'string'
+    };
+
+    try {
+      const {
+        date
+      } = ctx.request.query;
+
+      const options = {
+        date
+      };
+
+      ctx.validate(keysRule, options);
+
+      const result = await ctx.service.token.getHistoryPriceOfAelf(options);
+
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
   async getPrices() {
     const {
       ctx

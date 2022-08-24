@@ -3,6 +3,7 @@
  * @author huangzongzhe
  * 2019.09
  */
+const moment = require('moment');
 const BaseService = require('../core/baseService');
 
 const CacheService = require('../utils/cache');
@@ -93,6 +94,52 @@ class TokenService extends BaseService {
     });
 
     return result;
+  }
+
+  async getHistoryPriceOfAelf(options) {
+    const maxLength = this.ctx.app.config.cache.historyPriceListLength;
+    const { date } = options;
+    const dateObj = moment(Number(date));
+    const dateStr = dateObj.format('DD-MM-YYYY');
+    const timestamp = dateObj.valueOf();
+
+    let cacheData;
+
+    const key = 'api/history-price-elf';
+
+    if (cache.hasCache(key)) {
+      cacheData = cache.getCache(key);
+      if (cacheData[timestamp]) {
+        return { USD: cacheData[timestamp] };
+      }
+    }
+
+    const result = (await this.ctx.curl(
+      `https://api.coingecko.com/api/v3/coins/elf/history?date=${dateStr}`, {
+        dataType: 'json'
+      }
+    )).data;
+
+    const usdPrice = result.market_data.current_price.usd;
+
+    const priceData = { USD: usdPrice };
+    const newCacheData = cacheData
+      ? Object.fromEntries(Object.keys(cacheData)
+        .slice(1 - maxLength)
+        .map(timestamp => {
+          return [ timestamp, cacheData[timestamp] ];
+        }))
+      : { [timestamp]: usdPrice };
+
+    if (cacheData) {
+      cache.setCache(key, { ...newCacheData, [timestamp]: usdPrice });
+    } else {
+      cache.initCache(key, { [timestamp]: usdPrice }, {
+        expireTimeout: 300000
+      });
+    }
+
+    return priceData;
   }
 
   // TODO: request all tokens info to cache, create your own price pool
