@@ -98,7 +98,7 @@ module.exports = appInfo => {
   };
 
   config.cache = {
-    historyPriceListLength: 200
+    priceHistoryLength: 200
   };
 
   return config;

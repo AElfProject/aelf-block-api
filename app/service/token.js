@@ -97,7 +97,7 @@ class TokenService extends BaseService {
   }
 
   async getPriceHistory(options) {
-    const maxLength = this.ctx.app.config.cache.historyPriceListLength;
+    const maxLength = this.ctx.app.config.cache.priceHistoryLength;
     const { date, token_id, vs_currencies } = options;
     const dateObj = moment(Number(date));
     const dateStr = dateObj.format('DD-MM-YYYY');
