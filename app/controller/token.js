@@ -106,21 +106,21 @@ class TokenController extends Controller {
 
     const keysRule = {
       date: 'string',
-      fromToken: 'string',
-      toTokens: 'string',
+      token_id: 'string',
+      vs_currencies: 'string',
     };
 
     try {
       const {
         date,
-        fromToken,
-        toTokens
+        token_id,
+        vs_currencies
       } = ctx.request.query;
 
       const options = {
         date,
-        fromToken,
-        toTokens
+        token_id,
+        vs_currencies
       };
 
       ctx.validate(keysRule, options);

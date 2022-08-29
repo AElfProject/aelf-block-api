@@ -98,13 +98,13 @@ class TokenService extends BaseService {
 
   async getPriceHistory(options) {
     const maxLength = this.ctx.app.config.cache.historyPriceListLength;
-    const { date, fromToken, toTokens } = options;
+    const { date, token_id, vs_currencies } = options;
     const dateObj = moment(Number(date));
     const dateStr = dateObj.format('DD-MM-YYYY');
     const timestamp = dateObj.valueOf();
-    const lowerCaseToTokens = toTokens.split(',').map(token => token.toLowerCase());
+    const lowerCaseVsCurrencies = vs_currencies.split(',').map(token => token.toLowerCase());
 
-    const key = `api/history-price-${fromToken}`;
+    const key = `api/history-price-${token_id}`;
     const cacheRes = await this.redisCommand('get', key);
     const cacheData = JSON.parse(cacheRes);
     let result;
@@ -115,7 +115,7 @@ class TokenService extends BaseService {
     }
     if (!result) {
       result = (await this.ctx.curl(
-        `https://api.coingecko.com/api/v3/coins/${fromToken}/history?date=${dateStr}`, {
+        `https://api.coingecko.com/api/v3/coins/${token_id}/history?date=${dateStr}`, {
           dataType: 'json'
         }
       )).data.market_data.current_price;
@@ -126,7 +126,7 @@ class TokenService extends BaseService {
       this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ timestamp, result ]]));
     }
     const value = Object.entries(result)
-      .filter(item => lowerCaseToTokens.includes(item[0]));
+      .filter(item => lowerCaseVsCurrencies.includes(item[0]));
     return Object.fromEntries(value);
   }
 
