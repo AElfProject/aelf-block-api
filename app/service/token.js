@@ -104,7 +104,7 @@ class TokenService extends BaseService {
     const timestamp = dateObj.valueOf();
     const lowerCaseTsyms = tsyms.split(',').map(sym => sym.toLowerCase());
 
-    const key = 'api/history-price-elf';
+    const key = 'api/history-price';
 
     let result;
 
