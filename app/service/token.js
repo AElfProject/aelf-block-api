@@ -105,34 +105,29 @@ class TokenService extends BaseService {
     const lowerCaseTsyms = tsyms.split(',').map(sym => sym.toLowerCase());
 
     const key = 'api/history-price';
-
-    let result;
-
     const cacheRes = await this.redisCommand('get', key);
-
     const cacheData = JSON.parse(cacheRes);
+    let result;
 
     if (cacheData) {
       const { [timestamp]: targetData = undefined } = Object.fromEntries(cacheData);
-      if (targetData) {
-
-        result = targetData;
-      } else {
-        result = (await this.ctx.curl(
-          `https://api.coingecko.com/api/v3/coins/${fsym}/history?date=${dateStr}`, {
-            dataType: 'json'
-          }
-        )).data.market_data.current_price;
-        const newCacheData = cacheData
-          ? cacheData.slice(1 - maxLength)
-          : [];
-
-        this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ timestamp, result ]]));
-      }
-      const value = Object.entries(result)
-        .filter(item => lowerCaseTsyms.includes(item[0]));
-      return Object.fromEntries(value);
+      result = targetData;
     }
+    if (!result) {
+      result = (await this.ctx.curl(
+        `https://api.coingecko.com/api/v3/coins/${fsym}/history?date=${dateStr}`, {
+          dataType: 'json'
+        }
+      )).data.market_data.current_price;
+      const newCacheData = cacheData
+        ? cacheData.slice(1 - maxLength)
+        : [];
+
+      this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ timestamp, result ]]));
+    }
+    const value = Object.entries(result)
+      .filter(item => lowerCaseTsyms.includes(item[0]));
+    return Object.fromEntries(value);
   }
 
   // TODO: request all tokens info to cache, create your own price pool
