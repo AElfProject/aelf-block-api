@@ -96,50 +96,43 @@ class TokenService extends BaseService {
     return result;
   }
 
-  async getHistoryPriceOfAelf(options) {
+  async getPriceHistory(options) {
     const maxLength = this.ctx.app.config.cache.historyPriceListLength;
-    const { date } = options;
+    const { date, fsym, tsyms } = options;
     const dateObj = moment(Number(date));
     const dateStr = dateObj.format('DD-MM-YYYY');
     const timestamp = dateObj.valueOf();
-
-    let cacheData;
+    const lowerCaseTsyms = tsyms.split(',').map(sym => sym.toLowerCase());
 
     const key = 'api/history-price-elf';
 
-    if (cache.hasCache(key)) {
-      cacheData = cache.getCache(key);
-      if (cacheData[timestamp]) {
-        return { USD: cacheData[timestamp] };
-      }
-    }
+    let result;
 
-    const result = (await this.ctx.curl(
-      `https://api.coingecko.com/api/v3/coins/elf/history?date=${dateStr}`, {
-        dataType: 'json'
-      }
-    )).data;
+    const cacheRes = await this.redisCommand('get', key);
 
-    const usdPrice = result.market_data.current_price.usd;
-
-    const priceData = { USD: usdPrice };
-    const newCacheData = cacheData
-      ? Object.fromEntries(Object.keys(cacheData)
-        .slice(1 - maxLength)
-        .map(timestamp => {
-          return [ timestamp, cacheData[timestamp] ];
-        }))
-      : { [timestamp]: usdPrice };
+    const cacheData = JSON.parse(cacheRes);
 
     if (cacheData) {
-      cache.setCache(key, { ...newCacheData, [timestamp]: usdPrice });
-    } else {
-      cache.initCache(key, { [timestamp]: usdPrice }, {
-        expireTimeout: 300000
-      });
-    }
+      const { [timestamp]: targetData = undefined } = Object.fromEntries(cacheData);
+      if (targetData) {
 
-    return priceData;
+        result = targetData;
+      } else {
+        result = (await this.ctx.curl(
+          `https://api.coingecko.com/api/v3/coins/${fsym}/history?date=${dateStr}`, {
+            dataType: 'json'
+          }
+        )).data.market_data.current_price;
+        const newCacheData = cacheData
+          ? cacheData.slice(1 - maxLength)
+          : [];
+
+        this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ timestamp, result ]]));
+      }
+      const value = Object.entries(result)
+        .filter(item => lowerCaseTsyms.includes(item[0]));
+      return Object.fromEntries(value);
+    }
   }
 
   // TODO: request all tokens info to cache, create your own price pool
