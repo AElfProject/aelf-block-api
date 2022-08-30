@@ -118,7 +118,7 @@ class TokenService extends BaseService {
         `https://api.coingecko.com/api/v3/coins/${token_id}/history?date=${dateStr}`, {
           dataType: 'json'
         }
-      )).market_data.current_price;
+      )).data.market_data.current_price;
       const newCacheData = cacheData
         ? cacheData.slice(1 - maxLength)
         : [];
