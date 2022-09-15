@@ -101,7 +101,6 @@ class TokenService extends BaseService {
     const { date, token_id, vs_currencies } = options;
     const dateObj = moment(Number(date));
     const dateStr = dateObj.format('DD-MM-YYYY');
-    const timestamp = dateObj.valueOf();
     const lowerCaseVsCurrencies = vs_currencies.split(',').map(token => token.toLowerCase());
 
     const key = `api/history-price-${token_id}`;
@@ -110,7 +109,7 @@ class TokenService extends BaseService {
     let result;
 
     if (cacheData) {
-      const { [timestamp]: targetData = undefined } = Object.fromEntries(cacheData);
+      const { [dateStr]: targetData = undefined } = Object.fromEntries(cacheData);
       result = targetData;
     }
     if (!result) {
@@ -123,7 +122,7 @@ class TokenService extends BaseService {
         ? cacheData.slice(1 - maxLength)
         : [];
 
-      this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ timestamp, result ]]));
+      this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ dateStr, result ]]));
     }
     const value = Object.entries(result)
       .filter(item => lowerCaseVsCurrencies.includes(item[0]));
