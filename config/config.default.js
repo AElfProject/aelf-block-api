@@ -96,5 +96,10 @@ module.exports = appInfo => {
   config.logger = {
     consoleLevel: 'INFO'
   };
+
+  config.cache = {
+    priceHistoryLength: 200
+  };
+
   return config;
 };

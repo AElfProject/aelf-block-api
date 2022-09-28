@@ -99,6 +99,40 @@ class TokenController extends Controller {
     }
   }
 
+  async getPriceHistory() {
+    const {
+      ctx
+    } = this;
+
+    const keysRule = {
+      date: 'string',
+      token_id: 'string',
+      vs_currencies: 'string',
+    };
+
+    try {
+      const {
+        date,
+        token_id,
+        vs_currencies
+      } = ctx.request.query;
+
+      const options = {
+        date,
+        token_id,
+        vs_currencies
+      };
+
+      ctx.validate(keysRule, options);
+
+      const result = await ctx.service.token.getPriceHistory(options);
+
+      formatOutput(ctx, 'get', result);
+    } catch (error) {
+      formatOutput(ctx, 'error', error, 422);
+    }
+  }
+
   async getPrices() {
     const {
       ctx

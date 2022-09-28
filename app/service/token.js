@@ -3,6 +3,7 @@
  * @author huangzongzhe
  * 2019.09
  */
+const moment = require('moment');
 const BaseService = require('../core/baseService');
 
 const CacheService = require('../utils/cache');
@@ -93,6 +94,39 @@ class TokenService extends BaseService {
     });
 
     return result;
+  }
+
+  async getPriceHistory(options) {
+    const maxLength = this.ctx.app.config.cache.priceHistoryLength;
+    const { date, token_id, vs_currencies } = options;
+    const dateObj = moment(Number(date));
+    const dateStr = dateObj.format('DD-MM-YYYY');
+    const lowerCaseVsCurrencies = vs_currencies.split(',').map(token => token.toLowerCase());
+
+    const key = `api/history-price-${token_id}`;
+    const cacheRes = await this.redisCommand('get', key);
+    const cacheData = JSON.parse(cacheRes);
+    let result;
+
+    if (cacheData) {
+      const { [dateStr]: targetData = undefined } = Object.fromEntries(cacheData);
+      result = targetData;
+    }
+    if (!result) {
+      result = (await this.ctx.curl(
+        `https://api.coingecko.com/api/v3/coins/${token_id}/history?date=${dateStr}`, {
+          dataType: 'json'
+        }
+      )).data.market_data.current_price;
+      const newCacheData = cacheData
+        ? cacheData.slice(1 - maxLength)
+        : [];
+
+      this.redisCommand('set', key, JSON.stringify([ ...newCacheData, [ dateStr, result ]]));
+    }
+    const value = Object.entries(result)
+      .filter(item => lowerCaseVsCurrencies.includes(item[0]));
+    return Object.fromEntries(value);
   }
 
   // TODO: request all tokens info to cache, create your own price pool
