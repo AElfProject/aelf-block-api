@@ -113,7 +113,7 @@ class AllService extends BaseService {
     const {
       limit, page, order, offset: _offset,
     } = utils.parseOrder(options);
-    const tLimit = options.tLimit || limit;
+    const tempLimit = options.tLimit || limit;
     const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
     const buffer = 20000;
     let whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit + buffer}`;
@@ -127,7 +127,7 @@ class AllService extends BaseService {
       whereCondition = `WHERE id BETWEEN ${floor} AND ${maxId - offset}`;
     }
     const getTxsSql = `select id from transactions_0 ${whereCondition} ORDER BY id ${order} limit ?`;
-    const txsIds = await this.selectQuery(aelf0, getTxsSql, [ tLimit, offset ]);
+    const txsIds = await this.selectQuery(aelf0, getTxsSql, [ tempLimit, offset ]);
     let txs = [];
     if (txsIds.length > 0) {
       txs = await this.selectQuery(
