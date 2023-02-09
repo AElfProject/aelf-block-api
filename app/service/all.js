@@ -8,14 +8,41 @@ const utils = require('../utils/utils');
 
 class AllService extends BaseService {
 
+  async getUnconfirmedBlocksCount() {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const getCountSql = 'select count(1) AS total from blocks_unconfirmed';
+    const count = await this.selectQuery(aelf0, getCountSql, []);
+    return +count[0].total;
+  }
+
+  async getAllBlocksCount() {
+    const { redisKeys } = this.app.config;
+    let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
+    blocksCount = parseInt(blocksCount, 10);
+
+    return blocksCount;
+  }
+
+  async getUnconfirmedTransactionsCount() {
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const getCountSql = 'select count(1) AS total from transactions_unconfirmed';
+    const count = await this.selectQuery(aelf0, getCountSql, []);
+    return +count[0].total;
+  }
+
+  async getAllTransactionsCount() {
+    const { redisKeys } = this.app.config;
+    let txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
+    txsCount = parseInt(txsCount, 10);
+    return txsCount;
+  }
+
   async getUnconfirmedBlocks(options) {
     const {
-      limit,
-      page,
-      order
-    } = options;
+      limit, page, order, offset: _offset
+    } = utils.parseOrder(options);
     const aelf0 = this.ctx.app.mysql.get('aelf0');
-    const offset = limit * page;
+    const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
     // eslint-disable-next-line max-len
     const getBlocksSql = `select * from blocks_unconfirmed order by id ${order} limit ? offset ?`;
     const getCountSql = 'select count(1) AS total from blocks_unconfirmed';
@@ -31,12 +58,10 @@ class AllService extends BaseService {
 
   async getUnconfirmedTransactions(options) {
     const {
-      limit,
-      page,
-      order
-    } = options;
+      limit, page, order, offset: _offset
+    } = utils.parseOrder(options);
     const aelf0 = this.ctx.app.mysql.get('aelf0');
-    const offset = limit * page;
+    const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
     // eslint-disable-next-line max-len
     const getTransactionsSql = `select * from transactions_unconfirmed order by id ${order} limit ? offset ?`;
     const getCountSql = 'select count(1) AS total from transactions_unconfirmed';
@@ -58,8 +83,10 @@ class AllService extends BaseService {
     let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
     blocksCount = parseInt(blocksCount, 10);
     const aelf0 = this.ctx.app.mysql.get('aelf0');
-    const { limit, page, order } = utils.parseOrder(options);
-    const offset = limit * page;
+    const {
+      limit, page, order, offset: _offset
+    } = utils.parseOrder(options);
+    const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
     let blocksHeights = new Array(limit).fill(0).map((_, i) => {
       return blocksCount - offset - i;
     });
@@ -83,8 +110,11 @@ class AllService extends BaseService {
     let txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
     txsCount = parseInt(txsCount, 10);
     const aelf0 = this.ctx.app.mysql.get('aelf0');
-    const { limit, page, order } = utils.parseOrder(options);
-    const offset = limit * page;
+    const {
+      limit, page, order, offset: _offset,
+    } = utils.parseOrder(options);
+    const tLimit = options.tLimit || limit;
+    const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
     const buffer = 20000;
     let whereCondition = `WHERE id BETWEEN ${offset + 1} AND ${(page + 1) * limit + buffer}`;
     let maxId = 0;
@@ -97,7 +127,7 @@ class AllService extends BaseService {
       whereCondition = `WHERE id BETWEEN ${floor} AND ${maxId - offset}`;
     }
     const getTxsSql = `select id from transactions_0 ${whereCondition} ORDER BY id ${order} limit ?`;
-    const txsIds = await this.selectQuery(aelf0, getTxsSql, [ limit, offset ]);
+    const txsIds = await this.selectQuery(aelf0, getTxsSql, [ tLimit, offset ]);
     let txs = [];
     if (txsIds.length > 0) {
       txs = await this.selectQuery(

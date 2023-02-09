@@ -18,8 +18,10 @@ module.exports = app => {
 
   router.get('/api/all/blocks', controller.all.getAllBlocks);
   router.get('/api/all/unconfirmedBlocks', controller.all.getUnconfirmedBlocks);
+  router.get('/api/all/blocks-unconfirmedBlocks', controller.all.getAllBlocksAndUnconfirmed);
   router.get('/api/all/transactions', controller.all.getAllTransactions);
   router.get('/api/all/unconfirmedTransactions', controller.all.getUnconfirmedTransactions);
+  router.get('/api/all/transactions-unconfirmedTransactions', controller.all.getAllTransactionsAndUnconfirmed);
 
   router.get('/api/block/transactions', controller.block.getTransactions);
   router.get('/api/block/txInfo', controller.block.getTransaction);
