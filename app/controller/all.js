@@ -97,7 +97,8 @@ class AllController extends Controller {
     if ((page + 1) * limit <= unconfirmedBlocksCount) {
       result = await ctx.service.all.getUnconfirmedBlocks(options);
     } else {
-      const offset = page * limit - unconfirmedBlocksCount;
+      const _offset = page * limit - unconfirmedBlocksCount;
+      const offset = _offset < 0 ? 0 : _offset;
       // Only take all confirmed
       if ((page + 1) * limit - unconfirmedBlocksCount > limit) {
         options.offset = offset;
@@ -105,7 +106,8 @@ class AllController extends Controller {
       } else {
         // Contains both confirmed and Unconfirmed
         const unconfirmedResult = await ctx.service.all.getUnconfirmedBlocks(options);
-        const allBlocksResult = await ctx.service.all.getAllBlocks({ ...options, offset, limit: limit - unconfirmedResult.blocks.length });
+        const allBlocksResult =
+          await ctx.service.all.getAllBlocks({ ...options, offset, limit: limit - unconfirmedResult.blocks.length });
         result = {
           blocks: [ ...unconfirmedResult.blocks, ...allBlocksResult.blocks ]
         };
