@@ -93,23 +93,27 @@ class AllController extends Controller {
     }
 
     let result = {};
+    const pageEndOffset = (page + 1) * limit;
+    const pageStartOffset = page * limit;
     // Only take Unconfirmed
-    if ((page + 1) * limit <= unconfirmedBlocksCount) {
+    if (pageEndOffset <= unconfirmedBlocksCount) {
       result = await ctx.service.all.getUnconfirmedBlocks(options);
     } else {
-      const _offset = page * limit - unconfirmedBlocksCount;
-      const offset = _offset < 0 ? 0 : _offset;
-      // Only take all confirmed
-      if ((page + 1) * limit - unconfirmedBlocksCount > limit) {
-        options.offset = offset;
-        result = await ctx.service.all.getAllBlocks(options);
-      } else if ((page + 1) * limit - unconfirmedBlocksCount === limit) {
-        result = await ctx.service.all.getUnconfirmedBlocks(options);
+      if (pageStartOffset >= unconfirmedBlocksCount) {
+        result = await ctx.service.all.getAllBlocks({
+          limit,
+          offset: pageStartOffset - unconfirmedBlocksCount,
+        });
       } else {
-        // Contains both confirmed and Unconfirmed
-        const unconfirmedResult = await ctx.service.all.getUnconfirmedBlocks(options);
+        const unconfirmedResult = await ctx.service.all.getUnconfirmedBlocks({
+          limit,
+          offset: pageStartOffset,
+        });
         const allBlocksResult =
-          await ctx.service.all.getAllBlocks({ ...options, offset, limit: limit - unconfirmedResult.blocks.length });
+          await ctx.service.all.getAllBlocks({
+            offset: 0,
+            limit: pageEndOffset - (unconfirmedBlocksCount - pageStartOffset),
+          });
         result = {
           blocks: [ ...unconfirmedResult.blocks, ...allBlocksResult.blocks ]
         };
