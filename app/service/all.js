@@ -110,7 +110,7 @@ class AllService extends BaseService {
     const getBlocksSql =
     'select (block_height) from blocks_0 order by block_height DESC limit ? offset ?';
     const blocks = await this.selectQuery(aelf0, getBlocksSql, [ 1, 0 ]);
-    return blocks.block_height;
+    return blocks[0].block_height;
   }
 
   async getAllBlocksInner(options) {
