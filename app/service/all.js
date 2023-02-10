@@ -15,12 +15,12 @@ class AllService extends BaseService {
     return +count[0].total;
   }
 
-  async getAllBlocksCount() {
-    const { redisKeys } = this.app.config;
-    let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
-    blocksCount = parseInt(blocksCount, 10);
+  getAllBlocksCount() {
+    // const { redisKeys } = this.app.config;
+    // let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
+    // blocksCount = parseInt(blocksCount, 10);
 
-    return blocksCount;
+    return this.getLatestBlock();
   }
 
   async getUnconfirmedTransactionsCount() {
