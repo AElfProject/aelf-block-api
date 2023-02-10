@@ -100,7 +100,7 @@ class AllController extends Controller {
       result = await ctx.service.all.getUnconfirmedBlocks(options);
     } else {
       if (pageStartOffset >= unconfirmedBlocksCount) {
-        result = await ctx.service.all.getAllBlocks({
+        result = await ctx.service.all.getAllBlocksInner({
           limit,
           offset: pageStartOffset - unconfirmedBlocksCount,
         });
@@ -110,7 +110,7 @@ class AllController extends Controller {
           offset: pageStartOffset,
         });
         const allBlocksResult =
-          await ctx.service.all.getAllBlocks({
+          await ctx.service.all.getAllBlocksInner({
             offset: 0,
             limit: pageEndOffset - (unconfirmedBlocksCount - pageStartOffset),
           });

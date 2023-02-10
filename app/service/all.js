@@ -105,6 +105,23 @@ class AllService extends BaseService {
     };
   }
 
+  async getAllBlocksInner(options) {
+    const { redisKeys } = this.app.config;
+    let blocksCount = await this.redisCommand('get', redisKeys.blocksCount) || 0;
+    blocksCount = parseInt(blocksCount, 10);
+    const aelf0 = this.ctx.app.mysql.get('aelf0');
+    const {
+      limit, page, order, offset: _offset
+    } = utils.parseOrder(options);
+    const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
+    const getBlocksSql = `select * from blocks_0 order by block_height ${order} limit ? offset ?`;
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
+    return {
+      total: blocksCount,
+      blocks
+    };
+  }
+
   async getAllTransactions(options) {
     const { redisKeys } = this.app.config;
     let txsCount = await this.redisCommand('get', redisKeys.txsCount) || 0;
