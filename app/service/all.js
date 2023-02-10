@@ -120,8 +120,18 @@ class AllService extends BaseService {
       limit, page, order, offset: _offset
     } = utils.parseOrder(options);
     const offset = typeof _offset !== 'undefined' ? _offset : limit * page;
-    const getBlocksSql = `select * from blocks_0 order by block_height ${order} limit ? offset ?`;
-    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ limit, offset ]);
+    let blocksHeights = new Array(limit).fill(0).map((_, i) => {
+      return blocksCount - offset - i;
+    });
+    if (order.toUpperCase() === 'ASC') {
+      blocksHeights = new Array(limit).fill(0).map((_, i) => {
+        return i + offset + 1;
+      });
+    }
+    blocksHeights = blocksHeights.filter(v => v > 0 && v <= blocksCount);
+    // eslint-disable-next-line max-len
+    const getBlocksSql = `select * from blocks_0 where block_height in (${new Array(blocksHeights.length).fill('?').join(',')}) order by block_height ${order} limit ?`;
+    const blocks = await this.selectQuery(aelf0, getBlocksSql, [ ...blocksHeights, limit ]);
     return {
       total: blocksCount,
       blocks
