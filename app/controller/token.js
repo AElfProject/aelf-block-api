@@ -73,6 +73,10 @@ class TokenController extends Controller {
       ctx
     } = this;
 
+    if (process.env.DISABLED_PRICE === 'disable') {
+      return formatOutput(ctx, 'get', {});
+    }
+
     const keysRule = {
       fsym: 'string',
       tsyms: 'string'
