@@ -87,7 +87,7 @@ class TokenService extends BaseService {
       } = JSON.parse(priceCache);
       const isExpired = Date.now() - timestamp > 300000;
       if (!priceUpdateLock && isExpired) {
-        await this.redisCommand('set', keyPriceUpdateLock, 'true');
+        await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
         await this.getPriceFromThirdParty(options);
         await this.redisCommand('set', keyPriceUpdateLock, 'false');
       }
