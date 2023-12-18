@@ -92,7 +92,7 @@ class TokenService extends BaseService {
         await this.redisCommand('set', keyPriceUpdateLock, 'false');
       }
       console.log(
-        'getPrice from cache', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
+        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
         , 'locked: ', priceUpdateLock
       );
       return result;
