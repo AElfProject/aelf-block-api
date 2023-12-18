@@ -9,7 +9,6 @@ const BaseService = require('../core/baseService');
 const CacheService = require('../utils/cache');
 
 const cache = new CacheService();
-
 class TokenService extends BaseService {
   async getTxs(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -76,11 +75,39 @@ class TokenService extends BaseService {
       tsyms
     } = options;
 
-    const key = 'api' + fsym + tsyms;
+    const key = 'explore_api:price:' + fsym + tsyms;
+    const keyPriceUpdateLock = 'explore_api:price:req_lock' + fsym + tsyms;
 
-    if (cache.hasCache(key)) {
-      return cache.getCache(key);
+    const priceCache = await this.redisCommand('get', key);
+    const priceUpdateLock = (await this.redisCommand('get', keyPriceUpdateLock)) === 'true';
+    if (priceCache) {
+      const {
+        result,
+        timestamp
+      } = JSON.parse(priceCache);
+      const isExpired = Date.now() - timestamp > 300000;
+      if (!priceUpdateLock && isExpired) {
+        await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
+        await this.getPriceFromThirdParty(options);
+        await this.redisCommand('set', keyPriceUpdateLock, 'false');
+      }
+      console.log(
+        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
+        , 'locked: ', priceUpdateLock
+      );
+      return result;
     }
+    console.log('getPrice directly');
+
+    const result = await this.getPriceFromThirdParty(options);
+    return result;
+  }
+
+  async getPriceFromThirdParty(options) {
+    const {
+      fsym,
+      tsyms
+    } = options;
 
     const result = (await this.ctx.curl(
       `https://min-api.cryptocompare.com/data/price?fsym=${fsym}&tsyms=${tsyms}`, {
@@ -89,9 +116,15 @@ class TokenService extends BaseService {
     )).data;
 
     result.symbol = fsym;
-    cache.initCache(key, result, {
-      expireTimeout: 300000
-    });
+
+    const priceCache = {
+      result,
+      timestamp: Date.now()
+    };
+
+    const key = 'explore_api:price:' + fsym + tsyms;
+
+    await this.redisCommand('set', key, JSON.stringify(priceCache));
 
     return result;
   }
