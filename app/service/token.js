@@ -9,7 +9,6 @@ const BaseService = require('../core/baseService');
 const CacheService = require('../utils/cache');
 
 const cache = new CacheService();
-let priceUpdateLock = false;
 class TokenService extends BaseService {
   async getTxs(options) {
     const aelf0 = this.ctx.app.mysql.get('aelf0');
@@ -77,8 +76,10 @@ class TokenService extends BaseService {
     } = options;
 
     const key = 'explore_api:price:' + fsym + tsyms;
+    const keyPriceUpdateLock = 'explore_api:price:req_lock' + fsym + tsyms;
 
     const priceCache = await this.redisCommand('get', key);
+    const priceUpdateLock = (await this.redisCommand('get', keyPriceUpdateLock)) === 'true';
     if (priceCache) {
       const {
         result,
@@ -86,9 +87,9 @@ class TokenService extends BaseService {
       } = JSON.parse(priceCache);
       const isExpired = Date.now() - timestamp > 300000;
       if (!priceUpdateLock && isExpired) {
-        priceUpdateLock = true;
+        await this.redisCommand('set', keyPriceUpdateLock, 'true');
         await this.getPriceFromThirdParty(options);
-        priceUpdateLock = false;
+        await this.redisCommand('set', keyPriceUpdateLock, 'false');
       }
       console.log(
         'getPrice from cache', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
