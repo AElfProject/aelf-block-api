@@ -98,7 +98,8 @@ module.exports = appInfo => {
   };
 
   config.cache = {
-    priceHistoryLength: 200
+    priceHistoryLength: 200,
+    priceExpire: process.env.CACHE_EXPIRE_TIME_OF_TOKEN_PRICE, // ms
   };
 
   return config;

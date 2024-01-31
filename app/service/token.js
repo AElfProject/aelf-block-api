@@ -85,14 +85,15 @@ class TokenService extends BaseService {
         result,
         timestamp
       } = JSON.parse(priceCache);
-      const isExpired = Date.now() - timestamp > 300000;
+      const priceExpire = parseInt(this.ctx.app.config.cache.priceExpire, 10);
+      const isExpired = Date.now() - timestamp > priceExpire;
       if (!priceUpdateLock && isExpired) {
         await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
         await this.getPriceFromThirdParty(options);
         await this.redisCommand('set', keyPriceUpdateLock, 'false');
       }
       console.log(
-        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
+        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - priceExpire) / 1000, 's; '
         , 'locked: ', priceUpdateLock
       );
       return result;
@@ -104,6 +105,16 @@ class TokenService extends BaseService {
   }
 
   async getPriceFromThirdParty(options) {
+
+    let result = await this.getPriceFromCryptoCompare(options);
+    if (result.Response === 'Error') {
+      result = await this.getPriceFromCoingecko(options);
+    }
+
+    return result;
+  }
+
+  async getPriceFromCryptoCompare(options) {
     const {
       fsym,
       tsyms
@@ -115,13 +126,57 @@ class TokenService extends BaseService {
       }
     )).data;
 
+    console.log('Price from Crypto Compare: ', result);
+    if (result.Response === 'Error') {
+      return result;
+    }
+
     result.symbol = fsym;
 
     const priceCache = {
       result,
       timestamp: Date.now()
     };
+    const key = 'explore_api:price:' + fsym + tsyms;
 
+    await this.redisCommand('set', key, JSON.stringify(priceCache));
+
+    return result;
+  }
+
+  async getPriceFromCoingecko(options) {
+    const {
+      fsym,
+      tsyms
+    } = options;
+
+    // Todo: explorer v2 api, support a api to get this map.
+    const idsMap = {
+      ELF: 'aelf',
+      USDT: 'tether',
+      BTC: 'bitcoin',
+      ETH: 'ethereum',
+    };
+
+    const result = (await this.ctx.curl(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${idsMap[fsym] || fsym}&vs_currencies=${tsyms}`,
+      {
+        dataType: 'json',
+      }
+    ));
+
+    console.log('Price from Coingecko: ', result);
+    if (result.status.error_code) {
+      return result;
+    }
+
+    result.symbol = fsym;
+    result[tsyms] = result[tsyms.toLowerCase()];
+
+    const priceCache = {
+      result,
+      timestamp: Date.now()
+    };
     const key = 'explore_api:price:' + fsym + tsyms;
 
     await this.redisCommand('set', key, JSON.stringify(priceCache));
@@ -179,7 +234,7 @@ class TokenService extends BaseService {
         const resultTemp = data.data;
         resultTemp.symbol = fsym;
         cache.initCache(key, resultTemp, {
-          expireTimeout: 300000
+          expireTimeout: parseInt(this.ctx.app.config.cache.priceExpire, 10)
         });
         return resultTemp;
       });
