@@ -171,11 +171,13 @@ class TokenService extends BaseService {
       return result;
     }
 
-    result.symbol = fsym;
-    const currenciesKeys = Object.keys(result[tokenId]);
-    currenciesKeys.forEach(key => {
-      result[key.toUpperCase()] = result[tokenId][key];
-    });
+    if (result[tokenId]) {
+      result.symbol = fsym;
+      const currenciesKeys = Object.keys(result[tokenId]);
+      currenciesKeys.forEach(key => {
+        result[key.toUpperCase()] = result[tokenId][key];
+      });
+    }
 
     const priceCache = {
       result,
