@@ -158,20 +158,24 @@ class TokenService extends BaseService {
       ETH: 'ethereum',
     };
 
+    const tokenId = idsMap[fsym] || fsym;
     const result = (await this.ctx.curl(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${idsMap[fsym] || fsym}&vs_currencies=${tsyms}`,
+      `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=${tsyms}`,
       {
         dataType: 'json',
       }
-    ));
+    )).data;
 
     console.log('Price from Coingecko: ', result);
-    if (result.status.error_code) {
+    if (result.status && result.status.error_code) {
       return result;
     }
 
     result.symbol = fsym;
-    result[tsyms] = result[tsyms.toLowerCase()];
+    const currenciesKeys = Object.keys(result[tokenId]);
+    currenciesKeys.forEach(key => {
+      result[key.toUpperCase()] = result[tokenId][key];
+    });
 
     const priceCache = {
       result,
