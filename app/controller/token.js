@@ -93,6 +93,12 @@ class TokenController extends Controller {
       if (process.env.DISABLED_PRICE === 'disable' && !force) {
         return formatOutput(ctx, 'get', {});
       }
+      // TODO: explorer v2.0 C# version will upgrade this feature.
+      const isFT = /^[a-z0-9]+$/i.test(fsym);
+      console.log('token', fsym, isFT);
+      if (!isFT) {
+        return formatOutput(ctx, 'get', {});
+      }
 
       const options = {
         fsym,
