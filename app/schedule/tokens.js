@@ -10,6 +10,9 @@ class Dividend extends Subscription {
   }
 
   async subscribe() {
+    if (+process.env.ENABLE_TOKEN_SCHEDULE !== 1) {
+      return;
+    }
     const {
       app
     } = this;

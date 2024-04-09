@@ -15,6 +15,9 @@ class Dividend extends Subscription {
   }
 
   async subscribe() {
+    if (+process.env.ENABLE_DIVIDEND_SCHEDULE !== 1) {
+      return;
+    }
     const { app } = this;
     const {
       endpoint
