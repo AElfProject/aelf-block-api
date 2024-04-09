@@ -60,6 +60,21 @@ class AddressService extends BaseService {
       const pageOption = [ limit, offset ];
       const sqlValue = [ ...queryOption, ...pageOption ];
 
+      const txsAddressToSql = `select * from transactions_0 where address_to=? ORDER BY id ${order} limit 10 offset 0`;
+      const transactionsAddressTo = await this.selectQuery(aelf0, txsAddressToSql, [ address ]);
+
+      let txs = [];
+      if (transactionsAddressTo.length) {
+        const getTxsIdSql = `select * from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+        txs = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      } else {
+        const getTxsIdSql = `select * from transactions_0 where address_from=? ORDER BY id ${order} limit ? offset ?`;
+        txs = await this.selectQuery(aelf0, getTxsIdSql, [ address, limit, offset ]);
+      }
+
+      return {
+        transactions: await this.service.getTransferAmount.filter(txs)
+      };
       // @Deprecated
       // Too large to count now
       // TODO: wait for v2
@@ -91,7 +106,7 @@ class AddressService extends BaseService {
       //   };
       // }
       // const getTxsIdSql = `select id from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
-      const getTxsIdSql = `select * from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+      // const getTxsIdSql = `select * from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
       // const [ countFrom, countTo ] = results;
       // if (parseInt(countFrom, 10) === 0) {
       //   sqlValue = [ ...countSqlValue, ...pageOption ];
@@ -109,17 +124,18 @@ class AddressService extends BaseService {
       // query by id in range
       // eslint-disable-next-line max-len
       // const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
-      const transactions = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
-      const txs = transactions || [];
+      // const transactions = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      // const txs = transactions || [];
       // if (txsIds.length > 0) {
       //   const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})
       //   ORDER BY id ${order}`;
       //   txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
       // }
-      return {
-        // total,
-        transactions: await this.service.getTransferAmount.filter(txs)
-      };
+
+      // return {
+      //   // total,
+      //   transactions: await this.service.getTransferAmount.filter(txs)
+      // };
     }
 
     return 'error';
