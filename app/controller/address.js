@@ -24,7 +24,11 @@ class AddressController extends Controller {
 
     const keysRule = {
       order: 'string',
-      limit: 'int',
+      limit: {
+        type: 'int',
+        max: 1000,
+        min: 0
+      },
       page: 'int',
       address: 'string',
       contract_address: {
