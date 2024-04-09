@@ -108,13 +108,14 @@ class TokenService extends BaseService {
       fsym,
       tsyms
     } = options;
-
+    console.log('fsym: ', fsym, tsyms);
     const tokenInfo = (await this.ctx.curl(
       `https://api.coingecko.com/api/v3/search?query=${fsym}`, {
         dataType: 'json'
       }
     )).data;
-    console.log('tokenInfo: ', tokenInfo, tokenInfo.coins);
+    console.log('tokenInfo: ', tokenInfo);
+
     const tokenMatched = tokenInfo.coins.filter(item => item.symbol === fsym.toUpperCase());
     const tokenId = tokenMatched[0] && tokenMatched[0].id;
 
@@ -127,7 +128,7 @@ class TokenService extends BaseService {
     const priceList = tokenPrice[tokenId];
     const priceValues = Object.values(priceList);
     const result = {};
-    Object.keys((key, index) => {
+    Object.keys(priceList).forEach((key, index) => {
       result[key.toUpperCase()] = priceValues[index];
     });
     // const result = (await this.ctx.curl(
