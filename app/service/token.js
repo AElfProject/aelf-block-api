@@ -117,6 +117,10 @@ class TokenService extends BaseService {
     console.log('tokenInfo: ', tokenInfo);
 
     const tokenMatched = tokenInfo.coins.filter(item => item.symbol === fsym.toUpperCase());
+    if (tokenMatched.length === 0) {
+      return {};
+    }
+
     const tokenId = tokenMatched[0] && tokenMatched[0].id;
 
     const tokenPrice = (await this.ctx.curl(
