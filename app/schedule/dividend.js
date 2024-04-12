@@ -8,7 +8,7 @@ const {
 class Dividend extends Subscription {
   static get schedule() {
     return {
-      cron: '0 */5 * * * *',
+      cron: '0 */15 * * * *',
       type: 'worker',
       immediate: true
     };
