@@ -69,6 +69,11 @@ class TokenService extends BaseService {
     }
   }
 
+  /*
+   * TODO
+   *  1. If this token is ELF only, we need get the price from awaken or resource market.
+   *  2. Need a cms or list get the token and price resource.
+   */
   async getPrice(options) {
     const {
       fsym,
