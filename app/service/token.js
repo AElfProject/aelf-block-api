@@ -108,6 +108,7 @@ class TokenService extends BaseService {
       fsym,
       tsyms
     } = options;
+    const result = {};
     console.log('fsym: ', fsym, tsyms);
     const tokenInfo = (await this.ctx.curl(
       `https://api.coingecko.com/api/v3/search?query=${fsym}`, {
@@ -118,11 +119,11 @@ class TokenService extends BaseService {
 
     const tokenMatched = tokenInfo.coins.filter(item => item.symbol === fsym.toUpperCase());
     if (tokenMatched.length === 0) {
-      return {};
+      await this.updatePriceCache(fsym, tsyms, result);
+      return result;
     }
 
     const tokenId = tokenMatched[0] && tokenMatched[0].id;
-
     const tokenPrice = (await this.ctx.curl(
       `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=${encodeURIComponent(tsyms)}`, {
         dataType: 'json'
@@ -131,28 +132,23 @@ class TokenService extends BaseService {
     console.log('tokenPrice: ', tokenPrice);
     const priceList = tokenPrice[tokenId];
     const priceValues = Object.values(priceList);
-    const result = {};
     Object.keys(priceList).forEach((key, index) => {
       result[key.toUpperCase()] = priceValues[index];
     });
-    // const result = (await this.ctx.curl(
-    //   `https://min-api.cryptocompare.com/data/price?fsym=${fsym}&tsyms=${tsyms}`, {
-    //     dataType: 'json'
-    //   }
-    // )).data;
 
+    await this.updatePriceCache(fsym, tsyms, result);
+
+    return result;
+  }
+
+  async updatePriceCache(fsym, tsyms, result) {
     result.symbol = fsym;
-
+    const key = 'explore_api:price:' + fsym + tsyms;
     const priceCache = {
       result,
       timestamp: Date.now()
     };
-
-    const key = 'explore_api:price:' + fsym + tsyms;
-
     await this.redisCommand('set', key, JSON.stringify(priceCache));
-
-    return result;
   }
 
   async getPriceHistory(options) {
