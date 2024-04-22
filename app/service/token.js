@@ -69,6 +69,11 @@ class TokenService extends BaseService {
     }
   }
 
+  /*
+   * TODO
+   *  1. If this token is ELF only, we need get the price from awaken or resource market.
+   *  2. Need a cms or list get the token and price resource.
+   */
   async getPrice(options) {
     const {
       fsym,
@@ -85,14 +90,14 @@ class TokenService extends BaseService {
         result,
         timestamp
       } = JSON.parse(priceCache);
-      const isExpired = Date.now() - timestamp > 300000;
+      const isExpired = Date.now() - timestamp > 600000;
       if (!priceUpdateLock && isExpired) {
         await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
         await this.getPriceFromThirdParty(options);
         await this.redisCommand('set', keyPriceUpdateLock, 'false');
       }
       console.log(
-        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 300000) / 1000, 's; '
+        'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 600000) / 1000, 's; '
         , 'locked: ', priceUpdateLock
       );
       return result;
@@ -108,25 +113,47 @@ class TokenService extends BaseService {
       fsym,
       tsyms
     } = options;
-
-    const result = (await this.ctx.curl(
-      `https://min-api.cryptocompare.com/data/price?fsym=${fsym}&tsyms=${tsyms}`, {
+    const result = {};
+    console.log('fsym: ', fsym, tsyms);
+    const tokenInfo = (await this.ctx.curl(
+      `https://api.coingecko.com/api/v3/search?query=${fsym}`, {
         dataType: 'json'
       }
     )).data;
+    console.log('tokenInfo: ', tokenInfo);
 
+    const tokenMatched = tokenInfo.coins.filter(item => item.symbol === fsym.toUpperCase());
+    if (tokenMatched.length === 0) {
+      await this.updatePriceCache(fsym, tsyms, result);
+      return result;
+    }
+
+    const tokenId = tokenMatched[0] && tokenMatched[0].id;
+    const tokenPrice = (await this.ctx.curl(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=${encodeURIComponent(tsyms)}`, {
+        dataType: 'json'
+      }
+    )).data;
+    console.log('tokenPrice: ', tokenPrice);
+    const priceList = tokenPrice[tokenId];
+    const priceValues = Object.values(priceList);
+    Object.keys(priceList).forEach((key, index) => {
+      result[key.toUpperCase()] = priceValues[index];
+    });
+
+    await this.updatePriceCache(fsym, tsyms, result);
+
+    return result;
+  }
+
+  async updatePriceCache(fsym, tsyms, result) {
     result.symbol = fsym;
-
+    const key = 'explore_api:price:' + fsym + tsyms;
     const priceCache = {
       result,
       timestamp: Date.now()
     };
-
-    const key = 'explore_api:price:' + fsym + tsyms;
-
     await this.redisCommand('set', key, JSON.stringify(priceCache));
-
-    return result;
   }
 
   async getPriceHistory(options) {

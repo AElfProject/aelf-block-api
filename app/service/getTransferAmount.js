@@ -1,4 +1,6 @@
 /**
+ * @deprecated
+ * No service/controller/schedule use this service now
  * @file get amount
  * @author atom-yang
  */

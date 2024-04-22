@@ -5,6 +5,9 @@ module.exports = {
     immediate: true
   },
   async task(ctx) {
+    if (+process.env.ENABLE_PRICE_UPDATE !== 1) {
+      return;
+    }
     await ctx.service.token.getPrice({
       fsym: 'ELF',
       tsyms: 'USD'

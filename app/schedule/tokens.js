@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * No service/controller/schedule use key aelf_chain_tokens now
+ * But, dividend get aelf_chain_tokens by itself. Maybe we can refactor these.
+ * @file get aelf_chain_tokens
+ * @author atom-yang
+ */
 const { Subscription } = require('egg');
 
 class Dividend extends Subscription {
@@ -10,6 +17,9 @@ class Dividend extends Subscription {
   }
 
   async subscribe() {
+    if (+process.env.ENABLE_TOKEN_SCHEDULE !== 1) {
+      return;
+    }
     const {
       app
     } = this;

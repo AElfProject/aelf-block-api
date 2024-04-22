@@ -8,10 +8,10 @@ const elliptic = require('elliptic');
 const ec = new elliptic.ec('secp256k1');
 const utils = require('../utils/utils');
 const BaseService = require('../core/baseService');
-const {
-  getOrSetCountCache,
-  timeout
-} = require('../utils/cacheCount');
+// const {
+//   getOrSetCountCache,
+//   timeout
+// } = require('../utils/cacheCount');
 
 // TODO:Balance 从 链上rpc拿，不再从sql中用sum获得
 async function getBalance(options, aelf0) {
@@ -56,64 +56,86 @@ class AddressService extends BaseService {
     if ([ 'DESC', 'ASC', 'desc', 'asc' ].includes(order)) {
       const offset = limit * page;
       const queryOption = [ address, address ];
-      const countSqlValue = [ address ];
+      // const countSqlValue = [ address ];
       const pageOption = [ limit, offset ];
-      let sqlValue = [ ...queryOption, ...pageOption ];
+      const sqlValue = [ ...queryOption, ...pageOption ];
 
-      const results = await Promise.all([
-        'select count(1) as total from transactions_0 where address_from=?',
-        'select count(1) as total from transactions_0 where address_to=?'
-      ].map((v, index) => {
-        const cacheKey = `${address}_${index}`;
-        return Promise.race([
-          getOrSetCountCache(cacheKey, {
-            func: this.selectQuery,
-            args: [ aelf0, v, countSqlValue ]
-          }, 3000),
-          timeout(3000, [{
-            total: 100000
-          }])
-        ]).then(result => {
-          if (result[0].total) {
-            return result[0].total;
-          }
-          return 0;
-        });
-      }));
-      let total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
-      if (total === 0) {
-        return {
-          total: 0,
-          transactions: []
-        };
-      }
-      let getTxsIdSql = `select id from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
-      const [ countFrom, countTo ] = results;
-      if (parseInt(countFrom, 10) === 0) {
-        sqlValue = [ ...countSqlValue, ...pageOption ];
-        getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_to=? ORDER BY id ${order} limit ? offset ?`;
-      }
-      if (parseInt(countTo, 10) === 0) {
-        sqlValue = [ ...countSqlValue, ...pageOption ];
-        getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_from=? ORDER BY id ${order} limit ? offset ?`;
-      }
-      if (parseInt(countFrom, 10) !== 0 && parseInt(countTo, 10) !== 0) {
-        const totalSql = 'SELECT COUNT(1) AS total FROM transactions_0 WHERE address_from=? or address_to=?';
-        total = await this.selectQuery(aelf0, totalSql, [ address, address ]);
-        total = total[0].total;
-      }
-      // query by id in range
-      // eslint-disable-next-line max-len
-      const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      const txsAddressToSql = `select * from transactions_0 where address_to=? ORDER BY id ${order} limit 10 offset 0`;
+      const transactionsAddressTo = await this.selectQuery(aelf0, txsAddressToSql, [ address ]);
+
       let txs = [];
-      if (txsIds.length > 0) {
-        const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')}) ORDER BY id ${order}`;
-        txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
+      if (transactionsAddressTo.length) {
+        const getTxsIdSql = `select * from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+        txs = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      } else {
+        const getTxsIdSql = `select * from transactions_0 where address_from=? ORDER BY id ${order} limit ? offset ?`;
+        txs = await this.selectQuery(aelf0, getTxsIdSql, [ address, limit, offset ]);
       }
+
       return {
-        total,
         transactions: await this.service.getTransferAmount.filter(txs)
       };
+      // @Deprecated
+      // Too large to count now
+      // TODO: wait for v2
+      // const results = await Promise.all([
+      //   'select count(1) as total from transactions_0 where address_from=?',
+      //   'select count(1) as total from transactions_0 where address_to=?'
+      // ].map((v, index) => {
+      //   const cacheKey = `${address}_${index}`;
+      //   return Promise.race([
+      //     getOrSetCountCache(cacheKey, {
+      //       func: this.selectQuery,
+      //       args: [ aelf0, v, countSqlValue ]
+      //     }, 3000),
+      //     timeout(3000, [{
+      //       total: 100000
+      //     }])
+      //   ]).then(result => {
+      //     if (result[0].total) {
+      //       return result[0].total;
+      //     }
+      //     return 0;
+      //   });
+      // }));
+      // let total = results.reduce((acc, v) => acc + parseInt(v, 10), 0);
+      // if (total === 0) {
+      //   return {
+      //     total: 0,
+      //     transactions: []
+      //   };
+      // }
+      // const getTxsIdSql = `select id from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+      // const getTxsIdSql = `select * from transactions_0 where address_from=? or address_to=? ORDER BY id ${order} limit ? offset ?`;
+      // const [ countFrom, countTo ] = results;
+      // if (parseInt(countFrom, 10) === 0) {
+      //   sqlValue = [ ...countSqlValue, ...pageOption ];
+      //   getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_to=? ORDER BY id ${order} limit ? offset ?`;
+      // }
+      // if (parseInt(countTo, 10) === 0) {
+      //   sqlValue = [ ...countSqlValue, ...pageOption ];
+      //   getTxsIdSql = `SELECT id FROM transactions_0 WHERE address_from=? ORDER BY id ${order} limit ? offset ?`;
+      // }
+      // if (parseInt(countFrom, 10) !== 0 && parseInt(countTo, 10) !== 0) {
+      //   const totalSql = 'SELECT COUNT(1) AS total FROM transactions_0 WHERE address_from=? or address_to=?';
+      //   total = await this.selectQuery(aelf0, totalSql, [ address, address ]);
+      //   total = total[0].total;
+      // }
+      // query by id in range
+      // eslint-disable-next-line max-len
+      // const txsIds = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      // const transactions = await this.selectQuery(aelf0, getTxsIdSql, sqlValue);
+      // const txs = transactions || [];
+      // if (txsIds.length > 0) {
+      //   const getTxsSql = `SELECT * FROM transactions_0 WHERE id in (${new Array(txsIds.length).fill('?').join(',')})
+      //   ORDER BY id ${order}`;
+      //   txs = await this.selectQuery(aelf0, getTxsSql, txsIds.map(v => v.id));
+      // }
+
+      // return {
+      //   // total,
+      //   transactions: await this.service.getTransferAmount.filter(txs)
+      // };
     }
 
     return 'error';
