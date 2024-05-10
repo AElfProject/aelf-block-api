@@ -120,7 +120,7 @@ class TokenService extends BaseService {
       const interval = Math.max(Math.ceil(Math.random() * 3000), 1000);
       await timeout(interval, 1);
       const count = retryLimit - 1;
-      if (count < 0) {
+      if (count <= 0) {
         return this.getPriceFromThirdParty(options);
       }
       return this.getPriceFromThirdPartyWithRetry(options, count);
