@@ -114,12 +114,12 @@ class TokenService extends BaseService {
   }
 
   async getPriceFromThirdPartyWithRetry(options, retryLimit = 1) {
-    const count = retryLimit - 1;
     try {
       return this.getPriceFromThirdParty(options);
     } catch (e) {
       const interval = Math.max(Math.ceil(Math.random() * 3000), 1000);
       await timeout(interval, 1);
+      const count = retryLimit - 1;
       if (count < 0) {
         return this.getPriceFromThirdParty(options);
       }
