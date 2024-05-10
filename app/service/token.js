@@ -5,6 +5,7 @@
  */
 const moment = require('moment');
 const BaseService = require('../core/baseService');
+const { timeout } = require('../utils/cacheCount');
 
 const CacheService = require('../utils/cache');
 
@@ -92,9 +93,14 @@ class TokenService extends BaseService {
       } = JSON.parse(priceCache);
       const isExpired = Date.now() - timestamp > 600000;
       if (!priceUpdateLock && isExpired) {
-        await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
-        await this.getPriceFromThirdParty(options);
-        await this.redisCommand('set', keyPriceUpdateLock, 'false');
+        try {
+          await this.redisCommand('set', keyPriceUpdateLock, 'true', 'EX', 60);
+          await this.getPriceFromThirdPartyWithRetry(options);
+          await this.redisCommand('set', keyPriceUpdateLock, 'false');
+        } catch (e) {
+          // do nothing here
+          console.log('getPriceFromThirdPartyWithRetry, retryLimit 1, failed: ', e);
+        }
       }
       console.log(
         'getPrice from cache; isExpired:', isExpired, (Date.now() - timestamp - 600000) / 1000, 's; '
@@ -104,8 +110,21 @@ class TokenService extends BaseService {
     }
     console.log('getPrice directly');
 
-    const result = await this.getPriceFromThirdParty(options);
-    return result;
+    return this.getPriceFromThirdPartyWithRetry(options, 2);
+  }
+
+  async getPriceFromThirdPartyWithRetry(options, retryLimit = 1) {
+    try {
+      return this.getPriceFromThirdParty(options);
+    } catch (e) {
+      const interval = Math.max(Math.ceil(Math.random() * 3000), 1000);
+      await timeout(interval, 1);
+      const count = retryLimit - 1;
+      if (count <= 0) {
+        return this.getPriceFromThirdParty(options);
+      }
+      return this.getPriceFromThirdPartyWithRetry(options, count);
+    }
   }
 
   async getPriceFromThirdParty(options) {
