@@ -28,7 +28,7 @@ class GetTransferAmountService extends Service {
       const {
         symbol = 'ELF'
       } = realParams;
-      item.decimals = tokenDecimals[symbol].symbol || 8;
+      item.decimals = tokenDecimals[symbol] ? tokenDecimals[symbol].symbol || 8 : 8;
       item.symbol = symbol;
       return item;
     });
