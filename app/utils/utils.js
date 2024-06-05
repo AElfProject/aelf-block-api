@@ -23,15 +23,16 @@ function parseOrder(options = {}) {
   };
 }
 let zero = null;
-let wallet = null;
+const defaultPrivateKey = '0000000000000000000000000000000000000000000000000000000000000001';
+const wallet = AElf.wallet.getWalletByPrivateKey(defaultPrivateKey);
 let aelf = null;
 const CONTRACT_INSTANCE = {};
 async function getContract(endpoint, name) {
-  if (!wallet) {
-    wallet = AElf.wallet.createNewWallet();
-    aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
+  if (!aelf || !zero) {
+    const aelfTemp = new AElf(new AElf.providers.HttpProvider(endpoint));
     const status = await aelf.chain.getChainStatus();
     zero = status.GenesisContractAddress;
+    aelf = aelfTemp;
   }
   if (!CONTRACT_INSTANCE.Genesis) {
     CONTRACT_INSTANCE.Genesis = await aelf.chain.contractAt(zero, wallet);
