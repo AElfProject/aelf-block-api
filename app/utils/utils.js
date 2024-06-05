@@ -29,10 +29,10 @@ let aelf = null;
 const CONTRACT_INSTANCE = {};
 async function getContract(endpoint, name) {
   if (!aelf || !zero) {
-    const aelfTemp = new AElf(new AElf.providers.HttpProvider(endpoint));
-    const status = await aelf.chain.getChainStatus();
+    const _aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
+    const status = await _aelf.chain.getChainStatus();
     zero = status.GenesisContractAddress;
-    aelf = aelfTemp;
+    aelf = _aelf;
   }
   if (!CONTRACT_INSTANCE.Genesis) {
     CONTRACT_INSTANCE.Genesis = await aelf.chain.contractAt(zero, wallet);
