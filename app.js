@@ -102,6 +102,14 @@ module.exports = async app => {
         allChainTxs: totalTxs + sideData.reduce((acc, v) => acc + v.totalTxs || 0, 0),
         allChainAccount: accountNumber + sideData.reduce((acc, v) => acc + v.accountNumber || 0, 0)
       });
+      app.io.of('/').on('connection', socket => {
+        socket.on('disconnect', () => {
+          socket.conn.close();
+        });
+        socket.on('error', () => {
+          socket.disconnect(true);
+        });
+      });
     }
   });
   scheduler.startTimer();
