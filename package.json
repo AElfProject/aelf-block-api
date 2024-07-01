@@ -7,7 +7,7 @@
     "aelf-sdk": "^3.2.33",
     "aelf-sdk-cross-chain": "^1.0.14",
     "async-validator": "^3.1.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bignumber.js": "^9.0.0",
     "decimal.js": "^10.2.0",
     "egg": "^2.23.0",
