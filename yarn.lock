@@ -667,10 +667,10 @@ address@>=0.0.1, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.0.tgz#ef8e047847fcd2c5b6f50c16965f924fd99fe709"
   integrity sha512-4diPfzWbLEIElVG4AnqP+00SULlPzNuyJFNnmMrLgyaxG6tZXJ1sn7mjBu4fHrJE+Yp/jgylOweJn2xsLMFggQ==
 
-aelf-sdk-cross-chain@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.11.tgz#c564443a5eed3cf414e8f2ae213fe602b478691b"
-  integrity sha512-vI8RVjbZmEwo2yo0uuTru3oKInNgMBv64c2vA6Tk1mzaL214vYXgFnB8hcrlEqA+R982y65a19i9FPptvg4rcw==
+aelf-sdk-cross-chain@^1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/aelf-sdk-cross-chain/-/aelf-sdk-cross-chain-1.0.14.tgz#f3a7df752a2583e6d13ea38610175f3750a81942"
+  integrity sha512-scYGFqSDX4vgXtPP5HtWfvgeH2nTkhyT2TY0+2EeYj065PSKYSE+QzQPLIGfFiz/fXdhVtoyX3dRGDU8WleWVQ==
   dependencies:
     chalk "^2.4.2"
 
@@ -2829,9 +2829,9 @@ decimal.js@^10.2.0:
   integrity sha512-vDPw+rDgn3bZe1+F/pyEwb1oMG2XTlRVgAa6B4KccTEpYgF8w6eQllVbQcfIJnZyvzFtFpxnpGtx8dd7DJp/Rw==
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 dedent@0.7.0, dedent@^0.7.0:
   version "0.7.0"
