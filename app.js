@@ -4,9 +4,26 @@
  */
 const ioClient = require('socket.io-client');
 const AElf = require('aelf-sdk/dist/aelf.cjs');
+const https = require('https');
+const http = require('http');
 const getBlocksAndTxsFromChain = require('./app/utils/getBlocksAndTxsFromChain');
 const CacheService = require('./app/utils/cache');
 const Scheduler = require('./app/utils/scheduler');
+
+const httpAgent = new http.Agent({
+  keepAlive: true
+});
+const httpsAgent = new https.Agent({
+  keepAlive: true
+});
+const requestOptions = {
+  agent: _parsedURL => {
+    if (_parsedURL.protocol === 'http:') {
+      return httpAgent;
+    }
+    return httpsAgent;
+  }
+};
 
 async function getCount(app) {
   const db = app.mysql.get('aelf0');
@@ -50,7 +67,7 @@ module.exports = async app => {
   app.cache = {};
   app.cache.block = blockCache;
   app.cache.common = createCommonCache(app);
-  const aelf = new AElf(new AElf.providers.HttpProvider(endpoint));
+  const aelf = new AElf(new AElf.providers.HttpProvider(endpoint, 8000, {}, requestOptions));
   const status = await aelf.chain.getChainStatus();
   const {
     Header: {

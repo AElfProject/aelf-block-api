@@ -1,10 +1,10 @@
 {
   "name": "aelf-block-api",
-  "version": "1.2.0",
+  "version": "1.7.0",
   "description": "",
   "private": true,
   "dependencies": {
-    "aelf-sdk": "^3.2.33",
+    "aelf-sdk": "^3.4.14-beta.0",
     "aelf-sdk-cross-chain": "^1.0.14",
     "async-validator": "^3.1.0",
     "axios": "^0.19.2",
